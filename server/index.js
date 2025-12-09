@@ -35,7 +35,7 @@ const ADMIN_PASSWORD_HASH = crypto.createHash('sha256').update('admin123').diges
 
 function loadDB() {
   if (!fs.existsSync(DB_PATH)) {
-    const initial = { bookings: [], reports: [], valuations: [], otpCodes: {}, sessions: {} };
+    const initial = { bookings: [], reports: [], valuations: [], ratings: [], otpCodes: {}, sessions: {} };
     fs.writeFileSync(DB_PATH, JSON.stringify(initial, null, 2));
     return initial;
   }
@@ -208,6 +208,43 @@ app.delete('/api/valuations/:id', authMiddleware, (req, res) => {
     });
   }
   db.valuations = db.valuations.filter(v => v.id !== req.params.id);
+  saveDB(db);
+  res.json({ success: true });
+});
+
+app.post('/api/ratings', (req, res) => {
+  const { stars, name, comment } = req.body;
+  if (!stars || stars < 1 || stars > 5) {
+    return res.status(400).json({ error: 'التقييم يجب أن يكون من 1 إلى 5 نجوم' });
+  }
+  const db = loadDB();
+  if (!db.ratings) db.ratings = [];
+  const rating = {
+    id: uuidv4(),
+    stars: parseInt(stars),
+    name: name || 'عميل',
+    comment: comment ? comment.substring(0, 200) : '',
+    createdAt: new Date().toISOString()
+  };
+  db.ratings.push(rating);
+  saveDB(db);
+  res.json({ success: true, rating });
+});
+
+app.get('/api/ratings', (req, res) => {
+  const db = loadDB();
+  const ratings = db.ratings || [];
+  const count = ratings.length;
+  const average = count > 0 ? ratings.reduce((sum, r) => sum + r.stars, 0) / count : 0;
+  res.json({ 
+    ratings: ratings.slice(-10).reverse(),
+    stats: { count, average: Math.round(average * 10) / 10 }
+  });
+});
+
+app.delete('/api/ratings/:id', authMiddleware, (req, res) => {
+  const db = loadDB();
+  db.ratings = (db.ratings || []).filter(r => r.id !== req.params.id);
   saveDB(db);
   res.json({ success: true });
 });
