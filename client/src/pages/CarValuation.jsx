@@ -94,7 +94,7 @@ function CarValuation() {
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label>موديل السيارة</label>
+                <label>نوع السيارة</label>
                 <input
                   type="text"
                   name="model"

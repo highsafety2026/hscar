@@ -280,7 +280,7 @@ function AdminDashboard() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>الموديل</th>
+                    <th>النوع</th>
                     <th>السنة</th>
                     <th>الهاتف</th>
                     <th>الصور</th>
