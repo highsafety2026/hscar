@@ -7,7 +7,11 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
 
 app.use(cors());
 app.use(express.json());
@@ -231,12 +235,11 @@ app.post('/api/admin/logout', authMiddleware, (req, res) => {
   res.json({ success: true });
 });
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  });
-}
+app.use(express.static(path.join(__dirname, '../client/dist')));
+app.use('/images', express.static(path.join(__dirname, '../client/public/images')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+});
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
