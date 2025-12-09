@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Shield, CheckCircle, Clock, Award, FileText, Car, Phone, MapPin, Wrench } from 'lucide-react'
+import { Shield, CheckCircle, Clock, Award, FileText, Car, Phone, MapPin, Wrench, Star } from 'lucide-react'
 
 function Home() {
   return (
@@ -99,11 +99,17 @@ function Home() {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}>
-                <CheckCircle size={24} color="#0B1F3A" />
+                <Star size={24} color="#0B1F3A" />
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '1.8rem', fontWeight: '800' }}>100%</div>
-                <div style={{ opacity: 0.8, fontSize: '0.9rem' }}>رضا العملاء</div>
+                <div style={{ display: 'flex', gap: '3px', marginBottom: '5px' }}>
+                  <Star size={20} fill="#C89D2A" color="#C89D2A" />
+                  <Star size={20} fill="#C89D2A" color="#C89D2A" />
+                  <Star size={20} fill="#C89D2A" color="#C89D2A" />
+                  <Star size={20} fill="#C89D2A" color="#C89D2A" />
+                  <Star size={20} fill="#C89D2A" color="#C89D2A" />
+                </div>
+                <div style={{ opacity: 0.8, fontSize: '0.9rem' }}>تقييم العملاء</div>
               </div>
             </div>
           </div>
