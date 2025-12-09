@@ -248,7 +248,7 @@ function Home() {
               احجز موعدك الآن
             </Link>
             <a 
-              href="https://wa.me/966542206000" 
+              href="https://wa.me/971542206000" 
               target="_blank"
               rel="noopener noreferrer"
               className="btn" 
