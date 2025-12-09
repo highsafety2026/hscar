@@ -4,13 +4,35 @@ import { Shield, CheckCircle, Clock, Award, FileText, Car } from 'lucide-react'
 function Home() {
   return (
     <div>
-      <section className="hero">
-        <div className="container">
+      <section className="hero" style={{ 
+        backgroundImage: 'linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url(/images/hero-banner.png)', 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center',
+        minHeight: '500px',
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <div className="container" style={{ textAlign: 'center' }}>
+          <img src="/images/logo.png" alt="High Safety Logo" style={{ width: '120px', height: '120px', borderRadius: '50%', marginBottom: '20px', border: '3px solid #ffd700' }} />
           <h2>الأمان العالي الدولي للفحص الفني للسيارات</h2>
           <p>مركز متخصص في تقديم خدمات الفحص الشامل للسيارات بأحدث التقنيات والمعايير العالمية. نضمن لك تقريراً دقيقاً وموثوقاً لحالة سيارتك.</p>
           <div className="cta-buttons">
             <Link to="/booking" className="btn btn-primary">احجز موعدك الآن</Link>
             <Link to="/report" className="btn btn-secondary">حمّل تقريرك</Link>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: '60px 0', background: '#f8f9fa' }}>
+        <div className="container">
+          <h2 className="section-title">صور من مركزنا</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginTop: '30px' }}>
+            <div style={{ borderRadius: '15px', overflow: 'hidden', boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+              <img src="/images/inspection1.jpg" alt="فحص السيارات" style={{ width: '100%', height: '300px', objectFit: 'cover' }} />
+            </div>
+            <div style={{ borderRadius: '15px', overflow: 'hidden', boxShadow: '0 5px 15px rgba(0,0,0,0.1)' }}>
+              <img src="/images/inspection2.jpg" alt="فحص فني" style={{ width: '100%', height: '300px', objectFit: 'cover' }} />
+            </div>
           </div>
         </div>
       </section>

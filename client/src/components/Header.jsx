@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom'
-import { Car } from 'lucide-react'
 
 function Header() {
   return (
     <header className="header">
       <div className="container">
-        <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'white' }}>
-          <Car size={40} />
+        <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'white', display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <img src="/images/logo.png" alt="High Safety Logo" style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
           <h1>الأمان العالي الدولي</h1>
         </Link>
         <nav className="nav">
