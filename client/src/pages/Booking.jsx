@@ -83,7 +83,7 @@ function Booking() {
             </div>
 
             <div className="form-group">
-              <label>موديل السيارة</label>
+              <label>نوع السيارة</label>
               <input
                 type="text"
                 name="carModel"
