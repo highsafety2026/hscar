@@ -113,36 +113,38 @@ function Home() {
 
       <section style={{ padding: '80px 0', background: '#f8f9fa' }}>
         <div className="container">
-          <h2 className="section-title">صور من مركزنا</h2>
+          <h2 className="section-title">جولة في مركزنا</h2>
+          
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', 
-            gap: '30px', 
-            marginTop: '50px' 
-          }}>
+            gridTemplateColumns: '2fr 1fr', 
+            gap: '20px', 
+            marginTop: '50px',
+            marginBottom: '20px'
+          }} className="gallery-main">
             <div style={{ 
               borderRadius: '20px', 
               overflow: 'hidden', 
               boxShadow: '0 15px 40px rgba(0,0,0,0.15)',
               position: 'relative',
-              transition: 'transform 0.3s ease'
+              gridRow: 'span 2'
             }}>
               <img 
-                src="/images/inspection1.jpg" 
-                alt="فحص السيارات" 
-                style={{ width: '100%', height: '350px', objectFit: 'cover' }} 
+                src="/images/inspection-area.jpg" 
+                alt="منطقة الفحص" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover', minHeight: '400px' }} 
               />
               <div style={{
                 position: 'absolute',
                 bottom: 0,
                 left: 0,
                 right: 0,
-                background: 'linear-gradient(transparent, rgba(11,31,58,0.9))',
-                padding: '30px 20px 20px',
+                background: 'linear-gradient(transparent, rgba(11,31,58,0.95))',
+                padding: '40px 25px 25px',
                 color: 'white'
               }}>
-                <h4 style={{ fontSize: '1.2rem', marginBottom: '5px' }}>فحص المحرك والميكانيكا</h4>
-                <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>فحص شامل لجميع أجزاء المحرك</p>
+                <h4 style={{ fontSize: '1.4rem', marginBottom: '8px' }}>منطقة الفحص الفني</h4>
+                <p style={{ opacity: 0.9, fontSize: '1rem' }}>مجهزة بأحدث رافعات الفحص والمعدات المتطورة</p>
               </div>
             </div>
             <div style={{ 
@@ -152,9 +154,9 @@ function Home() {
               position: 'relative'
             }}>
               <img 
-                src="/images/inspection2.jpg" 
-                alt="فحص فني" 
-                style={{ width: '100%', height: '350px', objectFit: 'cover' }} 
+                src="/images/engineer-car.jpg" 
+                alt="مهندس الفحص" 
+                style={{ width: '100%', height: '190px', objectFit: 'cover' }} 
               />
               <div style={{
                 position: 'absolute',
@@ -162,11 +164,135 @@ function Home() {
                 left: 0,
                 right: 0,
                 background: 'linear-gradient(transparent, rgba(11,31,58,0.9))',
-                padding: '30px 20px 20px',
+                padding: '25px 15px 15px',
                 color: 'white'
               }}>
-                <h4 style={{ fontSize: '1.2rem', marginBottom: '5px' }}>الفحص بالكمبيوتر</h4>
-                <p style={{ opacity: 0.8, fontSize: '0.9rem' }}>تشخيص إلكتروني متقدم</p>
+                <h4 style={{ fontSize: '1.1rem' }}>فريق الفحص المتخصص</h4>
+              </div>
+            </div>
+            <div style={{ 
+              borderRadius: '20px', 
+              overflow: 'hidden', 
+              boxShadow: '0 15px 40px rgba(0,0,0,0.15)',
+              position: 'relative'
+            }}>
+              <img 
+                src="/images/engineer-checking.jpg" 
+                alt="فحص تحت السيارة" 
+                style={{ width: '100%', height: '190px', objectFit: 'cover' }} 
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'linear-gradient(transparent, rgba(11,31,58,0.9))',
+                padding: '25px 15px 15px',
+                color: 'white'
+              }}>
+                <h4 style={{ fontSize: '1.1rem' }}>فحص شامل للسيارة</h4>
+              </div>
+            </div>
+          </div>
+
+          <h3 style={{ textAlign: 'center', marginTop: '60px', marginBottom: '30px', color: '#0B1F3A', fontSize: '1.5rem' }}>
+            صالات الاستقبال والضيافة
+          </h3>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: '20px'
+          }}>
+            <div style={{ 
+              borderRadius: '15px', 
+              overflow: 'hidden', 
+              boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+              position: 'relative'
+            }}>
+              <img 
+                src="/images/vip-lounge.jpg" 
+                alt="صالة VIP" 
+                style={{ width: '100%', height: '220px', objectFit: 'cover' }} 
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'linear-gradient(transparent, rgba(11,31,58,0.9))',
+                padding: '25px 15px 12px',
+                color: 'white'
+              }}>
+                <h4 style={{ fontSize: '1rem' }}>صالة VIP</h4>
+              </div>
+            </div>
+            <div style={{ 
+              borderRadius: '15px', 
+              overflow: 'hidden', 
+              boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+              position: 'relative'
+            }}>
+              <img 
+                src="/images/reception1.jpg" 
+                alt="استقبال العملاء" 
+                style={{ width: '100%', height: '220px', objectFit: 'cover' }} 
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'linear-gradient(transparent, rgba(11,31,58,0.9))',
+                padding: '25px 15px 12px',
+                color: 'white'
+              }}>
+                <h4 style={{ fontSize: '1rem' }}>صالة الاستقبال</h4>
+              </div>
+            </div>
+            <div style={{ 
+              borderRadius: '15px', 
+              overflow: 'hidden', 
+              boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+              position: 'relative'
+            }}>
+              <img 
+                src="/images/reception2.jpg" 
+                alt="منطقة الانتظار" 
+                style={{ width: '100%', height: '220px', objectFit: 'cover' }} 
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'linear-gradient(transparent, rgba(11,31,58,0.9))',
+                padding: '25px 15px 12px',
+                color: 'white'
+              }}>
+                <h4 style={{ fontSize: '1rem' }}>منطقة الانتظار</h4>
+              </div>
+            </div>
+            <div style={{ 
+              borderRadius: '15px', 
+              overflow: 'hidden', 
+              boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+              position: 'relative'
+            }}>
+              <img 
+                src="/images/recharge-station1.jpg" 
+                alt="محطة المشروبات" 
+                style={{ width: '100%', height: '220px', objectFit: 'cover' }} 
+              />
+              <div style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                background: 'linear-gradient(transparent, rgba(11,31,58,0.9))',
+                padding: '25px 15px 12px',
+                color: 'white'
+              }}>
+                <h4 style={{ fontSize: '1rem' }}>ركن المشروبات</h4>
               </div>
             </div>
           </div>
