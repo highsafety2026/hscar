@@ -13,7 +13,7 @@ function Footer() {
             <h4>تواصل معنا</h4>
             <div className="contact-info">
               <Phone size={18} />
-              <span>0542206000</span>
+              <span>+971 54 220 6000</span>
             </div>
             <div className="contact-info">
               <Mail size={18} />
