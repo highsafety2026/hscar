@@ -51,4 +51,4 @@ externalPort = 3002
 [deployment]
 deploymentTarget = "autoscale"
 run = ["node", "server/index.js"]
-build = ["bash", "-c", "cd client && npm run build && [ -d public/images ] && cp -r public/images dist/ || true"]
+build = ["bash", "-c", "cd client && npm run build && if [ -d public/images ]; then cp -r public/images dist/; fi"]
