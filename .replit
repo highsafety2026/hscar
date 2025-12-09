@@ -1,7 +1,7 @@
 run = "bundle exec ruby main.rb"
 hidden = [".bundle"]
 entrypoint = "main.rb"
-modules = ["ruby-3.2", "nodejs-20"]
+modules = ["nodejs-20"]
 
 [nix]
 channel = "stable-24_05"
@@ -55,4 +55,4 @@ externalPort = 3000
 [deployment]
 deploymentTarget = "autoscale"
 run = ["node", "server/index.js"]
-build = ["npm", "run", "build"]
+build = ["bash", "-c", "cd client && npm run build && cp -r public/images dist/"]
