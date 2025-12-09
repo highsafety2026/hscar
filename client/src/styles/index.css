@@ -854,17 +854,30 @@ body {
   }
   
   .hero {
-    padding: 50px 0;
+    padding: 40px 0 30px;
     min-height: auto !important;
   }
   
+  .hero img {
+    width: 90px !important;
+    height: 90px !important;
+    margin-bottom: 15px !important;
+  }
+  
   .hero h2 {
-    font-size: 1.6rem;
+    font-size: 1.3rem;
     line-height: 1.4;
+    margin-bottom: 12px !important;
   }
   
   .hero p {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    margin-bottom: 20px !important;
+    line-height: 1.5;
+  }
+  
+  .hero p br {
+    display: none;
   }
 
   .cta-buttons {
