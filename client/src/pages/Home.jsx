@@ -384,7 +384,7 @@ function Home() {
         <div className="container">
           <h2 className="section-title">موقعنا</h2>
           <p style={{ textAlign: 'center', color: '#666', marginBottom: '40px', fontSize: '1.1rem' }}>
-            تفضلوا بزيارتنا في الشارقة - المنطقة الصناعية
+            تفضلوا بزيارتنا في الشارقة - المنطقة الصناعية 13
           </p>
           
           <div style={{ 
@@ -413,7 +413,7 @@ function Home() {
                 </div>
                 <div>
                   <h4 style={{ color: '#0B1F3A', marginBottom: '5px' }}>العنوان</h4>
-                  <p style={{ color: '#666', fontSize: '0.95rem' }}>الشارقة - المنطقة الصناعية 4</p>
+                  <p style={{ color: '#666', fontSize: '0.95rem' }}>الشارقة - المنطقة الصناعية 13</p>
                 </div>
               </div>
               
@@ -431,8 +431,8 @@ function Home() {
                 </div>
                 <div>
                   <h4 style={{ color: '#0B1F3A', marginBottom: '5px' }}>واتساب</h4>
-                  <a href="https://wa.me/971542206000" style={{ color: '#25D366', fontWeight: '600', fontSize: '1.1rem' }}>
-                    +971 54 220 6000
+                  <a href="https://wa.me/9710542206000" style={{ color: '#25D366', fontWeight: '600', fontSize: '1.1rem' }}>
+                    +971 054 220 6000
                   </a>
                 </div>
               </div>
@@ -477,53 +477,6 @@ function Home() {
                 referrerPolicy="no-referrer-when-downgrade"
               ></iframe>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section style={{ 
-        padding: '80px 0', 
-        background: 'linear-gradient(135deg, #0B1F3A 0%, #1a365d 100%)',
-        color: 'white',
-        textAlign: 'center'
-      }}>
-        <div className="container">
-          <h2 style={{ fontSize: '2.2rem', marginBottom: '20px', fontWeight: '700' }}>جاهز لفحص سيارتك؟</h2>
-          <p style={{ marginBottom: '40px', fontSize: '1.2rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto 40px' }}>
-            احجز موعدك الآن واحصل على تقرير شامل ومفصل عن حالة سيارتك مع ضمان الجودة والدقة
-          </p>
-          <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link 
-              to="/booking" 
-              className="btn" 
-              style={{ 
-                background: 'linear-gradient(135deg, #C89D2A, #d4af37)',
-                color: '#0B1F3A',
-                fontSize: '1.1rem', 
-                padding: '16px 45px',
-                fontWeight: '700'
-              }}
-            >
-              احجز موعدك الآن
-            </Link>
-            <a 
-              href="https://wa.me/971542206000" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn" 
-              style={{ 
-                background: '#25D366',
-                color: 'white',
-                fontSize: '1.1rem', 
-                padding: '16px 45px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}
-            >
-              <Phone size={20} />
-              تواصل واتساب
-            </a>
           </div>
         </div>
       </section>
