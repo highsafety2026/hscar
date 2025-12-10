@@ -335,11 +335,24 @@ app.post('/api/chat/analyze-pdf', upload.single('pdf'), async (req, res) => {
       return res.status(400).json({ reply: 'لم يتم رفع أي ملف.' });
     }
 
-    const pdfBuffer = fs.readFileSync(req.file.path);
-    const pdfData = await pdfParse(pdfBuffer);
-    const pdfText = pdfData.text;
+    console.log('PDF file received:', req.file.originalname, req.file.path);
+    
+    let pdfText = '';
+    try {
+      const pdfBuffer = fs.readFileSync(req.file.path);
+      const pdfData = await pdfParse(pdfBuffer);
+      pdfText = pdfData.text;
+      console.log('PDF text extracted, length:', pdfText.length);
+    } catch (parseErr) {
+      console.error('PDF parse error:', parseErr.message);
+      pdfText = 'لم يتم استخراج النص من الملف. يرجى وصف محتوى التقرير.';
+    }
 
-    fs.unlinkSync(req.file.path);
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch (e) {
+      console.error('Error deleting file:', e.message);
+    }
 
     const pricesJson = JSON.stringify(UAE_CAR_PRICES);
 
