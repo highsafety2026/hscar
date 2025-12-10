@@ -5,7 +5,7 @@ function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('reports')
   const [bookings, setBookings] = useState([])
   const [reports, setReports] = useState([])
-  const [uploadData, setUploadData] = useState({ customerName: '', code: '', file: null })
+  const [uploadData, setUploadData] = useState({ customerName: '', code: '', file: null, images: [] })
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -49,14 +49,20 @@ function AdminDashboard() {
     const formData = new FormData()
     formData.append('customerName', uploadData.customerName)
     if (uploadData.code) formData.append('code', uploadData.code.toUpperCase())
-    formData.append('file', uploadData.file)
+    if (uploadData.file) formData.append('file', uploadData.file)
+    
+    if (uploadData.images && uploadData.images.length > 0) {
+      for (let i = 0; i < uploadData.images.length; i++) {
+        formData.append('images', uploadData.images[i])
+      }
+    }
 
     await fetch('/api/reports', { 
       method: 'POST', 
       body: formData,
       headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
     })
-    setUploadData({ customerName: '', code: '', file: null })
+    setUploadData({ customerName: '', code: '', file: null, images: [] })
     loadData()
     setLoading(false)
   }
@@ -155,6 +161,20 @@ function AdminDashboard() {
                   onChange={(e) => setUploadData({...uploadData, file: e.target.files[0]})}
                   required
                 />
+              </div>
+              <div className="form-group">
+                <label>صور الفحص (اختياري - يمكن رفع حتى 10 صور)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => setUploadData({...uploadData, images: Array.from(e.target.files)})}
+                />
+                {uploadData.images && uploadData.images.length > 0 && (
+                  <p style={{ color: '#25D366', marginTop: '8px', fontSize: '0.9rem' }}>
+                    تم اختيار {uploadData.images.length} صورة
+                  </p>
+                )}
               </div>
               <button type="submit" className="btn btn-primary" disabled={loading}>
                 {loading ? 'جاري الرفع...' : 'رفع التقرير'}

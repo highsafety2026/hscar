@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FileText, Download, Search } from 'lucide-react'
+import { FileText, Download, Search, Image, X } from 'lucide-react'
 
 function ReportLookup() {
   const [code, setCode] = useState('')
@@ -7,6 +7,7 @@ function ReportLookup() {
   const [messageType, setMessageType] = useState('')
   const [report, setReport] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [selectedImage, setSelectedImage] = useState(null)
 
   const findReport = async (e) => {
     e.preventDefault()
@@ -156,27 +157,102 @@ function ReportLookup() {
                 }}>{report.customerName}</p>
               </div>
               
-              <a
-                href={`/uploads/${report.filename}`}
-                download
-                className="btn btn-primary"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '10px',
-                  padding: '15px 30px',
-                  fontSize: '1.1rem',
-                  textDecoration: 'none',
-                  borderRadius: '10px',
-                  marginBottom: '15px'
-                }}
-              >
-                <Download size={22} />
-                تحميل التقرير PDF
-              </a>
+              {report.filename && (
+                <a
+                  href={`/uploads/${report.filename}`}
+                  download
+                  className="btn btn-primary"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '10px',
+                    padding: '15px 30px',
+                    fontSize: '1.1rem',
+                    textDecoration: 'none',
+                    borderRadius: '10px',
+                    marginBottom: '15px'
+                  }}
+                >
+                  <Download size={22} />
+                  تحميل التقرير PDF
+                </a>
+              )}
+
+              {report.images && report.images.length > 0 && (
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    marginBottom: '15px',
+                    color: '#0B1F3A'
+                  }}>
+                    <Image size={20} />
+                    <span style={{ fontWeight: '600' }}>صور الفحص ({report.images.length})</span>
+                  </div>
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                    gap: '10px'
+                  }}>
+                    {report.images.map((img, index) => (
+                      <div
+                        key={index}
+                        onClick={() => setSelectedImage(`/uploads/${img}`)}
+                        style={{
+                          borderRadius: '10px',
+                          overflow: 'hidden',
+                          cursor: 'pointer',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          transition: 'transform 0.2s'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      >
+                        <img
+                          src={`/uploads/${img}`}
+                          alt={`صورة فحص ${index + 1}`}
+                          style={{
+                            width: '100%',
+                            height: '80px',
+                            objectFit: 'cover'
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <a
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      report.images.forEach((img, i) => {
+                        setTimeout(() => {
+                          const link = document.createElement('a')
+                          link.href = `/uploads/${img}`
+                          link.download = `inspection-image-${i + 1}.jpg`
+                          link.click()
+                        }, i * 300)
+                      })
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginTop: '15px',
+                      color: '#C89D2A',
+                      fontWeight: '600',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    <Download size={18} />
+                    تحميل جميع الصور
+                  </a>
+                </div>
+              )}
               
               <button 
                 onClick={resetForm} 
@@ -188,6 +264,55 @@ function ReportLookup() {
               >
                 بحث جديد | New Search
               </button>
+            </div>
+          )}
+
+          {selectedImage && (
+            <div
+              onClick={() => setSelectedImage(null)}
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0,0,0,0.9)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 9999,
+                cursor: 'pointer'
+              }}
+            >
+              <button
+                onClick={() => setSelectedImage(null)}
+                style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  background: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '45px',
+                  height: '45px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={24} color="#0B1F3A" />
+              </button>
+              <img
+                src={selectedImage}
+                alt="صورة مكبرة"
+                style={{
+                  maxWidth: '90%',
+                  maxHeight: '90%',
+                  borderRadius: '10px'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              />
             </div>
           )}
         </div>
