@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import WhatsAppButton from './components/WhatsAppButton'
+import InstallPrompt from './components/InstallPrompt'
 import Home from './pages/Home'
 import Services from './pages/Services'
 import Booking from './pages/Booking'
@@ -28,6 +29,7 @@ function App() {
         </main>
         <Footer />
         <WhatsAppButton />
+        <InstallPrompt />
       </div>
     </BrowserRouter>
   )
