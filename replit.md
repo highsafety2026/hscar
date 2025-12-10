@@ -2,11 +2,12 @@
 High Safety International Technical Car Inspection Center
 
 ## Overview
-A full-stack web application for a car inspection center that provides:
+A full-stack Progressive Web App (PWA) for a car inspection center that provides:
 - Appointment booking
 - PDF report downloads with OTP verification
-- Car valuation service
+- Car valuation service with UAE market prices
 - Admin dashboard for management
+- PWA - installable on mobile devices as native app
 
 ## Tech Stack
 - **Frontend**: React + Vite
@@ -59,8 +60,14 @@ A full-stack web application for a car inspection center that provides:
 - Password: admin123
 
 ## Contact Info
-- WhatsApp: 0542206000
+- WhatsApp: +971 54 220 6000
 - Email: highsafery2021@gmail.com
+
+## PWA Features
+- `manifest.json` - App configuration for installation
+- `sw.js` - Service worker for offline functionality
+- Install prompt component for mobile users
+- Works offline after first visit
 
 ## Running the Project
 - Development: `npm run dev` (runs both frontend and backend)
