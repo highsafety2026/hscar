@@ -5,11 +5,11 @@ import WhatsAppButton from './components/WhatsAppButton'
 import InstallButton from './components/InstallButton'
 import UpdatePrompt from './components/UpdatePrompt'
 import AIChatBot from './components/AIChatBot'
+import ApkDownloadButton from './components/ApkDownloadButton'
 import Home from './pages/Home'
 import Services from './pages/Services'
 import Booking from './pages/Booking'
 import ReportLookup from './pages/ReportLookup'
-import CarValuation from './pages/CarValuation'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 
@@ -24,7 +24,6 @@ function App() {
             <Route path="/services" element={<Services />} />
             <Route path="/booking" element={<Booking />} />
             <Route path="/report" element={<ReportLookup />} />
-            <Route path="/valuation" element={<CarValuation />} />
             <Route path="/admin" element={<AdminLogin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
           </Routes>
@@ -33,6 +32,7 @@ function App() {
         <WhatsAppButton />
         <InstallButton />
         <AIChatBot />
+        <ApkDownloadButton />
         <UpdatePrompt />
       </div>
     </BrowserRouter>

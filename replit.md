@@ -3,12 +3,12 @@ High Safety International Technical Car Inspection Center
 
 ## Overview
 A full-stack Progressive Web App (PWA) for a car inspection center that provides:
-- Appointment booking
-- PDF report downloads with OTP verification
-- Car valuation service with UAE market prices
+- Appointment booking with 4 service types
+- PDF report downloads with simple code-based lookup
 - AI-powered smart assistant with PDF analysis and booking
 - Admin dashboard for management
 - PWA - installable on mobile devices as native app
+- APK download button for Android app
 
 ## Tech Stack
 - **Frontend**: React + Vite
@@ -21,9 +21,10 @@ A full-stack Progressive Web App (PWA) for a car inspection center that provides
 ```
 ├── client/                 # React frontend
 │   ├── src/
-│   │   ├── components/    # Header, Footer, AIChatBot, RatingSection
+│   │   ├── components/    # Header, Footer, AIChatBot, ApkDownloadButton
 │   │   ├── pages/         # All page components
 │   │   └── styles/        # CSS styles
+│   ├── public/downloads/  # APK files for download
 │   └── vite.config.js
 ├── server/
 │   ├── index.js           # Express server
@@ -34,12 +35,11 @@ A full-stack Progressive Web App (PWA) for a car inspection center that provides
 
 ## Pages
 1. **Home** - Introduction and features
-2. **Services** - Inspection types (Full, Mechanical, Misc, Basic)
+2. **Services** - 4 inspection types with bilingual details (Arabic/English)
 3. **Booking** - Appointment booking form
-4. **Report Lookup** - Download PDF with OTP verification
-5. **Car Valuation** - Upload images for car price estimation
-6. **Admin Login** - Admin authentication
-7. **Admin Dashboard** - Manage reports, bookings, valuations
+4. **Report Lookup** - Download PDF with simple code (no OTP)
+5. **Admin Login** - Admin authentication
+6. **Admin Dashboard** - Manage reports, bookings
 
 ## AI Smart Assistant Features
 - Visible floating button with "المساعد الذكي" label
@@ -59,18 +59,13 @@ A full-stack Progressive Web App (PWA) for a car inspection center that provides
 - `GET /api/bookings` - Get all bookings
 - `PATCH /api/bookings/:id` - Update booking
 - `DELETE /api/bookings/:id` - Delete booking
-- `POST /api/reports` - Upload report PDF
+- `POST /api/reports` - Upload report PDF (with auto-generated code)
 - `GET /api/reports` - Get all reports
 - `DELETE /api/reports/:id` - Delete report
-- `POST /api/reports/check` - Check if report exists
-- `POST /api/reports/verify` - Verify OTP and get report
-- `POST /api/valuations` - Submit car for valuation
-- `GET /api/valuations` - Get all valuations
-- `PATCH /api/valuations/:id` - Update valuation
-- `DELETE /api/valuations/:id` - Delete valuation
+- `POST /api/reports/find-by-code` - Find report by code (simple lookup)
 - `POST /api/admin/login` - Admin login
 - `POST /api/chat` - AI chat with conversation history
-- `POST /api/chat/analyze-pdf` - AI PDF analysis for car valuation
+- `POST /api/chat/analyze-pdf` - AI PDF analysis
 
 ## Admin Credentials
 - Username: admin

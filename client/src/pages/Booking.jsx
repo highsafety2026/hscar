@@ -117,10 +117,10 @@ function Booking() {
                 required
               >
                 <option value="">اختر نوع الخدمة</option>
-                <option value="full">الفحص الشامل</option>
-                <option value="mechanical">الفحص الميكانيكي والكمبيوتر</option>
-                <option value="misc">الفحوصات المتنوعة</option>
-                <option value="basic">فحص القطع الأساسية</option>
+                <option value="full">الفحص الشامل - Full Inspection</option>
+                <option value="mechanical">فحص الميكانيكا والكمبيوتر - Mechanical + Computer</option>
+                <option value="misc">فحوصات متنوعة - Miscellaneous Tests</option>
+                <option value="basic">فحص الأجزاء الأساسية - Basic Parts</option>
               </select>
             </div>
 

@@ -1,62 +1,33 @@
 import { useState } from 'react'
-import { FileText } from 'lucide-react'
+import { FileText, Download, Search } from 'lucide-react'
 
 function ReportLookup() {
-  const [phone, setPhone] = useState('')
-  const [otp, setOtp] = useState('')
-  const [step, setStep] = useState(1)
+  const [code, setCode] = useState('')
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('')
   const [report, setReport] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [demoOtp, setDemoOtp] = useState('')
 
-  const checkReport = async (e) => {
+  const findReport = async (e) => {
     e.preventDefault()
     setLoading(true)
     setMessage('')
-    setDemoOtp('')
+    setReport(null)
+    
     try {
-      const res = await fetch('/api/reports/check', {
+      const res = await fetch('/api/reports/find-by-code', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone })
+        body: JSON.stringify({ code: code.trim() })
       })
       const data = await res.json()
-      if (data.found) {
-        setStep(2)
-        setDemoOtp(data.demoOtp)
-        setMessage('تم إرسال رمز التحقق')
-        setMessageType('info')
-      } else {
-        setMessage(data.message)
-        setMessageType('error')
-      }
-    } catch (error) {
-      setMessage('حدث خطأ، يرجى المحاولة لاحقاً')
-      setMessageType('error')
-    }
-    setLoading(false)
-  }
-
-  const verifyOtp = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage('')
-    try {
-      const res = await fetch('/api/reports/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, otp })
-      })
-      const data = await res.json()
+      
       if (data.success) {
         setReport(data.report)
-        setStep(3)
-        setMessage('تم التحقق بنجاح!')
+        setMessage('تم العثور على التقرير!')
         setMessageType('success')
       } else {
-        setMessage(data.message)
+        setMessage(data.message || 'لم يتم العثور على تقرير بهذا الكود')
         setMessageType('error')
       }
     } catch (error) {
@@ -67,92 +38,155 @@ function ReportLookup() {
   }
 
   const resetForm = () => {
-    setPhone('')
-    setOtp('')
-    setStep(1)
+    setCode('')
     setMessage('')
     setReport(null)
-    setDemoOtp('')
   }
 
   return (
     <div className="form-page">
       <div className="container">
-        <div className="form-container">
+        <div className="form-container" style={{ maxWidth: '500px' }}>
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-            <FileText size={60} color="#1a365d" />
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 15px'
+            }}>
+              <FileText size={40} color="#C89D2A" />
+            </div>
+            <h2 className="section-title" style={{ marginBottom: '10px' }}>تحميل تقرير الفحص</h2>
+            <p style={{ color: '#666', fontSize: '1rem' }}>Download Inspection Report</p>
           </div>
-          <h2 className="section-title">تحميل تقرير الفحص</h2>
           
           {message && (
-            <div className={`${messageType}-message`}>
+            <div className={`${messageType}-message`} style={{
+              padding: '15px',
+              borderRadius: '10px',
+              marginBottom: '20px',
+              textAlign: 'center',
+              fontWeight: '600'
+            }}>
               {message}
             </div>
           )}
 
-          {step === 1 && (
-            <form onSubmit={checkReport}>
+          {!report ? (
+            <form onSubmit={findReport}>
               <div className="form-group">
-                <label>رقم الهاتف</label>
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                  placeholder="أدخل رقم الهاتف المسجل لديك"
-                />
-              </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-                {loading ? 'جاري البحث...' : 'البحث عن التقرير'}
-              </button>
-            </form>
-          )}
-
-          {step === 2 && (
-            <form onSubmit={verifyOtp}>
-              {demoOtp && (
-                <div className="info-message" style={{ marginBottom: '20px' }}>
-                  <strong>للتجربة:</strong> رمز التحقق هو: <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{demoOtp}</span>
-                </div>
-              )}
-              <div className="form-group">
-                <label>رمز التحقق (OTP)</label>
+                <label style={{ 
+                  display: 'block', 
+                  marginBottom: '10px',
+                  fontSize: '1.1rem',
+                  fontWeight: '600',
+                  color: '#0B1F3A'
+                }}>
+                  أدخل كود التقرير
+                  <span style={{ display: 'block', fontSize: '0.9rem', color: '#666', fontWeight: 'normal' }}>
+                    Enter Report Code
+                  </span>
+                </label>
                 <input
                   type="text"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
                   required
-                  placeholder="أدخل رمز التحقق المرسل"
-                  maxLength="6"
+                  placeholder="مثال: ABC123"
+                  style={{
+                    textAlign: 'center',
+                    fontSize: '1.3rem',
+                    letterSpacing: '3px',
+                    fontWeight: '700',
+                    textTransform: 'uppercase',
+                    padding: '15px'
+                  }}
                 />
+                <p style={{ 
+                  fontSize: '0.85rem', 
+                  color: '#888', 
+                  marginTop: '10px',
+                  textAlign: 'center'
+                }}>
+                  الكود موجود في إيصال الفحص
+                </p>
               </div>
-              <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={loading}>
-                {loading ? 'جاري التحقق...' : 'تأكيد'}
-              </button>
-              <button type="button" onClick={resetForm} className="btn btn-secondary" style={{ width: '100%', marginTop: '10px' }}>
-                رجوع
+              <button 
+                type="submit" 
+                className="btn btn-primary" 
+                style={{ 
+                  width: '100%',
+                  padding: '15px',
+                  fontSize: '1.1rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px'
+                }} 
+                disabled={loading || !code.trim()}
+              >
+                {loading ? (
+                  'جاري البحث...'
+                ) : (
+                  <>
+                    <Search size={20} />
+                    البحث عن التقرير
+                  </>
+                )}
               </button>
             </form>
-          )}
-
-          {step === 3 && report && (
-            <div>
-              <div className="success-message">
-                <strong>تم العثور على التقرير!</strong>
-                <br />
-                اسم العميل: {report.customerName}
+          ) : (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                background: '#f8f9fa',
+                padding: '20px',
+                borderRadius: '12px',
+                marginBottom: '20px'
+              }}>
+                <p style={{ margin: '0 0 5px 0', color: '#666' }}>اسم العميل:</p>
+                <p style={{ 
+                  margin: 0, 
+                  fontSize: '1.2rem', 
+                  fontWeight: '700',
+                  color: '#0B1F3A'
+                }}>{report.customerName}</p>
               </div>
+              
               <a
                 href={`/uploads/${report.filename}`}
                 download
-                className="download-btn"
+                className="btn btn-primary"
                 target="_blank"
                 rel="noopener noreferrer"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  padding: '15px 30px',
+                  fontSize: '1.1rem',
+                  textDecoration: 'none',
+                  borderRadius: '10px',
+                  marginBottom: '15px'
+                }}
               >
+                <Download size={22} />
                 تحميل التقرير PDF
               </a>
-              <button onClick={resetForm} className="btn btn-secondary" style={{ width: '100%', marginTop: '15px' }}>
-                بحث جديد
+              
+              <button 
+                onClick={resetForm} 
+                className="btn btn-secondary" 
+                style={{ 
+                  width: '100%',
+                  padding: '12px'
+                }}
+              >
+                بحث جديد | New Search
               </button>
             </div>
           )}

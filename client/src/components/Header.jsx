@@ -33,7 +33,6 @@ function Header() {
           <Link to="/services" onClick={() => setMenuOpen(false)}>الخدمات</Link>
           <Link to="/booking" onClick={() => setMenuOpen(false)}>حجز موعد</Link>
           <Link to="/report" onClick={() => setMenuOpen(false)}>تحميل التقرير</Link>
-          <Link to="/valuation" onClick={() => setMenuOpen(false)}>أسعار السوق</Link>
         </nav>
       </div>
     </header>

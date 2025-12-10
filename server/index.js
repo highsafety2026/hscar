@@ -149,10 +149,24 @@ app.delete('/api/bookings/:id', authMiddleware, (req, res) => {
   res.json({ success: true });
 });
 
+function generateReportCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 app.post('/api/reports', authMiddleware, upload.single('file'), (req, res) => {
   const db = loadDB();
+  let code = req.body.code || generateReportCode();
+  while (db.reports.find(r => r.code === code)) {
+    code = generateReportCode();
+  }
   const report = {
     id: uuidv4(),
+    code: code.toUpperCase(),
     phone: req.body.phone,
     customerName: req.body.customerName,
     filename: req.file.filename,
@@ -211,6 +225,20 @@ app.post('/api/reports/verify', (req, res) => {
     res.json({ success: true, report });
   } else {
     res.json({ success: false, message: 'رمز التحقق غير صحيح أو منتهي الصلاحية' });
+  }
+});
+
+app.post('/api/reports/find-by-code', (req, res) => {
+  const { code } = req.body;
+  if (!code || code.trim().length === 0) {
+    return res.json({ success: false, message: 'يرجى إدخال الكود' });
+  }
+  const db = loadDB();
+  const report = db.reports.find(r => r.code && r.code.toUpperCase() === code.trim().toUpperCase());
+  if (report) {
+    res.json({ success: true, report });
+  } else {
+    res.json({ success: false, message: 'لم يتم العثور على تقرير بهذا الكود' });
   }
 });
 
