@@ -6,7 +6,7 @@ function AdminDashboard() {
   const [bookings, setBookings] = useState([])
   const [reports, setReports] = useState([])
   const [valuations, setValuations] = useState([])
-  const [uploadData, setUploadData] = useState({ phone: '', customerName: '', file: null })
+  const [uploadData, setUploadData] = useState({ phone: '', customerName: '', code: '', file: null })
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -52,6 +52,7 @@ function AdminDashboard() {
     const formData = new FormData()
     formData.append('phone', uploadData.phone)
     formData.append('customerName', uploadData.customerName)
+    if (uploadData.code) formData.append('code', uploadData.code.toUpperCase())
     formData.append('file', uploadData.file)
 
     await fetch('/api/reports', { 
@@ -59,7 +60,7 @@ function AdminDashboard() {
       body: formData,
       headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
     })
-    setUploadData({ phone: '', customerName: '', file: null })
+    setUploadData({ phone: '', customerName: '', code: '', file: null })
     loadData()
     setLoading(false)
   }
@@ -174,6 +175,17 @@ function AdminDashboard() {
                 />
               </div>
               <div className="form-group">
+                <label>كود التقرير (اختياري - سيتم إنشاؤه تلقائياً)</label>
+                <input
+                  type="text"
+                  value={uploadData.code}
+                  onChange={(e) => setUploadData({...uploadData, code: e.target.value.toUpperCase()})}
+                  placeholder="مثال: ABC123"
+                  maxLength="10"
+                  style={{ textTransform: 'uppercase' }}
+                />
+              </div>
+              <div className="form-group">
                 <label>ملف PDF</label>
                 <input
                   type="file"
@@ -194,6 +206,7 @@ function AdminDashboard() {
               <table className="data-table">
                 <thead>
                   <tr>
+                    <th>الكود</th>
                     <th>اسم العميل</th>
                     <th>رقم الهاتف</th>
                     <th>التاريخ</th>
@@ -203,6 +216,12 @@ function AdminDashboard() {
                 <tbody>
                   {reports.map(report => (
                     <tr key={report.id}>
+                      <td style={{ 
+                        fontWeight: 'bold', 
+                        color: '#C89D2A',
+                        fontSize: '1.1rem',
+                        letterSpacing: '1px'
+                      }}>{report.code || '-'}</td>
                       <td>{report.customerName}</td>
                       <td>{report.phone}</td>
                       <td>{new Date(report.createdAt).toLocaleDateString('ar-SA')}</td>

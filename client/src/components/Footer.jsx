@@ -25,7 +25,6 @@ function Footer() {
             <a href="/services">خدماتنا</a>
             <a href="/booking">حجز موعد</a>
             <a href="/report">تحميل التقرير</a>
-            <a href="/valuation">تقييم السيارة</a>
           </div>
         </div>
         <div className="footer-bottom">
