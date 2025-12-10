@@ -416,26 +416,6 @@ function Home() {
                   <p style={{ color: '#666', fontSize: '0.95rem' }}>الشارقة - المنطقة الصناعية 13</p>
                 </div>
               </div>
-              
-              <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
-                <div style={{ 
-                  width: '60px', 
-                  height: '60px', 
-                  background: 'linear-gradient(135deg, #25D366, #128C7E)',
-                  borderRadius: '15px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Phone size={30} color="white" />
-                </div>
-                <div>
-                  <h4 style={{ color: '#0B1F3A', marginBottom: '5px' }}>واتساب</h4>
-                  <a href="https://wa.me/9710542206000" style={{ color: '#25D366', fontWeight: '600', fontSize: '1.1rem' }}>
-                    +971 054 220 6000
-                  </a>
-                </div>
-              </div>
 
               <a 
                 href="https://maps.app.goo.gl/7W2ULSzLzGSR6Lj4A" 
