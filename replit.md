@@ -84,6 +84,17 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - Username: admin
 - Password: safa
 
+## Payment System
+- **Gateway**: Stripe (via Replit Integration)
+- **Bank**: ADIB (Abu Dhabi Islamic Bank)
+- **Currency**: AED (UAE Dirham)
+- **Pages**: /payment, /payment/success, /payment/cancel
+- **Features**: 
+  - Secure checkout via Stripe Checkout
+  - Webhook handling for payment confirmation
+  - PostgreSQL payment records tracking
+  - Email receipts via Stripe
+
 ## Running the Project
 - Development: `npm run dev` (runs both frontend and backend concurrently)
 

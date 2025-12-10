@@ -104,12 +104,16 @@ async function initStripe() {
         const result = await stripeSync.findOrCreateManagedWebhook(
           `${webhookBaseUrl}/api/stripe/webhook`,
           {
-            enabled_events: ['*'],
-            description: 'Managed webhook for Stripe sync',
+            enabled_events: ['checkout.session.completed', 'payment_intent.succeeded', 'payment_intent.payment_failed'],
+            description: 'Managed webhook for High Safety payment processing',
           }
         );
+        if (result && result.uuid) {
+          webhookUuid = result.uuid;
+          console.log(`Webhook configured with UUID: ${webhookUuid}`);
+        }
         if (result && result.webhook) {
-          console.log(`Webhook configured: ${result.webhook.url}`);
+          console.log(`Webhook URL: ${result.webhook.url}`);
         }
       } catch (webhookError) {
         console.log('Webhook setup skipped:', webhookError.message);
@@ -159,21 +163,21 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
 
-app.post('/api/stripe/webhook/:uuid', express.raw({ type: 'application/json' }), async (req, res) => {
+let webhookUuid = null;
+
+app.post('/api/stripe/webhook/:uuid?', express.raw({ type: 'application/json' }), async (req, res) => {
   const signature = req.headers['stripe-signature'];
   if (!signature) {
     return res.status(400).json({ error: 'Missing stripe-signature' });
   }
 
   try {
-    if (!stripeSync) {
-      return res.status(500).json({ error: 'Stripe not initialized' });
-    }
-
     const sig = Array.isArray(signature) ? signature[0] : signature;
-    const { uuid } = req.params;
+    const uuid = req.params.uuid || webhookUuid;
     
-    await stripeSync.processWebhook(req.body, sig, uuid);
+    if (stripeSync && uuid) {
+      await stripeSync.processWebhook(req.body, sig, uuid);
+    }
 
     const event = JSON.parse(req.body.toString());
     if (event.type === 'checkout.session.completed') {
