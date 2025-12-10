@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Star } from 'lucide-react'
+import { useState } from 'react'
+import { Star, Send, CheckCircle, MessageSquare } from 'lucide-react'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -10,23 +10,6 @@ function RatingSection() {
   const [comment, setComment] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [stats, setStats] = useState({ count: 0, average: 0 })
-  const [recentRatings, setRecentRatings] = useState([])
-
-  useEffect(() => {
-    fetchRatings()
-  }, [])
-
-  const fetchRatings = async () => {
-    try {
-      const res = await fetch(`${API_URL}/api/ratings`)
-      const data = await res.json()
-      setStats(data.stats)
-      setRecentRatings(data.ratings)
-    } catch (err) {
-      console.error('Error fetching ratings:', err)
-    }
-  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -41,7 +24,6 @@ function RatingSection() {
       })
       if (res.ok) {
         setSubmitted(true)
-        fetchRatings()
       }
     } catch (err) {
       console.error('Error submitting rating:', err)
@@ -49,155 +31,254 @@ function RatingSection() {
     setLoading(false)
   }
 
-  const renderStars = (count, size = 24, interactive = false) => {
-    return [...Array(5)].map((_, i) => {
-      const starValue = i + 1
-      return (
-        <Star
-          key={i}
-          size={size}
-          fill={starValue <= (interactive ? (hover || rating) : count) ? '#C89D2A' : 'transparent'}
-          color="#C89D2A"
-          style={{ cursor: interactive ? 'pointer' : 'default', transition: 'transform 0.2s' }}
-          onMouseEnter={() => interactive && setHover(starValue)}
-          onMouseLeave={() => interactive && setHover(0)}
-          onClick={() => interactive && setRating(starValue)}
-        />
-      )
-    })
-  }
+  const ratingLabels = ['', 'ضعيف', 'مقبول', 'جيد', 'جيد جداً', 'ممتاز']
 
   return (
     <section style={{ 
       padding: '80px 0', 
-      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)'
+      background: 'linear-gradient(135deg, #0B1F3A 0%, #1a365d 100%)',
+      position: 'relative',
+      overflow: 'hidden'
     }}>
-      <div className="container">
-        <h2 className="section-title">تقييم العملاء</h2>
-        
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          gap: '20px',
-          marginBottom: '40px',
-          flexWrap: 'wrap'
-        }}>
-          <div style={{ 
-            background: 'white', 
-            padding: '30px 50px', 
-            borderRadius: '20px',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
-            textAlign: 'center'
+      <div style={{
+        position: 'absolute',
+        top: '-50%',
+        right: '-20%',
+        width: '600px',
+        height: '600px',
+        background: 'radial-gradient(circle, rgba(200,157,42,0.1) 0%, transparent 70%)',
+        borderRadius: '50%'
+      }} />
+      <div style={{
+        position: 'absolute',
+        bottom: '-30%',
+        left: '-10%',
+        width: '400px',
+        height: '400px',
+        background: 'radial-gradient(circle, rgba(200,157,42,0.08) 0%, transparent 70%)',
+        borderRadius: '50%'
+      }} />
+
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '70px',
+            height: '70px',
+            background: 'linear-gradient(135deg, #C89D2A, #d4af37)',
+            borderRadius: '50%',
+            marginBottom: '20px'
           }}>
-            <div style={{ display: 'flex', gap: '5px', justifyContent: 'center', marginBottom: '10px' }}>
-              {renderStars(Math.round(stats.average), 32)}
-            </div>
-            <div style={{ fontSize: '2.5rem', fontWeight: '800', color: '#0B1F3A' }}>
-              {stats.average.toFixed(1)}
-            </div>
-            <div style={{ color: '#666', fontSize: '0.95rem' }}>
-              من {stats.count} تقييم
-            </div>
+            <MessageSquare size={32} color="#0B1F3A" />
           </div>
+          <h2 style={{ 
+            color: 'white', 
+            fontSize: '2.2rem', 
+            fontWeight: '700',
+            marginBottom: '15px'
+          }}>
+            شاركنا تجربتك
+          </h2>
+          <p style={{ 
+            color: 'rgba(255,255,255,0.8)', 
+            fontSize: '1.1rem',
+            maxWidth: '500px',
+            margin: '0 auto'
+          }}>
+            رأيك يهمنا ويساعدنا في تطوير خدماتنا
+          </p>
         </div>
 
         {!submitted ? (
           <div style={{ 
-            maxWidth: '500px', 
+            maxWidth: '550px', 
             margin: '0 auto',
             background: 'white',
-            padding: '40px',
-            borderRadius: '20px',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.1)'
+            padding: '45px 40px',
+            borderRadius: '24px',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.3)'
           }}>
-            <h3 style={{ textAlign: 'center', marginBottom: '25px', color: '#0B1F3A' }}>
-              شاركنا تجربتك
-            </h3>
             <form onSubmit={handleSubmit}>
-              <div style={{ textAlign: 'center', marginBottom: '25px' }}>
-                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                  {renderStars(rating, 40, true)}
-                </div>
-                <p style={{ marginTop: '10px', color: '#666', fontSize: '0.9rem' }}>
-                  {rating === 0 ? 'اضغط على النجوم للتقييم' : `تقييمك: ${rating} من 5`}
+              <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+                <p style={{ 
+                  color: '#0B1F3A', 
+                  fontWeight: '600', 
+                  marginBottom: '15px',
+                  fontSize: '1.1rem'
+                }}>
+                  كيف كانت تجربتك معنا؟
                 </p>
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '12px', 
+                  justifyContent: 'center',
+                  marginBottom: '12px'
+                }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setRating(star)}
+                      onMouseEnter={() => setHover(star)}
+                      onMouseLeave={() => setHover(0)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: '5px',
+                        transition: 'transform 0.2s',
+                        transform: (hover >= star || rating >= star) ? 'scale(1.15)' : 'scale(1)'
+                      }}
+                    >
+                      <Star
+                        size={42}
+                        fill={(hover || rating) >= star ? '#C89D2A' : 'transparent'}
+                        color="#C89D2A"
+                        strokeWidth={1.5}
+                      />
+                    </button>
+                  ))}
+                </div>
+                <div style={{ 
+                  height: '24px',
+                  color: '#C89D2A', 
+                  fontWeight: '600',
+                  fontSize: '1rem'
+                }}>
+                  {rating > 0 && ratingLabels[rating]}
+                </div>
               </div>
-              <input
-                type="text"
-                placeholder="اسمك (اختياري)"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="form-input"
-                style={{ marginBottom: '15px' }}
-              />
-              <textarea
-                placeholder="تعليقك (اختياري)"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className="form-input"
-                rows={3}
-                style={{ marginBottom: '20px', resize: 'none' }}
-              />
+
+              <div style={{ marginBottom: '20px' }}>
+                <input
+                  type="text"
+                  placeholder="اسمك الكريم"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '16px 20px',
+                    border: '2px solid #e8ecf1',
+                    borderRadius: '12px',
+                    fontSize: '1rem',
+                    fontFamily: 'inherit',
+                    transition: 'border-color 0.3s, box-shadow 0.3s',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#C89D2A'
+                    e.target.style.boxShadow = '0 0 0 4px rgba(200,157,42,0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e8ecf1'
+                    e.target.style.boxShadow = 'none'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '25px' }}>
+                <textarea
+                  placeholder="شاركنا رأيك وملاحظاتك..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={4}
+                  style={{
+                    width: '100%',
+                    padding: '16px 20px',
+                    border: '2px solid #e8ecf1',
+                    borderRadius: '12px',
+                    fontSize: '1rem',
+                    fontFamily: 'inherit',
+                    resize: 'none',
+                    transition: 'border-color 0.3s, box-shadow 0.3s',
+                    outline: 'none'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#C89D2A'
+                    e.target.style.boxShadow = '0 0 0 4px rgba(200,157,42,0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e8ecf1'
+                    e.target.style.boxShadow = 'none'
+                  }}
+                />
+              </div>
+
               <button 
                 type="submit" 
-                className="btn btn-primary" 
-                style={{ width: '100%' }}
                 disabled={rating === 0 || loading}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  background: rating === 0 ? '#ccc' : 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontSize: '1.1rem',
+                  fontWeight: '700',
+                  cursor: rating === 0 ? 'not-allowed' : 'pointer',
+                  fontFamily: 'inherit',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  boxShadow: rating > 0 ? '0 8px 25px rgba(11,31,58,0.3)' : 'none'
+                }}
+                onMouseOver={(e) => rating > 0 && (e.target.style.transform = 'translateY(-2px)')}
+                onMouseOut={(e) => e.target.style.transform = 'translateY(0)'}
               >
+                <Send size={20} />
                 {loading ? 'جاري الإرسال...' : 'إرسال التقييم'}
               </button>
             </form>
           </div>
         ) : (
           <div style={{ 
-            maxWidth: '500px', 
+            maxWidth: '550px', 
             margin: '0 auto',
-            background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
-            padding: '40px',
-            borderRadius: '20px',
+            background: 'white',
+            padding: '60px 40px',
+            borderRadius: '24px',
             textAlign: 'center',
-            color: 'white'
+            boxShadow: '0 25px 60px rgba(0,0,0,0.3)'
           }}>
-            <div style={{ fontSize: '3rem', marginBottom: '15px' }}>✓</div>
-            <h3 style={{ marginBottom: '10px' }}>شكراً لتقييمك!</h3>
-            <p style={{ opacity: 0.9 }}>نقدر رأيك ونسعى دائماً لتقديم أفضل خدمة</p>
-          </div>
-        )}
-
-        {recentRatings.length > 0 && (
-          <div style={{ marginTop: '50px' }}>
-            <h3 style={{ textAlign: 'center', marginBottom: '30px', color: '#0B1F3A' }}>
-              آخر التقييمات
-            </h3>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '20px',
-              maxWidth: '900px',
-              margin: '0 auto'
+            <div style={{
+              width: '80px',
+              height: '80px',
+              background: 'linear-gradient(135deg, #28a745, #20c997)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 25px',
+              animation: 'scaleIn 0.5s ease'
             }}>
-              {recentRatings.slice(0, 6).map((r) => (
-                <div key={r.id} style={{
-                  background: 'white',
-                  padding: '25px',
-                  borderRadius: '15px',
-                  boxShadow: '0 5px 20px rgba(0,0,0,0.08)'
-                }}>
-                  <div style={{ display: 'flex', gap: '3px', marginBottom: '10px' }}>
-                    {renderStars(r.stars, 18)}
-                  </div>
-                  <div style={{ fontWeight: '600', color: '#0B1F3A', marginBottom: '8px' }}>
-                    {r.name}
-                  </div>
-                  {r.comment && (
-                    <p style={{ color: '#666', fontSize: '0.9rem', margin: 0 }}>
-                      "{r.comment}"
-                    </p>
-                  )}
-                </div>
-              ))}
+              <CheckCircle size={40} color="white" />
             </div>
+            <style>{`
+              @keyframes scaleIn {
+                from { transform: scale(0); }
+                to { transform: scale(1); }
+              }
+            `}</style>
+            <h3 style={{ 
+              color: '#0B1F3A', 
+              fontSize: '1.8rem', 
+              marginBottom: '15px',
+              fontWeight: '700'
+            }}>
+              شكراً لك!
+            </h3>
+            <p style={{ 
+              color: '#666', 
+              fontSize: '1.1rem',
+              lineHeight: '1.7'
+            }}>
+              نقدر رأيك الكريم ونسعى دائماً لتقديم أفضل خدمة لعملائنا
+            </p>
           </div>
         )}
       </div>
