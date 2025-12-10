@@ -138,6 +138,15 @@ async function initStripe() {
   }
 }
 
+function generateReportCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'HS-';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
 async function initPaymentsTable() {
   try {
     await pool.query(`
@@ -150,6 +159,7 @@ async function initPaymentsTable() {
         currency VARCHAR(10) DEFAULT 'aed',
         service_type VARCHAR(100),
         booking_id VARCHAR(100),
+        report_code VARCHAR(20),
         stripe_payment_intent_id VARCHAR(255),
         stripe_checkout_session_id VARCHAR(255),
         status VARCHAR(50) DEFAULT 'pending',
@@ -157,6 +167,7 @@ async function initPaymentsTable() {
         updated_at TIMESTAMP DEFAULT NOW()
       )
     `);
+    await pool.query(`ALTER TABLE payments ADD COLUMN IF NOT EXISTS report_code VARCHAR(20)`);
     console.log('Payments table ready');
   } catch (error) {
     console.error('Error creating payments table:', error);
@@ -794,13 +805,15 @@ app.post('/api/create-checkout-session', async (req, res) => {
       },
     });
 
+    const reportCode = generateReportCode();
+    
     await pool.query(
-      `INSERT INTO payments (customer_name, customer_phone, customer_email, amount, service_type, booking_id, stripe_checkout_session_id, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
-      [customerName, customerPhone, customerEmail || null, amount, serviceType || null, bookingId || null, session.id]
+      `INSERT INTO payments (customer_name, customer_phone, customer_email, amount, service_type, booking_id, stripe_checkout_session_id, report_code, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending')`,
+      [customerName, customerPhone, customerEmail || null, amount, serviceType || null, bookingId || null, session.id, reportCode]
     );
 
-    res.json({ url: session.url, sessionId: session.id });
+    res.json({ url: session.url, sessionId: session.id, reportCode });
   } catch (error) {
     console.error('Checkout session error:', error);
     res.status(500).json({ error: 'Failed to create checkout session' });
@@ -829,11 +842,18 @@ app.get('/api/payment/verify/:sessionId', async (req, res) => {
       );
     }
 
+    const paymentResult = await pool.query(
+      'SELECT report_code FROM payments WHERE stripe_checkout_session_id = $1',
+      [sessionId]
+    );
+    const reportCode = paymentResult.rows[0]?.report_code;
+
     res.json({
       status: session.payment_status,
       customerName: session.metadata?.customerName,
       amount: session.amount_total / 100,
       currency: session.currency,
+      reportCode: reportCode,
     });
   } catch (error) {
     console.error('Payment verify error:', error);
