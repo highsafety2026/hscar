@@ -49,14 +49,10 @@ localPort = 5001
 externalPort = 3002
 
 [[ports]]
-localPort = 33835
-externalPort = 3003
-
-[[ports]]
 localPort = 34953
 externalPort = 3000
 
 [deployment]
 deploymentTarget = "autoscale"
 run = ["node", "server/index.js"]
-build = ["bash", "-c", "cd client && npm run build && cp -r public/images dist/ && cp public/manifest.json dist/ && cp public/sw.js dist/"]
+build = ["bash", "-c", "cd client && npm run build && if [ -d public/images ]; then cp -r public/images dist/; fi && if [ -f public/manifest.json ]; then cp public/manifest.json dist/; fi && if [ -f public/sw.js ]; then cp public/sw.js dist/; fi"]
