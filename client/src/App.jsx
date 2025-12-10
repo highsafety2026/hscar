@@ -5,7 +5,6 @@ import WhatsAppButton from './components/WhatsAppButton'
 import InstallButton from './components/InstallButton'
 import UpdatePrompt from './components/UpdatePrompt'
 import AIChatBot from './components/AIChatBot'
-import ApkDownloadButton from './components/ApkDownloadButton'
 import Home from './pages/Home'
 import Services from './pages/Services'
 import Booking from './pages/Booking'
@@ -30,9 +29,8 @@ function App() {
         </main>
         <Footer />
         <WhatsAppButton />
-        <InstallButton />
         <AIChatBot />
-        <ApkDownloadButton />
+        <InstallButton />
         <UpdatePrompt />
       </div>
     </BrowserRouter>

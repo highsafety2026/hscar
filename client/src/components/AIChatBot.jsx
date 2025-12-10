@@ -106,8 +106,8 @@ function AIChatBot() {
           onClick={() => setIsOpen(true)}
           style={{
             position: 'fixed',
-            bottom: '170px',
-            left: '25px',
+            bottom: '20px',
+            right: '20px',
             display: 'flex',
             alignItems: 'center',
             gap: '0',
@@ -127,33 +127,34 @@ function AIChatBot() {
             }
           `}</style>
           <div style={{
-            background: 'linear-gradient(135deg, #C89D2A, #d4af37)',
-            color: '#0B1F3A',
-            padding: '10px 18px',
-            borderRadius: '25px 0 0 25px',
-            fontWeight: '700',
-            fontSize: '0.9rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '6px',
-            boxShadow: '0 6px 25px rgba(200, 157, 42, 0.5)'
-          }}>
-            <Sparkles size={16} />
-            المساعد الذكي
-          </div>
-          <div style={{
             background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
             color: 'white',
-            width: '55px',
-            height: '55px',
-            borderRadius: '0 50% 50% 0',
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             boxShadow: '0 6px 25px rgba(11, 31, 58, 0.5)',
             animation: 'glow 2s infinite'
           }}>
-            <Bot size={26} />
+            <Bot size={28} />
+          </div>
+          <div style={{
+            background: 'linear-gradient(135deg, #C89D2A, #d4af37)',
+            color: '#0B1F3A',
+            padding: '8px 15px',
+            borderRadius: '20px',
+            fontWeight: '700',
+            fontSize: '0.85rem',
+            marginRight: '-10px',
+            boxShadow: '0 4px 15px rgba(200, 157, 42, 0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px'
+          }}>
+            <Sparkles size={14} />
+            المساعد الذكي
           </div>
         </div>
       )}
@@ -162,7 +163,7 @@ function AIChatBot() {
         <div style={{
           position: 'fixed',
           bottom: '20px',
-          left: '20px',
+          right: '20px',
           width: '380px',
           maxWidth: 'calc(100vw - 40px)',
           height: '550px',
