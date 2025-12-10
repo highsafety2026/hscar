@@ -17,7 +17,7 @@ function Footer() {
             </div>
             <div className="contact-info">
               <Mail size={18} />
-              <span>highsafery2021@gmail.com</span>
+              <span>highsafety2021@gmail.com</span>
             </div>
           </div>
           <div className="footer-section">

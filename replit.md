@@ -61,7 +61,7 @@ A full-stack Progressive Web App (PWA) for a car inspection center that provides
 
 ## Contact Info
 - WhatsApp: +971 54 220 6000
-- Email: highsafery2021@gmail.com
+- Email: highsafety2021@gmail.com
 
 ## PWA Features
 - `manifest.json` - App configuration for installation
