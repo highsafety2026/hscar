@@ -38,7 +38,7 @@ const upload = multer({ storage });
 
 const DB_PATH = path.join(__dirname, 'database.json');
 const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD_HASH = crypto.createHash('sha256').update('admin123').digest('hex');
+const ADMIN_PASSWORD_HASH = crypto.createHash('sha256').update('safa').digest('hex');
 
 const UAE_CAR_PRICES = {
   'LAND CRUISER': { '2024': { min: 280000, max: 380000 }, '2023': { min: 250000, max: 340000 }, '2022': { min: 220000, max: 300000 }, '2021': { min: 190000, max: 260000 }, '2020': { min: 160000, max: 220000 }, '2019': { min: 140000, max: 190000 }, '2018': { min: 120000, max: 165000 }, '2017': { min: 105000, max: 145000 }, '2016': { min: 90000, max: 125000 }, '2015': { min: 75000, max: 110000 } },

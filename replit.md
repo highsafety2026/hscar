@@ -69,7 +69,7 @@ A full-stack Progressive Web App (PWA) for a car inspection center that provides
 
 ## Admin Credentials
 - Username: admin
-- Password: admin123
+- Password: safa
 
 ## Contact Info
 - WhatsApp: +971 54 220 6000
