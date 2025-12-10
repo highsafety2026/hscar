@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import WhatsAppButton from './components/WhatsAppButton'
-import InstallButton from './components/InstallButton'
 import UpdatePrompt from './components/UpdatePrompt'
 import AIChatBot from './components/AIChatBot'
 import Home from './pages/Home'
@@ -30,7 +29,6 @@ function App() {
         <Footer />
         <WhatsAppButton />
         <AIChatBot />
-        <InstallButton />
         <UpdatePrompt />
       </div>
     </BrowserRouter>
