@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
