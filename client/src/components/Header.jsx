@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, Smartphone } from 'lucide-react'
+import { Menu, X, Smartphone, CreditCard } from 'lucide-react'
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -87,6 +87,25 @@ function Header() {
             <Link to="/services" onClick={() => setMenuOpen(false)}>الخدمات</Link>
             <Link to="/booking" onClick={() => setMenuOpen(false)}>حجز موعد</Link>
             <Link to="/report" onClick={() => setMenuOpen(false)}>تحميل التقرير</Link>
+            <Link 
+              to="/payment" 
+              onClick={() => setMenuOpen(false)}
+              style={{
+                background: 'linear-gradient(135deg, #34A853, #2e8b47)',
+                color: 'white',
+                padding: '8px 16px',
+                borderRadius: '20px',
+                fontWeight: '700',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '0.9rem',
+                textDecoration: 'none'
+              }}
+            >
+              <CreditCard size={16} />
+              الدفع
+            </Link>
             {!isInstalled && (
               <button 
                 onClick={handleInstall}
