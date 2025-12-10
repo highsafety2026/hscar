@@ -7,17 +7,190 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const OpenAI = require('openai');
 const pdfParse = require('pdf-parse');
+const { Pool } = require('pg');
 
 const openai = new OpenAI({
   baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
 });
 
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+let stripeInitialized = false;
+let stripeSync = null;
+
+async function getStripeCredentials() {
+  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
+  const xReplitToken = process.env.REPL_IDENTITY
+    ? 'repl ' + process.env.REPL_IDENTITY
+    : process.env.WEB_REPL_RENEWAL
+      ? 'depl ' + process.env.WEB_REPL_RENEWAL
+      : null;
+
+  if (!xReplitToken || !hostname) {
+    return null;
+  }
+
+  const isProduction = process.env.REPLIT_DEPLOYMENT === '1';
+  const targetEnvironment = isProduction ? 'production' : 'development';
+
+  const url = new URL(`https://${hostname}/api/v2/connection`);
+  url.searchParams.set('include_secrets', 'true');
+  url.searchParams.set('connector_names', 'stripe');
+  url.searchParams.set('environment', targetEnvironment);
+
+  try {
+    const response = await fetch(url.toString(), {
+      headers: {
+        'Accept': 'application/json',
+        'X_REPLIT_TOKEN': xReplitToken
+      }
+    });
+
+    const data = await response.json();
+    const connectionSettings = data.items?.[0];
+
+    if (!connectionSettings?.settings?.publishable || !connectionSettings?.settings?.secret) {
+      return null;
+    }
+
+    return {
+      publishableKey: connectionSettings.settings.publishable,
+      secretKey: connectionSettings.settings.secret,
+    };
+  } catch (error) {
+    console.error('Error fetching Stripe credentials:', error);
+    return null;
+  }
+}
+
+async function initStripe() {
+  if (stripeInitialized) return;
+  
+  const credentials = await getStripeCredentials();
+  if (!credentials) {
+    console.log('Stripe not configured - skipping initialization');
+    return;
+  }
+
+  try {
+    const { runMigrations, StripeSync } = await import('stripe-replit-sync');
+    
+    console.log('Initializing Stripe schema...');
+    await runMigrations({ 
+      databaseUrl: process.env.DATABASE_URL,
+      schema: 'stripe'
+    });
+    console.log('Stripe schema ready');
+
+    stripeSync = new StripeSync({
+      poolConfig: {
+        connectionString: process.env.DATABASE_URL,
+        max: 2,
+      },
+      stripeSecretKey: credentials.secretKey,
+    });
+
+    const webhookBaseUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`;
+    if (webhookBaseUrl && webhookBaseUrl !== 'https://undefined') {
+      console.log('Setting up managed webhook...');
+      try {
+        const result = await stripeSync.findOrCreateManagedWebhook(
+          `${webhookBaseUrl}/api/stripe/webhook`,
+          {
+            enabled_events: ['*'],
+            description: 'Managed webhook for Stripe sync',
+          }
+        );
+        if (result && result.webhook) {
+          console.log(`Webhook configured: ${result.webhook.url}`);
+        }
+      } catch (webhookError) {
+        console.log('Webhook setup skipped:', webhookError.message);
+      }
+    }
+
+    stripeSync.syncBackfill()
+      .then(() => console.log('Stripe data synced'))
+      .catch((err) => console.error('Error syncing Stripe data:', err));
+
+    stripeInitialized = true;
+    console.log('Stripe initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize Stripe:', error);
+  }
+}
+
+async function initPaymentsTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS payments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        customer_name VARCHAR(255) NOT NULL,
+        customer_phone VARCHAR(50) NOT NULL,
+        customer_email VARCHAR(255),
+        amount INTEGER NOT NULL,
+        currency VARCHAR(10) DEFAULT 'aed',
+        service_type VARCHAR(100),
+        booking_id VARCHAR(100),
+        stripe_payment_intent_id VARCHAR(255),
+        stripe_checkout_session_id VARCHAR(255),
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT NOW(),
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `);
+    console.log('Payments table ready');
+  } catch (error) {
+    console.error('Error creating payments table:', error);
+  }
+}
+
+initStripe();
+initPaymentsTable();
+
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
+});
+
+app.post('/api/stripe/webhook/:uuid', express.raw({ type: 'application/json' }), async (req, res) => {
+  const signature = req.headers['stripe-signature'];
+  if (!signature) {
+    return res.status(400).json({ error: 'Missing stripe-signature' });
+  }
+
+  try {
+    if (!stripeSync) {
+      return res.status(500).json({ error: 'Stripe not initialized' });
+    }
+
+    const sig = Array.isArray(signature) ? signature[0] : signature;
+    const { uuid } = req.params;
+    
+    await stripeSync.processWebhook(req.body, sig, uuid);
+
+    const event = JSON.parse(req.body.toString());
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object;
+      await pool.query(
+        `UPDATE payments SET status = 'completed', stripe_payment_intent_id = $1, updated_at = NOW() 
+         WHERE stripe_checkout_session_id = $2`,
+        [session.payment_intent, session.id]
+      );
+      console.log('Payment completed:', session.id);
+    }
+
+    res.status(200).json({ received: true });
+  } catch (error) {
+    console.error('Webhook error:', error.message);
+    res.status(400).json({ error: 'Webhook processing error' });
+  }
 });
 
 app.use(cors());
@@ -552,6 +725,118 @@ app.post('/api/chat', async (req, res) => {
   } catch (error) {
     console.error('Chat error:', error);
     res.status(500).json({ reply: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى أو التواصل معنا عبر الواتساب: +971 54 220 6000' });
+  }
+});
+
+app.get('/api/stripe/config', async (req, res) => {
+  try {
+    const credentials = await getStripeCredentials();
+    if (!credentials) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+    res.json({ publishableKey: credentials.publishableKey });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get Stripe config' });
+  }
+});
+
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { customerName, customerPhone, customerEmail, amount, serviceType, bookingId } = req.body;
+
+    if (!customerName || !customerPhone || !amount) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const credentials = await getStripeCredentials();
+    if (!credentials) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+
+    const Stripe = (await import('stripe')).default;
+    const stripe = new Stripe(credentials.secretKey, { apiVersion: '2023-10-16' });
+
+    const baseUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'aed',
+          product_data: {
+            name: serviceType || 'خدمة الفحص الفني',
+            description: `فحص فني للسيارات - ${customerName}`,
+          },
+          unit_amount: Math.round(amount * 100),
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/payment/cancel`,
+      customer_email: customerEmail || undefined,
+      metadata: {
+        customerName,
+        customerPhone,
+        serviceType: serviceType || '',
+        bookingId: bookingId || '',
+      },
+    });
+
+    await pool.query(
+      `INSERT INTO payments (customer_name, customer_phone, customer_email, amount, service_type, booking_id, stripe_checkout_session_id, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
+      [customerName, customerPhone, customerEmail || null, amount, serviceType || null, bookingId || null, session.id]
+    );
+
+    res.json({ url: session.url, sessionId: session.id });
+  } catch (error) {
+    console.error('Checkout session error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
+app.get('/api/payment/verify/:sessionId', async (req, res) => {
+  try {
+    const { sessionId } = req.params;
+    
+    const credentials = await getStripeCredentials();
+    if (!credentials) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+
+    const Stripe = (await import('stripe')).default;
+    const stripe = new Stripe(credentials.secretKey, { apiVersion: '2023-10-16' });
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+    if (session.payment_status === 'paid') {
+      await pool.query(
+        `UPDATE payments SET status = 'completed', updated_at = NOW() 
+         WHERE stripe_checkout_session_id = $1`,
+        [sessionId]
+      );
+    }
+
+    res.json({
+      status: session.payment_status,
+      customerName: session.metadata?.customerName,
+      amount: session.amount_total / 100,
+      currency: session.currency,
+    });
+  } catch (error) {
+    console.error('Payment verify error:', error);
+    res.status(500).json({ error: 'Failed to verify payment' });
+  }
+});
+
+app.get('/api/payments', authMiddleware, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM payments ORDER BY created_at DESC');
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching payments:', error);
+    res.status(500).json({ error: 'Failed to fetch payments' });
   }
 });
 

@@ -1,7 +1,7 @@
 run = "bundle exec ruby main.rb"
 hidden = [".bundle"]
 entrypoint = "main.rb"
-modules = ["nodejs-20"]
+modules = ["nodejs-20", "python-3.11"]
 
 [nix]
 channel = "stable-24_05"
@@ -11,7 +11,7 @@ requiredFiles = [".replit", "replit.nix"]
 
 [agent]
 expertMode = true
-integrations = ["javascript_openai_ai_integrations:1.0.0"]
+integrations = ["javascript_openai_ai_integrations:1.0.0", "stripe:2.0.0"]
 
 [workflows]
 runButton = "Project"
