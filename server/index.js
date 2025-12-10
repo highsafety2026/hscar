@@ -158,19 +158,29 @@ function generateReportCode() {
   return code;
 }
 
-app.post('/api/reports', authMiddleware, upload.single('file'), (req, res) => {
+const reportUpload = multer({ storage }).fields([
+  { name: 'file', maxCount: 1 },
+  { name: 'images', maxCount: 10 }
+]);
+
+app.post('/api/reports', authMiddleware, reportUpload, (req, res) => {
   const db = loadDB();
   let code = req.body.code || generateReportCode();
   while (db.reports.find(r => r.code === code)) {
     code = generateReportCode();
   }
+  
+  const images = req.files['images'] ? req.files['images'].map(f => f.filename) : [];
+  const pdfFile = req.files['file'] ? req.files['file'][0] : null;
+  
   const report = {
     id: uuidv4(),
     code: code.toUpperCase(),
     phone: req.body.phone,
     customerName: req.body.customerName,
-    filename: req.file.filename,
-    originalName: req.file.originalname,
+    filename: pdfFile ? pdfFile.filename : null,
+    originalName: pdfFile ? pdfFile.originalname : null,
+    images: images,
     createdAt: new Date().toISOString()
   };
   db.reports.push(report);
