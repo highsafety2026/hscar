@@ -5,8 +5,7 @@ function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('reports')
   const [bookings, setBookings] = useState([])
   const [reports, setReports] = useState([])
-  const [valuations, setValuations] = useState([])
-  const [uploadData, setUploadData] = useState({ phone: '', customerName: '', code: '', file: null })
+  const [uploadData, setUploadData] = useState({ customerName: '', code: '', file: null })
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
@@ -26,13 +25,12 @@ function AdminDashboard() {
   const loadData = async () => {
     try {
       const headers = getAuthHeaders()
-      const [bookingsRes, reportsRes, valuationsRes] = await Promise.all([
+      const [bookingsRes, reportsRes] = await Promise.all([
         fetch('/api/bookings', { headers }),
-        fetch('/api/reports', { headers }),
-        fetch('/api/valuations', { headers })
+        fetch('/api/reports', { headers })
       ])
       
-      if (bookingsRes.status === 401 || reportsRes.status === 401 || valuationsRes.status === 401) {
+      if (bookingsRes.status === 401 || reportsRes.status === 401) {
         localStorage.removeItem('adminToken')
         navigate('/admin')
         return
@@ -40,7 +38,6 @@ function AdminDashboard() {
       
       setBookings(await bookingsRes.json())
       setReports(await reportsRes.json())
-      setValuations(await valuationsRes.json())
     } catch (error) {
       console.error('Error loading data:', error)
     }
@@ -50,7 +47,6 @@ function AdminDashboard() {
     e.preventDefault()
     setLoading(true)
     const formData = new FormData()
-    formData.append('phone', uploadData.phone)
     formData.append('customerName', uploadData.customerName)
     if (uploadData.code) formData.append('code', uploadData.code.toUpperCase())
     formData.append('file', uploadData.file)
@@ -60,7 +56,7 @@ function AdminDashboard() {
       body: formData,
       headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
     })
-    setUploadData({ phone: '', customerName: '', code: '', file: null })
+    setUploadData({ customerName: '', code: '', file: null })
     loadData()
     setLoading(false)
   }
@@ -87,28 +83,6 @@ function AdminDashboard() {
   const deleteBooking = async (id) => {
     if (confirm('هل أنت متأكد من حذف هذا الحجز؟')) {
       await fetch(`/api/bookings/${id}`, { 
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      })
-      loadData()
-    }
-  }
-
-  const updateValuation = async (id) => {
-    const price = prompt('أدخل السعر التقديري (مثال: 50,000 ريال):')
-    if (price) {
-      await fetch(`/api/valuations/${id}`, {
-        method: 'PATCH',
-        headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estimatedPrice: price, status: 'completed' })
-      })
-      loadData()
-    }
-  }
-
-  const deleteValuation = async (id) => {
-    if (confirm('هل أنت متأكد من حذف هذا التقييم؟')) {
-      await fetch(`/api/valuations/${id}`, { 
         method: 'DELETE',
         headers: getAuthHeaders()
       })
@@ -147,9 +121,6 @@ function AdminDashboard() {
           <button className={`admin-tab ${activeTab === 'bookings' ? 'active' : ''}`} onClick={() => setActiveTab('bookings')}>
             الحجوزات ({bookings.length})
           </button>
-          <button className={`admin-tab ${activeTab === 'valuations' ? 'active' : ''}`} onClick={() => setActiveTab('valuations')}>
-            التقييمات ({valuations.length})
-          </button>
         </div>
 
         {activeTab === 'reports' && (
@@ -162,15 +133,6 @@ function AdminDashboard() {
                   type="text"
                   value={uploadData.customerName}
                   onChange={(e) => setUploadData({...uploadData, customerName: e.target.value})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>رقم الهاتف</label>
-                <input
-                  type="tel"
-                  value={uploadData.phone}
-                  onChange={(e) => setUploadData({...uploadData, phone: e.target.value})}
                   required
                 />
               </div>
@@ -208,7 +170,6 @@ function AdminDashboard() {
                   <tr>
                     <th>الكود</th>
                     <th>اسم العميل</th>
-                    <th>رقم الهاتف</th>
                     <th>التاريخ</th>
                     <th>إجراءات</th>
                   </tr>
@@ -223,7 +184,6 @@ function AdminDashboard() {
                         letterSpacing: '1px'
                       }}>{report.code || '-'}</td>
                       <td>{report.customerName}</td>
-                      <td>{report.phone}</td>
                       <td>{new Date(report.createdAt).toLocaleDateString('ar-SA')}</td>
                       <td>
                         <a href={`/uploads/${report.filename}`} target="_blank" className="action-btn confirm">
@@ -279,61 +239,6 @@ function AdminDashboard() {
                           </button>
                         )}
                         <button onClick={() => deleteBooking(booking.id)} className="action-btn delete">
-                          حذف
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        )}
-
-        {activeTab === 'valuations' && (
-          <div className="admin-section">
-            <h3 style={{ marginBottom: '20px' }}>طلبات التقييم</h3>
-            {valuations.length === 0 ? (
-              <p style={{ color: '#888' }}>لا توجد طلبات تقييم حالياً</p>
-            ) : (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>النوع</th>
-                    <th>السنة</th>
-                    <th>الهاتف</th>
-                    <th>الصور</th>
-                    <th>الحالة</th>
-                    <th>السعر التقديري</th>
-                    <th>إجراءات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {valuations.map(val => (
-                    <tr key={val.id}>
-                      <td>{val.model}</td>
-                      <td>{val.year}</td>
-                      <td>{val.phone}</td>
-                      <td>
-                        {val.images.map((img, i) => (
-                          <a key={i} href={`/uploads/${img}`} target="_blank" style={{ marginLeft: '5px' }}>
-                            صورة {i + 1}
-                          </a>
-                        ))}
-                      </td>
-                      <td>
-                        <span className={val.status === 'pending' ? 'pending-badge' : 'completed-badge'}>
-                          {val.status === 'pending' ? 'قيد المراجعة' : 'مكتمل'}
-                        </span>
-                      </td>
-                      <td>{val.estimatedPrice || '-'}</td>
-                      <td>
-                        {val.status === 'pending' && (
-                          <button onClick={() => updateValuation(val.id)} className="action-btn confirm">
-                            تقييم
-                          </button>
-                        )}
-                        <button onClick={() => deleteValuation(val.id)} className="action-btn delete">
                           حذف
                         </button>
                       </td>
