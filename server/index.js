@@ -5,6 +5,12 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
+const OpenAI = require('openai');
+
+const openai = new OpenAI({
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+});
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -270,6 +276,64 @@ app.post('/api/admin/logout', authMiddleware, (req, res) => {
   delete db.sessions[token];
   saveDB(db);
   res.json({ success: true });
+});
+
+app.post('/api/chat', async (req, res) => {
+  try {
+    const { message } = req.body;
+    
+    const systemPrompt = `أنت المساعد الذكي لمركز "الأمان العالي الدولي للفحص الفني للسيارات" في الإمارات العربية المتحدة.
+
+معلومات المركز:
+- الاسم: الأمان العالي الدولي للفحص الفني للسيارات
+- واتساب: +971 54 220 6000
+- البريد: highsafety2021@gmail.com
+
+خدمات الفحص المتاحة:
+1. الفحص الشامل (Full Inspection): فحص كامل للسيارة يشمل جميع الأنظمة
+2. الفحص الميكانيكي: فحص المحرك وناقل الحركة والفرامل والتعليق
+3. فحص متنوع: فحوصات إضافية حسب الطلب
+4. الفحص الأساسي: فحص سريع للأجزاء الرئيسية
+
+مميزات المركز:
+- أحدث الأجهزة والتقنيات العالمية
+- فريق متخصص من الخبراء
+- تقارير مفصلة وشاملة بصيغة PDF
+- سرعة في الإنجاز
+- خدمة تقييم أسعار السيارات
+
+خدمة التقارير:
+- يمكن تحميل التقرير من الموقع
+- يتم إرسال رمز OTP للتحقق
+- التقارير متاحة بصيغة PDF
+
+للحجز:
+- يمكن الحجز عبر الموقع
+- أو التواصل عبر واتساب
+
+قواعد الرد:
+- رد بالعربية فقط
+- كن ودوداً ومهنياً
+- قدم معلومات دقيقة ومختصرة
+- إذا سُئلت عن الأسعار، اطلب التواصل عبر واتساب للحصول على عرض سعر
+- شجع العملاء على الحجز أو التواصل`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: message }
+      ],
+      max_tokens: 500,
+      temperature: 0.7
+    });
+
+    const reply = completion.choices[0].message.content;
+    res.json({ reply });
+  } catch (error) {
+    console.error('Chat error:', error);
+    res.status(500).json({ reply: 'عذراً، حدث خطأ. يرجى المحاولة مرة أخرى أو التواصل معنا عبر الواتساب: +971 54 220 6000' });
+  }
 });
 
 app.use(express.static(path.join(__dirname, '../client/dist')));
