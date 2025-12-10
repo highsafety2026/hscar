@@ -10,7 +10,6 @@ function Home() {
       title: 'الفحص الشامل',
       titleEn: 'Full Inspection',
       desc: 'فحص كامل لجميع أجزاء السيارة',
-      price: '350',
       color: '#C89D2A',
       features: ['200+ نقطة فحص', 'تقرير مفصل', 'ضمان الدقة']
     },
@@ -20,7 +19,6 @@ function Home() {
       title: 'ميكانيكي + كمبيوتر',
       titleEn: 'Mechanical + Computer',
       desc: 'فحص المحرك وناقل الحركة والكمبيوتر',
-      price: '250',
       color: '#4285F4',
       features: ['فحص المحرك', 'فحص الجيربوكس', 'قراءة الأكواد']
     },
@@ -30,7 +28,6 @@ function Home() {
       title: 'فحوصات متنوعة',
       titleEn: 'Various Tests',
       desc: 'فحص الهيكل والبودي والطلاء',
-      price: '200',
       color: '#34A853',
       features: ['فحص الحوادث', 'قياس الطلاء', 'فحص الشاسيه']
     },
@@ -40,7 +37,6 @@ function Home() {
       title: 'فحص أساسي',
       titleEn: 'Basic Check',
       desc: 'فحص سريع للأجزاء الأساسية',
-      price: '150',
       color: '#EA4335',
       features: ['فحص سريع', 'النقاط الأساسية', 'تقرير مختصر']
     }
@@ -137,10 +133,6 @@ function Home() {
                     ))}
                   </ul>
                   <div className="service-footer">
-                    <div className="service-price">
-                      <span className="price-amount">{service.price}</span>
-                      <span className="price-currency">درهم</span>
-                    </div>
                     <Link to="/booking" className="service-btn">احجز الآن</Link>
                   </div>
                 </div>

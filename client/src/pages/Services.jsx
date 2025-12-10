@@ -8,7 +8,6 @@ function Services() {
       titleEn: 'Full Inspection',
       icon: <Shield size={32} />,
       color: '#C89D2A',
-      price: '350',
       items: [
         { ar: 'الماكينة', en: 'Engine' },
         { ar: 'القير', en: 'Transmission' },
@@ -49,7 +48,6 @@ function Services() {
       titleEn: 'Mechanical + Computer Check',
       icon: <Settings size={32} />,
       color: '#4285F4',
-      price: '250',
       items: [
         { ar: 'التسريبات', en: 'Leaks' },
         { ar: 'جميع أجزاء السيرفس', en: 'All Service Parts' },
@@ -68,7 +66,6 @@ function Services() {
       titleEn: 'Miscellaneous Tests',
       icon: <Eye size={32} />,
       color: '#34A853',
-      price: '200',
       items: [
         { ar: 'صبغ فقط', en: 'Paint Only' },
         { ar: 'ماكينة فقط', en: 'Engine Only' },
@@ -85,7 +82,6 @@ function Services() {
       titleEn: 'Basic Parts Inspection',
       icon: <FileCheck size={32} />,
       color: '#EA4335',
-      price: '150',
       items: [
         { ar: 'الماكينة', en: 'Engine' },
         { ar: 'القير', en: 'Transmission' },
@@ -117,10 +113,6 @@ function Services() {
                 <div className="service-titles">
                   <h3>{service.title}</h3>
                   <span>{service.titleEn}</span>
-                </div>
-                <div className="service-price-tag">
-                  <span className="amount">{service.price}</span>
-                  <span className="currency">درهم</span>
                 </div>
               </div>
               
