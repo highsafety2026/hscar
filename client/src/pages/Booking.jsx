@@ -1,6 +1,14 @@
 import { useState } from 'react'
+import { Building2, CreditCard, Copy, Check } from 'lucide-react'
 
 function Booking() {
+  const [copied, setCopied] = useState('')
+
+  const copyToClipboard = (text, field) => {
+    navigator.clipboard.writeText(text)
+    setCopied(field)
+    setTimeout(() => setCopied(''), 2000)
+  }
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -150,6 +158,179 @@ function Booking() {
               {loading ? 'جاري الإرسال...' : 'إرسال الطلب'}
             </button>
           </form>
+        </div>
+
+        <div style={{
+          marginTop: '40px',
+          background: 'linear-gradient(135deg, #0B1F3A 0%, #1a365d 100%)',
+          borderRadius: '20px',
+          padding: '35px',
+          color: 'white',
+          boxShadow: '0 15px 40px rgba(11,31,58,0.3)'
+        }}>
+          <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+            <div style={{
+              width: '70px',
+              height: '70px',
+              background: 'linear-gradient(135deg, #C89D2A, #d4af37)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px'
+            }}>
+              <CreditCard size={35} color="#0B1F3A" />
+            </div>
+            <h3 style={{ fontSize: '1.5rem', marginBottom: '10px' }}>طريقة الدفع</h3>
+            <p style={{ opacity: 0.8 }}>يمكنكم الدفع عن طريق التحويل البنكي</p>
+          </div>
+
+          <div style={{
+            background: 'rgba(255,255,255,0.1)',
+            borderRadius: '15px',
+            padding: '25px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '20px' }}>
+              <Building2 size={24} color="#C89D2A" />
+              <span style={{ fontSize: '1.1rem', fontWeight: '600' }}>بيانات الحساب البنكي</span>
+            </div>
+
+            <div style={{ display: 'grid', gap: '15px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: 'rgba(255,255,255,0.08)',
+                padding: '15px 20px',
+                borderRadius: '10px'
+              }}>
+                <div>
+                  <div style={{ opacity: 0.7, fontSize: '0.85rem', marginBottom: '5px' }}>اسم البنك</div>
+                  <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>ADIB - مصرف أبوظبي الإسلامي</div>
+                </div>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: 'rgba(255,255,255,0.08)',
+                padding: '15px 20px',
+                borderRadius: '10px'
+              }}>
+                <div>
+                  <div style={{ opacity: 0.7, fontSize: '0.85rem', marginBottom: '5px' }}>اسم الحساب</div>
+                  <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>High Safety International Center</div>
+                </div>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: 'rgba(255,255,255,0.08)',
+                padding: '15px 20px',
+                borderRadius: '10px'
+              }}>
+                <div>
+                  <div style={{ opacity: 0.7, fontSize: '0.85rem', marginBottom: '5px' }}>رقم الحساب</div>
+                  <div style={{ fontWeight: '600', fontSize: '1.2rem', fontFamily: 'monospace' }}>19033395</div>
+                </div>
+                <button
+                  onClick={() => copyToClipboard('19033395', 'account')}
+                  style={{
+                    background: copied === 'account' ? '#25D366' : 'rgba(200,157,42,0.3)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '10px 15px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'white',
+                    transition: 'all 0.3s'
+                  }}
+                >
+                  {copied === 'account' ? <Check size={18} /> : <Copy size={18} />}
+                  {copied === 'account' ? 'تم النسخ' : 'نسخ'}
+                </button>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: 'rgba(200,157,42,0.15)',
+                padding: '15px 20px',
+                borderRadius: '10px',
+                border: '1px solid rgba(200,157,42,0.3)'
+              }}>
+                <div>
+                  <div style={{ opacity: 0.7, fontSize: '0.85rem', marginBottom: '5px' }}>رقم IBAN</div>
+                  <div style={{ fontWeight: '600', fontSize: '1rem', fontFamily: 'monospace', letterSpacing: '1px' }}>
+                    AE440500000000019033395
+                  </div>
+                </div>
+                <button
+                  onClick={() => copyToClipboard('AE440500000000019033395', 'iban')}
+                  style={{
+                    background: copied === 'iban' ? '#25D366' : 'rgba(200,157,42,0.3)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '10px 15px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    color: 'white',
+                    transition: 'all 0.3s'
+                  }}
+                >
+                  {copied === 'iban' ? <Check size={18} /> : <Copy size={18} />}
+                  {copied === 'iban' ? 'تم النسخ' : 'نسخ'}
+                </button>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: 'rgba(255,255,255,0.08)',
+                padding: '15px 20px',
+                borderRadius: '10px'
+              }}>
+                <div>
+                  <div style={{ opacity: 0.7, fontSize: '0.85rem', marginBottom: '5px' }}>العملة</div>
+                  <div style={{ fontWeight: '600', fontSize: '1.1rem' }}>AED - درهم إماراتي</div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              marginTop: '20px',
+              padding: '15px',
+              background: 'rgba(37,211,102,0.15)',
+              borderRadius: '10px',
+              textAlign: 'center',
+              border: '1px solid rgba(37,211,102,0.3)'
+            }}>
+              <p style={{ fontSize: '0.95rem', margin: 0 }}>
+                بعد التحويل يرجى إرسال صورة الإيصال عبر الواتساب
+                <a 
+                  href="https://wa.me/971542206000" 
+                  style={{ 
+                    color: '#25D366', 
+                    fontWeight: '700',
+                    marginRight: '8px',
+                    textDecoration: 'none'
+                  }}
+                >
+                  +971 54 220 6000
+                </a>
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
