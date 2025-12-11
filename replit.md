@@ -3,6 +3,7 @@ High Safety International Technical Car Inspection Center
 
 ## Overview
 A full-stack Progressive Web App (PWA) for a car inspection center with a modern Dubizzle-inspired design that provides:
+- Bilingual support (Arabic/English) with language toggle button
 - Appointment booking with 4 service types
 - PDF report downloads with image gallery (up to 10 inspection images)
 - AI-powered smart assistant with PDF analysis and booking
@@ -24,6 +25,7 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 │   ├── src/
 │   │   ├── components/    # Header, Footer, AIChatBot, SocialButtons
 │   │   ├── pages/         # Home, Services, Booking, ReportLookup, Admin
+│   │   ├── i18n/          # Translations and LanguageContext (Arabic/English)
 │   │   └── styles/        # index.css (Modern design system)
 │   ├── public/downloads/  # APK files for download
 │   └── vite.config.js
@@ -98,7 +100,16 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 ## Running the Project
 - Development: `npm run dev` (runs both frontend and backend concurrently)
 
+## Bilingual System
+- Language toggle button in header (Globe icon)
+- Translations stored in `client/src/i18n/translations.js`
+- Language context provider in `client/src/i18n/LanguageContext.jsx`
+- Supported pages: Home, Header, Footer, Payment, PaymentSuccess, PaymentCancel
+- Language preference saved to localStorage
+- RTL/LTR direction automatically applied
+
 ## Recent Changes (December 2024)
+- Added bilingual support (Arabic/English) with language toggle
 - Redesigned entire website with Dubizzle-inspired modern style
 - Added stats bar with animated counters
 - Created service cards with prices and features
