@@ -15,10 +15,10 @@ function Payment() {
   const [error, setError] = useState('')
 
   const services = language === 'ar' ? [
-    { value: 'full', label: 'الفحص الشامل - Full Inspection', price: 350 },
-    { value: 'mechanical', label: 'فحص الميكانيكا والكمبيوتر - Mechanical + Computer', price: 250 },
-    { value: 'misc', label: 'فحوصات متنوعة - Miscellaneous Tests', price: 200 },
-    { value: 'basic', label: 'فحص الأجزاء الأساسية - Basic Parts', price: 150 }
+    { value: 'full', label: 'الفحص الشامل', price: 350 },
+    { value: 'mechanical', label: 'الميكانيكا + الكمبيوتر', price: 250 },
+    { value: 'misc', label: 'فحوصات متنوعة', price: 200 },
+    { value: 'basic', label: 'فحص الأجزاء الأساسية', price: 150 }
   ] : [
     { value: 'full', label: 'Full Inspection', price: 350 },
     { value: 'mechanical', label: 'Mechanical + Computer Check', price: 250 },
