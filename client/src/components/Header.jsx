@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, Smartphone, CreditCard, Globe } from 'lucide-react'
+import { Menu, X, Smartphone, CreditCard } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
 function Header() {
@@ -130,29 +130,49 @@ function Header() {
                 {t.nav.downloadApp}
               </button>
             )}
-            <button 
-              onClick={() => { toggleLanguage(); setMenuOpen(false); }}
-              style={{
-                background: 'rgba(255,255,255,0.15)',
-                color: 'white',
-                border: '1px solid rgba(255,255,255,0.3)',
-                padding: '8px 14px',
-                borderRadius: '20px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontFamily: 'inherit',
-                fontSize: '0.85rem',
-                transition: 'all 0.3s'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-            >
-              <Globe size={16} />
-              {language === 'ar' ? 'EN' : 'عربي'}
-            </button>
+            <div className="language-toggle" style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: 'rgba(255,255,255,0.1)',
+              borderRadius: '25px',
+              padding: '4px',
+              gap: '4px'
+            }}>
+              <button 
+                onClick={() => { if(language !== 'ar') toggleLanguage(); setMenuOpen(false); }}
+                style={{
+                  background: language === 'ar' ? '#C89D2A' : 'transparent',
+                  color: language === 'ar' ? '#0B1F3A' : 'rgba(255,255,255,0.7)',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: '0.85rem',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                عربي
+              </button>
+              <button 
+                onClick={() => { if(language !== 'en') toggleLanguage(); setMenuOpen(false); }}
+                style={{
+                  background: language === 'en' ? '#C89D2A' : 'transparent',
+                  color: language === 'en' ? '#0B1F3A' : 'rgba(255,255,255,0.7)',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: '0.85rem',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                EN
+              </button>
+            </div>
           </nav>
         </div>
       </header>

@@ -66,12 +66,12 @@ function Home() {
     { icon: <Zap size={36} />, title: 'سرعة في الإنجاز', desc: 'فحص شامل خلال ساعة واحدة فقط' },
     { icon: <Shield size={36} />, title: 'دقة عالية', desc: 'أحدث أجهزة الفحص العالمية' },
     { icon: <FileText size={36} />, title: 'تقارير مفصلة', desc: 'تقرير PDF شامل مع صور' },
-    { icon: <Award size={36} />, title: 'فريق متخصص', desc: 'مهندسون وفنيون ذوو خبرة' }
+    { icon: <Award size={36} />, title: 'فريق متخصص', desc: 'مهندسين ومهندسات ذوي خبرة' }
   ] : [
     { icon: <Zap size={36} />, title: 'Fast Service', desc: 'Complete inspection in just one hour' },
     { icon: <Shield size={36} />, title: 'High Accuracy', desc: 'Latest global inspection equipment' },
     { icon: <FileText size={36} />, title: 'Detailed Reports', desc: 'Comprehensive PDF report with photos' },
-    { icon: <Award size={36} />, title: 'Expert Team', desc: 'Experienced engineers and technicians' }
+    { icon: <Award size={36} />, title: 'Expert Team', desc: 'Male & female engineers with experience' }
   ]
 
   return (
