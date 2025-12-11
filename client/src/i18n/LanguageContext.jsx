@@ -5,16 +5,23 @@ const LanguageContext = createContext();
 
 export function LanguageProvider({ children }) {
   const [language, setLanguage] = useState(() => {
-    const saved = localStorage.getItem('language');
-    return saved || 'ar';
+    if (typeof window !== 'undefined' && window.localStorage) {
+      const saved = localStorage.getItem('language');
+      return saved || 'ar';
+    }
+    return 'ar';
   });
 
   const t = translations[language];
 
   useEffect(() => {
-    localStorage.setItem('language', language);
-    document.documentElement.dir = t.dir;
-    document.documentElement.lang = language;
+    if (typeof window !== 'undefined') {
+      if (window.localStorage) {
+        localStorage.setItem('language', language);
+      }
+      document.documentElement.dir = t.dir;
+      document.documentElement.lang = language;
+    }
   }, [language, t.dir]);
 
   const toggleLanguage = () => {
