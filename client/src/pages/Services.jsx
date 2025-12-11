@@ -44,7 +44,7 @@ function Services() {
       ]
     },
     {
-      title: 'فحص الميكانيكا + الكمبيوتر',
+      title: 'الميكانيكا + الكمبيوتر',
       titleEn: 'Mechanical + Computer Check',
       icon: <Settings size={32} />,
       color: '#4285F4',

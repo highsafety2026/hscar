@@ -23,12 +23,12 @@ function Home() {
     {
       id: 'mechanical',
       icon: <Settings size={32} />,
-      title: language === 'ar' ? 'ميكانيكي + كمبيوتر' : 'Mechanical + Computer',
+      title: language === 'ar' ? 'الميكانيكا + الكمبيوتر' : 'Mechanical + Computer',
       titleEn: 'Mechanical + Computer',
-      desc: language === 'ar' ? 'فحص المحرك وناقل الحركة والكمبيوتر' : 'Engine, transmission, and computer check',
+      desc: language === 'ar' ? 'فحص المحرك والقير والكمبيوتر' : 'Engine, transmission, and computer check',
       color: '#4285F4',
       features: language === 'ar'
-        ? ['فحص المحرك', 'فحص الجيربوكس', 'قراءة الأكواد']
+        ? ['فحص المحرك', 'فحص القير', 'قراءة الأكواد']
         : ['Engine check', 'Gearbox check', 'Code reading']
     },
     {
@@ -36,10 +36,10 @@ function Home() {
       icon: <Eye size={32} />,
       title: language === 'ar' ? 'فحوصات متنوعة' : 'Various Tests',
       titleEn: 'Various Tests',
-      desc: language === 'ar' ? 'فحص الهيكل والبودي والطلاء' : 'Body, frame, and paint inspection',
+      desc: language === 'ar' ? 'فحص الهيكل والبودي والصبغ' : 'Body, frame, and paint inspection',
       color: '#34A853',
       features: language === 'ar'
-        ? ['فحص الحوادث', 'قياس الطلاء', 'فحص الشاسيه']
+        ? ['فحص الحوادث', 'قياس الصبغ', 'فحص الشاصي']
         : ['Accident check', 'Paint measurement', 'Chassis check']
     },
     {
