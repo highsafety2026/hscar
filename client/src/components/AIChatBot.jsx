@@ -101,88 +101,113 @@ function AIChatBot() {
 
   return (
     <>
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 6px 25px rgba(200, 157, 42, 0.5); }
+          50% { box-shadow: 0 6px 35px rgba(200, 157, 42, 0.8); }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(100px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .ai-chat-trigger {
+          position: fixed;
+          bottom: 90px;
+          right: 15px;
+          display: flex;
+          align-items: center;
+          gap: 0;
+          cursor: pointer;
+          z-index: 998;
+          animation: pulse 2s infinite;
+        }
+        .ai-chat-icon {
+          background: linear-gradient(135deg, #0B1F3A, #1a365d);
+          color: white;
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 6px 25px rgba(11, 31, 58, 0.5);
+          animation: glow 2s infinite;
+        }
+        .ai-chat-label {
+          background: linear-gradient(135deg, #C89D2A, #d4af37);
+          color: #0B1F3A;
+          padding: 6px 12px;
+          border-radius: 15px;
+          font-weight: 700;
+          font-size: 0.75rem;
+          margin-right: -8px;
+          box-shadow: 0 4px 15px rgba(200, 157, 42, 0.4);
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .ai-chat-window {
+          position: fixed;
+          bottom: 15px;
+          right: 15px;
+          width: 360px;
+          max-width: calc(100vw - 30px);
+          height: 500px;
+          max-height: calc(100vh - 80px);
+          background: white;
+          border-radius: 20px;
+          box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+          z-index: 10000;
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+          animation: slideUp 0.3s ease;
+        }
+        @media (max-width: 768px) {
+          .ai-chat-trigger {
+            bottom: 80px;
+            right: 10px;
+          }
+          .ai-chat-icon {
+            width: 45px;
+            height: 45px;
+          }
+          .ai-chat-label {
+            display: none;
+          }
+          .ai-chat-window {
+            bottom: 10px;
+            right: 10px;
+            left: 10px;
+            width: auto;
+            max-width: none;
+            height: calc(100vh - 70px);
+            max-height: none;
+          }
+        }
+      `}</style>
+
       {!isOpen && (
         <div
+          className="ai-chat-trigger"
           onClick={() => setIsOpen(true)}
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0',
-            cursor: 'pointer',
-            zIndex: 998,
-            animation: 'pulse 2s infinite'
-          }}
         >
-          <style>{`
-            @keyframes pulse {
-              0%, 100% { transform: scale(1); }
-              50% { transform: scale(1.05); }
-            }
-            @keyframes glow {
-              0%, 100% { box-shadow: 0 6px 25px rgba(200, 157, 42, 0.5); }
-              50% { box-shadow: 0 6px 35px rgba(200, 157, 42, 0.8); }
-            }
-          `}</style>
-          <div style={{
-            background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
-            color: 'white',
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 6px 25px rgba(11, 31, 58, 0.5)',
-            animation: 'glow 2s infinite'
-          }}>
-            <Bot size={28} />
+          <div className="ai-chat-icon">
+            <Bot size={24} />
           </div>
-          <div style={{
-            background: 'linear-gradient(135deg, #C89D2A, #d4af37)',
-            color: '#0B1F3A',
-            padding: '8px 15px',
-            borderRadius: '20px',
-            fontWeight: '700',
-            fontSize: '0.85rem',
-            marginRight: '-10px',
-            boxShadow: '0 4px 15px rgba(200, 157, 42, 0.4)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '5px'
-          }}>
-            <Sparkles size={14} />
+          <div className="ai-chat-label">
+            <Sparkles size={12} />
             المساعد الذكي
           </div>
         </div>
       )}
 
       {isOpen && (
-        <div style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          width: '380px',
-          maxWidth: 'calc(100vw - 40px)',
-          height: '550px',
-          maxHeight: 'calc(100vh - 100px)',
-          background: 'white',
-          borderRadius: '20px',
-          boxShadow: '0 15px 50px rgba(0,0,0,0.3)',
-          zIndex: 10000,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          animation: 'slideUp 0.3s ease'
-        }}>
-          <style>{`
-            @keyframes slideUp {
-              from { transform: translateY(100px); opacity: 0; }
-              to { transform: translateY(0); opacity: 1; }
-            }
-          `}</style>
+        <div className="ai-chat-window">
 
           <div style={{
             background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
