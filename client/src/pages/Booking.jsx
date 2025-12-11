@@ -1,7 +1,54 @@
 import { useState, useRef, useEffect } from 'react'
-import { Search, ChevronDown, Car, Calendar, Clock, ChevronLeft, ChevronRight, Check, QrCode } from 'lucide-react'
+import { Search, ChevronDown, Car, Calendar, Clock, ChevronLeft, ChevronRight, Check, QrCode, Shield, Settings, Eye, FileCheck, Wrench } from 'lucide-react'
 
 function Booking() {
+  const serviceTypes = [
+    { 
+      id: 'full', 
+      icon: <Shield size={32} />, 
+      title: 'الفحص الشامل', 
+      titleEn: 'Full Inspection',
+      price: '350 درهم',
+      desc: 'فحص كامل لجميع أجزاء السيارة',
+      features: ['200+ نقطة فحص', 'تقرير مفصل', 'ضمان الدقة'],
+      color: '#C89D2A'
+    },
+    { 
+      id: 'mechanical', 
+      icon: <Settings size={32} />, 
+      title: 'الميكانيكا + الكمبيوتر', 
+      titleEn: 'Mechanical + Computer',
+      price: '250 درهم',
+      desc: 'فحص المحرك والقير والكمبيوتر',
+      features: ['فحص المحرك', 'فحص القير', 'قراءة الأكواد'],
+      color: '#4285F4'
+    },
+    { 
+      id: 'misc', 
+      icon: <Eye size={32} />, 
+      title: 'فحوصات متنوعة', 
+      titleEn: 'Various Tests',
+      price: '200 درهم',
+      desc: 'فحص الهيكل والبودي والصبغ',
+      features: ['فحص الحوادث', 'قياس الصبغ', 'فحص الشاصي'],
+      color: '#34A853'
+    },
+    { 
+      id: 'basic', 
+      icon: <FileCheck size={32} />, 
+      title: 'فحص أساسي', 
+      titleEn: 'Basic Check',
+      price: '150 درهم',
+      desc: 'فحص سريع للأجزاء الأساسية',
+      features: ['فحص سريع', 'النقاط الأساسية', 'تقرير مختصر'],
+      color: '#EA4335'
+    }
+  ]
+
+  const yearOptions = []
+  for (let year = 2025; year >= 1990; year--) {
+    yearOptions.push(year)
+  }
   const carBrands = [
     { name: 'تويوتا', nameEn: 'Toyota', models: ['كامري', 'كورولا', 'لاندكروزر', 'برادو', 'فورتشنر', 'هايلكس', 'راف4', 'افالون', 'يارس', 'سيكويا'] },
     { name: 'نيسان', nameEn: 'Nissan', models: ['باترول', 'اكستيرا', 'ارمادا', 'التيما', 'ماكسيما', 'صني', 'كيكس', 'باثفايندر', 'نافارا'] },
@@ -79,7 +126,8 @@ function Booking() {
   const [bookedSlots, setBookedSlots] = useState([])
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [qrCode, setQrCode] = useState(null)
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(0)
+  const [selectedService, setSelectedService] = useState(null)
 
   useEffect(() => {
     fetchQRCode()
@@ -228,7 +276,8 @@ function Booking() {
         setSelectedBrand(null)
         setSelectedDate(null)
         setSelectedTime(null)
-        setStep(1)
+        setSelectedService(null)
+        setStep(0)
       }
     } catch (error) {
       console.error('Error:', error)
@@ -267,25 +316,79 @@ function Booking() {
         ) : (
           <div className="booking-layout">
             <div className="booking-steps">
-              <div className={`step ${step >= 1 ? 'active' : ''}`}>
+              <div className={`step ${step >= 0 ? 'active' : ''}`}>
                 <span className="step-number">1</span>
+                <span className="step-label">اختر الخدمة</span>
+              </div>
+              <div className="step-line"></div>
+              <div className={`step ${step >= 1 ? 'active' : ''}`}>
+                <span className="step-number">2</span>
                 <span className="step-label">اختر التاريخ</span>
               </div>
               <div className="step-line"></div>
               <div className={`step ${step >= 2 ? 'active' : ''}`}>
-                <span className="step-number">2</span>
+                <span className="step-number">3</span>
                 <span className="step-label">اختر الوقت</span>
               </div>
               <div className="step-line"></div>
               <div className={`step ${step >= 3 ? 'active' : ''}`}>
-                <span className="step-number">3</span>
-                <span className="step-label">بيانات السيارة</span>
+                <span className="step-number">4</span>
+                <span className="step-label">البيانات</span>
               </div>
             </div>
 
             <div className="booking-content">
+              {step === 0 && (
+                <div className="service-selection-section">
+                  <h3><Wrench size={24} /> اختر نوع الخدمة</h3>
+                  <div className="service-cards-grid">
+                    {serviceTypes.map((service) => (
+                      <div 
+                        key={service.id}
+                        className={`service-select-card ${selectedService?.id === service.id ? 'selected' : ''}`}
+                        onClick={() => {
+                          setSelectedService(service)
+                          setFormData({ ...formData, serviceType: service.id })
+                          setStep(1)
+                        }}
+                        style={{ '--card-color': service.color }}
+                      >
+                        <div className="service-card-icon" style={{ background: service.color }}>
+                          {service.icon}
+                        </div>
+                        <div className="service-card-info">
+                          <h4>{service.title}</h4>
+                          <p className="service-title-en">{service.titleEn}</p>
+                          <p className="service-desc">{service.desc}</p>
+                          <div className="service-features">
+                            {service.features.map((f, i) => (
+                              <span key={i} className="feature-tag">{f}</span>
+                            ))}
+                          </div>
+                          <div className="service-price">{service.price}</div>
+                        </div>
+                        <ChevronLeft size={24} className="card-arrow" />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {step === 1 && (
                 <div className="calendar-section">
+                  {selectedService && (
+                    <div className="selected-service-display">
+                      <div className="service-badge" style={{ background: selectedService.color }}>
+                        {selectedService.icon}
+                      </div>
+                      <div className="service-info">
+                        <span className="service-name">{selectedService.title}</span>
+                        <span className="service-price-small">{selectedService.price}</span>
+                      </div>
+                      <button onClick={() => setStep(0)} className="change-btn">تغيير</button>
+                    </div>
+                  )}
+                  <h3><Calendar size={20} /> اختر التاريخ المناسب</h3>
                   <div className="calendar-header">
                     <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}>
                       <ChevronRight size={24} />
@@ -510,37 +613,21 @@ function Booking() {
                       </div>
                     </div>
 
-                    <div className="form-row">
-                      <div className="form-group-new">
+                    <div className="form-group-new">
                         <label>سنة الصنع</label>
-                        <input
-                          type="number"
+                        <select
                           name="carYear"
                           value={formData.carYear}
                           onChange={handleChange}
                           required
-                          placeholder="مثال: 2020"
-                          min="1990"
-                          max="2025"
-                        />
-                      </div>
-
-                      <div className="form-group-new">
-                        <label>نوع الخدمة</label>
-                        <select
-                          name="serviceType"
-                          value={formData.serviceType}
-                          onChange={handleChange}
-                          required
+                          className="year-select"
                         >
-                          <option value="">اختر نوع الخدمة</option>
-                          <option value="full">الفحص الشامل - Full Inspection</option>
-                          <option value="mechanical">فحص الميكانيكا والكمبيوتر - Mechanical + Computer</option>
-                          <option value="misc">فحوصات متنوعة - Miscellaneous Tests</option>
-                          <option value="basic">فحص الأجزاء الأساسية - Basic Parts</option>
+                          <option value="">اختر السنة</option>
+                          {yearOptions.map(year => (
+                            <option key={year} value={year}>{year}</option>
+                          ))}
                         </select>
                       </div>
-                    </div>
 
                     <div className="form-group-new">
                       <label>ملاحظات إضافية</label>
