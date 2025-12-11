@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, Smartphone, CreditCard } from 'lucide-react'
+import { Menu, X, Smartphone, CreditCard, Globe } from 'lucide-react'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function Header() {
+  const { language, toggleLanguage, t } = useLanguage()
   const [menuOpen, setMenuOpen] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [isInstalled, setIsInstalled] = useState(false)
@@ -64,7 +66,7 @@ function Header() {
         <div className="container">
           <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'white', display: 'flex', alignItems: 'center', gap: '12px' }}>
             <img src="/images/logo.png" alt="High Safety Logo" style={{ width: '45px', height: '45px', borderRadius: '50%' }} />
-            <h1 style={{ fontSize: '1.1rem' }}>الأمان العالي الدولي</h1>
+            <h1 style={{ fontSize: '1.1rem' }}>{language === 'ar' ? 'الأمان العالي الدولي' : 'High Safety Intl'}</h1>
           </Link>
           
           <button 
@@ -83,10 +85,10 @@ function Header() {
           </button>
 
           <nav className={`nav ${menuOpen ? 'nav-open' : ''}`}>
-            <Link to="/" onClick={() => setMenuOpen(false)}>الرئيسية</Link>
-            <Link to="/services" onClick={() => setMenuOpen(false)}>الخدمات</Link>
-            <Link to="/booking" onClick={() => setMenuOpen(false)}>حجز موعد</Link>
-            <Link to="/report" onClick={() => setMenuOpen(false)}>تحميل التقرير</Link>
+            <Link to="/" onClick={() => setMenuOpen(false)}>{t.nav.home}</Link>
+            <Link to="/services" onClick={() => setMenuOpen(false)}>{t.nav.services}</Link>
+            <Link to="/booking" onClick={() => setMenuOpen(false)}>{t.nav.booking}</Link>
+            <Link to="/report" onClick={() => setMenuOpen(false)}>{t.nav.report}</Link>
             <Link 
               to="/payment" 
               onClick={() => setMenuOpen(false)}
@@ -104,7 +106,7 @@ function Header() {
               }}
             >
               <CreditCard size={16} />
-              الدفع
+              {t.nav.payment}
             </Link>
             {!isInstalled && (
               <button 
@@ -125,9 +127,32 @@ function Header() {
                 }}
               >
                 <Smartphone size={16} />
-                تحميل التطبيق
+                {t.nav.downloadApp}
               </button>
             )}
+            <button 
+              onClick={() => { toggleLanguage(); setMenuOpen(false); }}
+              style={{
+                background: 'rgba(255,255,255,0.15)',
+                color: 'white',
+                border: '1px solid rgba(255,255,255,0.3)',
+                padding: '8px 14px',
+                borderRadius: '20px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontFamily: 'inherit',
+                fontSize: '0.85rem',
+                transition: 'all 0.3s'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            >
+              <Globe size={16} />
+              {language === 'ar' ? 'EN' : 'عربي'}
+            </button>
           </nav>
         </div>
       </header>
@@ -186,9 +211,9 @@ function Header() {
               <Smartphone size={35} color="#C89D2A" />
             </div>
             <h3 style={{ color: '#0B1F3A', marginBottom: '20px', fontSize: '1.2rem' }}>
-              تثبيت التطبيق على iPhone
+              {language === 'ar' ? 'تثبيت التطبيق على iPhone' : 'Install App on iPhone'}
             </h3>
-            <div style={{ textAlign: 'right', color: '#333', lineHeight: '2.2', fontSize: '0.95rem' }}>
+            <div style={{ textAlign: language === 'ar' ? 'right' : 'left', color: '#333', lineHeight: '2.2', fontSize: '0.95rem' }}>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ 
                   background: '#C89D2A', 
@@ -202,7 +227,7 @@ function Header() {
                   fontSize: '0.8rem',
                   flexShrink: 0
                 }}>1</span>
-                اضغط على أيقونة المشاركة ⬆️
+                {language === 'ar' ? 'اضغط على أيقونة المشاركة ⬆️' : 'Tap the Share icon ⬆️'}
               </p>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ 
@@ -217,7 +242,7 @@ function Header() {
                   fontSize: '0.8rem',
                   flexShrink: 0
                 }}>2</span>
-                اختر "إضافة إلى الشاشة الرئيسية"
+                {language === 'ar' ? 'اختر "إضافة إلى الشاشة الرئيسية"' : 'Select "Add to Home Screen"'}
               </p>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ 
@@ -232,7 +257,7 @@ function Header() {
                   fontSize: '0.8rem',
                   flexShrink: 0
                 }}>3</span>
-                اضغط "إضافة"
+                {language === 'ar' ? 'اضغط "إضافة"' : 'Tap "Add"'}
               </p>
             </div>
             <button
@@ -250,7 +275,7 @@ function Header() {
                 fontSize: '1rem'
               }}
             >
-              فهمت
+              {language === 'ar' ? 'فهمت' : 'Got it'}
             </button>
           </div>
         </div>
