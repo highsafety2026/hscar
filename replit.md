@@ -118,9 +118,12 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - PostgreSQL appointment_slots table with availability tracking
 
 ## Recent Changes (December 2024)
+- Redesigned booking to tasjeel.com-style with clickable service selection cards (4-step wizard)
+- Service selection is now step 0 with beautiful cards showing icon, title, features, and price
+- Year input converted to dropdown (1990-2025) - no manual typing needed
 - Added video background to hero section (hs_20251211_123323_0000_1765442313427.mp4)
 - Implemented real-time calendar booking system with time slots
-- Added 3-step booking wizard with visual progress indicator
+- Added 4-step booking wizard with visual progress indicator (Service → Date → Time → Details)
 - Added double-booking prevention with server-side validation
 - Added QR code generation for booking links (/api/bookings/:id/qr)
 - Added bilingual support (Arabic/English) with language toggle
