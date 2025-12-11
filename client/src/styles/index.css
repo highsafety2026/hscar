@@ -816,6 +816,41 @@ body {
   display: none !important;
 }
 
+.language-toggle {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,0.1);
+  border-radius: 25px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.language-toggle button {
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.language-toggle button.active {
+  background: var(--secondary);
+  color: var(--primary);
+}
+
+.language-toggle button:not(.active) {
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+}
+
+.language-toggle button:hover:not(.active) {
+  color: white;
+  background: rgba(255,255,255,0.15);
+}
+
 @media (max-width: 768px) {
   .mobile-menu-btn {
     display: block !important;
@@ -851,6 +886,19 @@ body {
   .nav a:active {
     background: rgba(255,255,255,0.25);
     transform: scale(0.98);
+  }
+
+  .nav .language-toggle {
+    justify-content: center;
+    margin-top: 10px;
+    padding: 5px;
+    background: rgba(255,255,255,0.15) !important;
+  }
+
+  .nav .language-toggle button {
+    flex: 1;
+    padding: 12px 20px !important;
+    font-size: 1rem !important;
   }
   
   .hero {

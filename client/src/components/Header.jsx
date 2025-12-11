@@ -130,45 +130,16 @@ function Header() {
                 {t.nav.downloadApp}
               </button>
             )}
-            <div className="language-toggle" style={{
-              display: 'flex',
-              alignItems: 'center',
-              background: 'rgba(255,255,255,0.1)',
-              borderRadius: '25px',
-              padding: '4px',
-              gap: '4px'
-            }}>
+            <div className="language-toggle">
               <button 
+                className={language === 'ar' ? 'active' : ''}
                 onClick={() => { if(language !== 'ar') toggleLanguage(); setMenuOpen(false); }}
-                style={{
-                  background: language === 'ar' ? '#C89D2A' : 'transparent',
-                  color: language === 'ar' ? '#0B1F3A' : 'rgba(255,255,255,0.7)',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  fontSize: '0.85rem',
-                  transition: 'all 0.3s ease'
-                }}
               >
                 عربي
               </button>
               <button 
+                className={language === 'en' ? 'active' : ''}
                 onClick={() => { if(language !== 'en') toggleLanguage(); setMenuOpen(false); }}
-                style={{
-                  background: language === 'en' ? '#C89D2A' : 'transparent',
-                  color: language === 'en' ? '#0B1F3A' : 'rgba(255,255,255,0.7)',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  fontSize: '0.85rem',
-                  transition: 'all 0.3s ease'
-                }}
               >
                 EN
               </button>
