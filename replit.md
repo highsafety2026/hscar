@@ -108,7 +108,21 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - Language preference saved to localStorage
 - RTL/LTR direction automatically applied
 
+## Booking System
+- Real-time calendar with date/time slot selection
+- 3-step booking wizard: Date → Time → Car Details
+- Friday disabled (UAE weekend), past dates blocked
+- Double-booking prevention via server-side validation
+- Time slots: 09:00 - 17:00 (30-minute intervals)
+- QR code generation for booking links
+- PostgreSQL appointment_slots table with availability tracking
+
 ## Recent Changes (December 2024)
+- Added video background to hero section (hs_20251211_123323_0000_1765442313427.mp4)
+- Implemented real-time calendar booking system with time slots
+- Added 3-step booking wizard with visual progress indicator
+- Added double-booking prevention with server-side validation
+- Added QR code generation for booking links (/api/bookings/:id/qr)
 - Added bilingual support (Arabic/English) with language toggle
 - Redesigned entire website with Dubizzle-inspired modern style
 - Added stats bar with animated counters
