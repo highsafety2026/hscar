@@ -1,59 +1,77 @@
 import { Link } from 'react-router-dom'
-import { Shield, CheckCircle, Clock, Award, FileText, Car, MapPin, Wrench, Star, Coffee, Users, ArrowLeft, Zap, Eye, Settings, FileCheck, Phone } from 'lucide-react'
+import { Shield, CheckCircle, Clock, Award, FileText, Car, MapPin, Wrench, Star, Coffee, Users, ArrowLeft, ArrowRight, Zap, Eye, Settings, FileCheck, Phone } from 'lucide-react'
 import RatingSection from '../components/RatingSection'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function Home() {
+  const { language, t } = useLanguage()
+  const isRTL = language === 'ar'
+  const ArrowIcon = isRTL ? ArrowLeft : ArrowRight
+
   const services = [
     {
       id: 'full',
       icon: <Shield size={32} />,
-      title: 'الفحص الشامل',
+      title: language === 'ar' ? 'الفحص الشامل' : 'Full Inspection',
       titleEn: 'Full Inspection',
-      desc: 'فحص كامل لجميع أجزاء السيارة',
+      desc: language === 'ar' ? 'فحص كامل لجميع أجزاء السيارة' : 'Complete inspection of all car parts',
       color: '#C89D2A',
-      features: ['200+ نقطة فحص', 'تقرير مفصل', 'ضمان الدقة']
+      features: language === 'ar' 
+        ? ['200+ نقطة فحص', 'تقرير مفصل', 'ضمان الدقة']
+        : ['200+ inspection points', 'Detailed report', 'Accuracy guaranteed']
     },
     {
       id: 'mechanical',
       icon: <Settings size={32} />,
-      title: 'ميكانيكي + كمبيوتر',
+      title: language === 'ar' ? 'ميكانيكي + كمبيوتر' : 'Mechanical + Computer',
       titleEn: 'Mechanical + Computer',
-      desc: 'فحص المحرك وناقل الحركة والكمبيوتر',
+      desc: language === 'ar' ? 'فحص المحرك وناقل الحركة والكمبيوتر' : 'Engine, transmission, and computer check',
       color: '#4285F4',
-      features: ['فحص المحرك', 'فحص الجيربوكس', 'قراءة الأكواد']
+      features: language === 'ar'
+        ? ['فحص المحرك', 'فحص الجيربوكس', 'قراءة الأكواد']
+        : ['Engine check', 'Gearbox check', 'Code reading']
     },
     {
       id: 'misc',
       icon: <Eye size={32} />,
-      title: 'فحوصات متنوعة',
+      title: language === 'ar' ? 'فحوصات متنوعة' : 'Various Tests',
       titleEn: 'Various Tests',
-      desc: 'فحص الهيكل والبودي والطلاء',
+      desc: language === 'ar' ? 'فحص الهيكل والبودي والطلاء' : 'Body, frame, and paint inspection',
       color: '#34A853',
-      features: ['فحص الحوادث', 'قياس الطلاء', 'فحص الشاسيه']
+      features: language === 'ar'
+        ? ['فحص الحوادث', 'قياس الطلاء', 'فحص الشاسيه']
+        : ['Accident check', 'Paint measurement', 'Chassis check']
     },
     {
       id: 'basic',
       icon: <FileCheck size={32} />,
-      title: 'فحص أساسي',
+      title: language === 'ar' ? 'فحص أساسي' : 'Basic Check',
       titleEn: 'Basic Check',
-      desc: 'فحص سريع للأجزاء الأساسية',
+      desc: language === 'ar' ? 'فحص سريع للأجزاء الأساسية' : 'Quick inspection of main parts',
       color: '#EA4335',
-      features: ['فحص سريع', 'النقاط الأساسية', 'تقرير مختصر']
+      features: language === 'ar'
+        ? ['فحص سريع', 'النقاط الأساسية', 'تقرير مختصر']
+        : ['Quick check', 'Main points', 'Brief report']
     }
   ]
 
   const stats = [
-    { icon: <Wrench size={28} />, number: '+5,000', label: 'سيارة تم فحصها' },
-    { icon: <Award size={28} />, number: '+10', label: 'سنوات خبرة' },
-    { icon: <Users size={28} />, number: '+500', label: 'عميل سعيد' },
-    { icon: <Star size={28} />, number: '4.9', label: 'تقييم العملاء' }
+    { icon: <Wrench size={28} />, number: '+5,000', label: t.stats.cars },
+    { icon: <Award size={28} />, number: '+10', label: t.stats.years },
+    { icon: <Users size={28} />, number: '+500', label: t.stats.customers },
+    { icon: <Star size={28} />, number: '4.9', label: t.stats.rating }
   ]
 
-  const whyUs = [
+  const whyUs = language === 'ar' ? [
     { icon: <Zap size={36} />, title: 'سرعة في الإنجاز', desc: 'فحص شامل خلال ساعة واحدة فقط' },
     { icon: <Shield size={36} />, title: 'دقة عالية', desc: 'أحدث أجهزة الفحص العالمية' },
     { icon: <FileText size={36} />, title: 'تقارير مفصلة', desc: 'تقرير PDF شامل مع صور' },
     { icon: <Award size={36} />, title: 'فريق متخصص', desc: 'مهندسون وفنيون ذوو خبرة' }
+  ] : [
+    { icon: <Zap size={36} />, title: 'Fast Service', desc: 'Complete inspection in just one hour' },
+    { icon: <Shield size={36} />, title: 'High Accuracy', desc: 'Latest global inspection equipment' },
+    { icon: <FileText size={36} />, title: 'Detailed Reports', desc: 'Comprehensive PDF report with photos' },
+    { icon: <Award size={36} />, title: 'Expert Team', desc: 'Experienced engineers and technicians' }
   ]
 
   return (
@@ -64,23 +82,23 @@ function Home() {
           <div className="hero-content">
             <div className="hero-badge">
               <Star size={16} fill="#C89D2A" color="#C89D2A" />
-              <span>المركز الأول في الإمارات</span>
+              <span>{t.hero.badge}</span>
             </div>
-            <h1>الأمان العالي الدولي</h1>
-            <h2>للفحص الفني للسيارات</h2>
+            <h1>{t.hero.title}</h1>
+            <h2>{t.hero.subtitle}</h2>
             <p className="hero-subtitle">
-              نقدم لكم خدمات فحص السيارات بأعلى معايير الجودة والدقة
+              {t.hero.description}
               <br />
-              <strong>أجهزة متطورة • فريق محترف • تقارير شاملة</strong>
+              <strong>{t.hero.features}</strong>
             </p>
             <div className="hero-actions">
               <Link to="/booking" className="btn-hero-primary">
-                <span>احجز موعدك الآن</span>
-                <ArrowLeft size={20} />
+                <span>{t.hero.bookNow}</span>
+                <ArrowIcon size={20} />
               </Link>
               <Link to="/report" className="btn-hero-secondary">
                 <FileText size={20} />
-                <span>تحميل التقرير</span>
+                <span>{t.hero.downloadReport}</span>
               </Link>
             </div>
           </div>
@@ -109,9 +127,9 @@ function Home() {
       <section className="services-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-badge">خدماتنا</span>
-            <h2>اختر نوع الفحص المناسب</h2>
-            <p>نوفر لكم باقات متنوعة تناسب جميع احتياجاتكم</p>
+            <span className="section-badge">{t.services.title}</span>
+            <h2>{language === 'ar' ? 'اختر نوع الفحص المناسب' : 'Choose the Right Inspection'}</h2>
+            <p>{language === 'ar' ? 'نوفر لكم باقات متنوعة تناسب جميع احتياجاتكم' : 'We offer various packages to suit all your needs'}</p>
           </div>
           <div className="services-grid">
             {services.map((service, index) => (
@@ -125,7 +143,7 @@ function Home() {
                 </div>
                 <div className="service-content">
                   <h3>{service.title}</h3>
-                  <span className="service-title-en">{service.titleEn}</span>
+                  {language === 'ar' && <span className="service-title-en">{service.titleEn}</span>}
                   <p>{service.desc}</p>
                   <ul className="service-features">
                     {service.features.map((f, i) => (
@@ -133,7 +151,7 @@ function Home() {
                     ))}
                   </ul>
                   <div className="service-footer">
-                    <Link to="/booking" className="service-btn">احجز الآن</Link>
+                    <Link to="/booking" className="service-btn">{t.services.bookNow}</Link>
                   </div>
                 </div>
               </div>
@@ -145,8 +163,8 @@ function Home() {
       <section className="why-us-section">
         <div className="container">
           <div className="section-header light">
-            <span className="section-badge">لماذا نحن؟</span>
-            <h2>مميزات تجعلنا الخيار الأول</h2>
+            <span className="section-badge">{language === 'ar' ? 'لماذا نحن؟' : 'Why Us?'}</span>
+            <h2>{language === 'ar' ? 'مميزات تجعلنا الخيار الأول' : 'Features That Make Us #1'}</h2>
           </div>
           <div className="why-us-grid">
             {whyUs.map((item, index) => (
@@ -163,59 +181,59 @@ function Home() {
       <section className="gallery-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-badge">جولة افتراضية</span>
-            <h2>تعرف على مركزنا</h2>
-            <p>مرافق حديثة ومجهزة بأعلى المعايير</p>
+            <span className="section-badge">{language === 'ar' ? 'جولة افتراضية' : 'Virtual Tour'}</span>
+            <h2>{language === 'ar' ? 'تعرف على مركزنا' : 'Explore Our Center'}</h2>
+            <p>{language === 'ar' ? 'مرافق حديثة ومجهزة بأعلى المعايير' : 'Modern facilities equipped to the highest standards'}</p>
           </div>
           <div className="gallery-grid">
             <div className="gallery-item large">
-              <img src="/images/inspection-area.jpg" alt="منطقة الفحص" />
+              <img src="/images/inspection-area.jpg" alt={language === 'ar' ? 'منطقة الفحص' : 'Inspection Area'} />
               <div className="gallery-overlay">
-                <h4>منطقة الفحص الفني</h4>
-                <p>أحدث رافعات الفحص والمعدات</p>
+                <h4>{language === 'ar' ? 'منطقة الفحص الفني' : 'Technical Inspection Area'}</h4>
+                <p>{language === 'ar' ? 'أحدث رافعات الفحص والمعدات' : 'Latest lifts and equipment'}</p>
               </div>
             </div>
             <div className="gallery-item">
-              <img src="/images/engineer-car.jpg" alt="فريق الفحص" />
+              <img src="/images/engineer-car.jpg" alt={language === 'ar' ? 'فريق الفحص' : 'Inspection Team'} />
               <div className="gallery-overlay">
-                <h4>فريق متخصص</h4>
+                <h4>{language === 'ar' ? 'فريق متخصص' : 'Expert Team'}</h4>
               </div>
             </div>
             <div className="gallery-item">
-              <img src="/images/engineer-checking.jpg" alt="فحص السيارة" />
+              <img src="/images/engineer-checking.jpg" alt={language === 'ar' ? 'فحص السيارة' : 'Car Inspection'} />
               <div className="gallery-overlay">
-                <h4>فحص شامل</h4>
+                <h4>{language === 'ar' ? 'فحص شامل' : 'Full Inspection'}</h4>
               </div>
             </div>
           </div>
           <div className="facilities-grid">
             <div className="facility-card">
-              <img src="/images/gallery/reception1.jpg" alt="الاستقبال" />
+              <img src="/images/gallery/reception1.jpg" alt={language === 'ar' ? 'الاستقبال' : 'Reception'} />
               <div className="facility-info">
                 <Users size={24} />
                 <div>
-                  <h4>مكتب الاستقبال</h4>
-                  <p>خدمة عملاء احترافية</p>
+                  <h4>{language === 'ar' ? 'مكتب الاستقبال' : 'Reception Desk'}</h4>
+                  <p>{language === 'ar' ? 'خدمة عملاء احترافية' : 'Professional customer service'}</p>
                 </div>
               </div>
             </div>
             <div className="facility-card">
-              <img src="/images/gallery/waiting1.jpg" alt="صالة الانتظار" />
+              <img src="/images/gallery/waiting1.jpg" alt={language === 'ar' ? 'صالة الانتظار' : 'Waiting Area'} />
               <div className="facility-info">
                 <Star size={24} />
                 <div>
-                  <h4>صالة انتظار VIP</h4>
-                  <p>جلسات مريحة وأجواء هادئة</p>
+                  <h4>{language === 'ar' ? 'صالة انتظار VIP' : 'VIP Waiting Lounge'}</h4>
+                  <p>{language === 'ar' ? 'جلسات مريحة وأجواء هادئة' : 'Comfortable seating and calm atmosphere'}</p>
                 </div>
               </div>
             </div>
             <div className="facility-card">
-              <img src="/images/gallery/drinks.jpg" alt="المشروبات" />
+              <img src="/images/gallery/drinks.jpg" alt={language === 'ar' ? 'المشروبات' : 'Beverages'} />
               <div className="facility-info">
                 <Coffee size={24} />
                 <div>
-                  <h4>منطقة المشروبات</h4>
-                  <p>قهوة ومشروبات مجانية</p>
+                  <h4>{language === 'ar' ? 'منطقة المشروبات' : 'Beverages Area'}</h4>
+                  <p>{language === 'ar' ? 'قهوة ومشروبات مجانية' : 'Free coffee and drinks'}</p>
                 </div>
               </div>
             </div>
@@ -226,16 +244,16 @@ function Home() {
       <section className="cta-section">
         <div className="container">
           <div className="cta-content">
-            <h2>جاهز لفحص سيارتك؟</h2>
-            <p>احجز موعدك الآن واحصل على تقرير شامل ومفصل</p>
+            <h2>{language === 'ar' ? 'جاهز لفحص سيارتك؟' : 'Ready to Inspect Your Car?'}</h2>
+            <p>{language === 'ar' ? 'احجز موعدك الآن واحصل على تقرير شامل ومفصل' : 'Book now and get a comprehensive detailed report'}</p>
             <div className="cta-buttons">
               <Link to="/booking" className="btn-cta-primary">
-                احجز موعدك الآن
-                <ArrowLeft size={20} />
+                {t.hero.bookNow}
+                <ArrowIcon size={20} />
               </Link>
               <a href="https://wa.me/9710542206000" className="btn-cta-whatsapp" target="_blank" rel="noopener noreferrer">
                 <Phone size={20} />
-                تواصل واتساب
+                {language === 'ar' ? 'تواصل واتساب' : 'WhatsApp Us'}
               </a>
             </div>
           </div>
@@ -245,8 +263,8 @@ function Home() {
       <section className="location-section">
         <div className="container">
           <div className="section-header">
-            <span className="section-badge">موقعنا</span>
-            <h2>تفضلوا بزيارتنا</h2>
+            <span className="section-badge">{language === 'ar' ? 'موقعنا' : 'Our Location'}</span>
+            <h2>{language === 'ar' ? 'تفضلوا بزيارتنا' : 'Visit Us'}</h2>
           </div>
           <div className="location-grid">
             <div className="location-card">
@@ -255,8 +273,8 @@ function Home() {
                   <MapPin size={30} />
                 </div>
                 <div>
-                  <h4>العنوان</h4>
-                  <p>الشارقة - المنطقة الصناعية 13</p>
+                  <h4>{language === 'ar' ? 'العنوان' : 'Address'}</h4>
+                  <p>{t.footer.location}</p>
                 </div>
               </div>
               <a 
@@ -266,7 +284,7 @@ function Home() {
                 className="location-btn"
               >
                 <MapPin size={18} />
-                افتح في خرائط جوجل
+                {language === 'ar' ? 'افتح في خرائط جوجل' : 'Open in Google Maps'}
               </a>
             </div>
             <div className="location-map">

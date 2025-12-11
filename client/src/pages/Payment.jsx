@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { CreditCard, User, Phone, Mail, Shield, CheckCircle } from 'lucide-react'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function Payment() {
+  const { language, t } = useLanguage()
   const [formData, setFormData] = useState({
     customerName: '',
     customerPhone: '',
@@ -12,11 +14,16 @@ function Payment() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const services = [
+  const services = language === 'ar' ? [
     { value: 'full', label: 'الفحص الشامل - Full Inspection', price: 350 },
     { value: 'mechanical', label: 'فحص الميكانيكا والكمبيوتر - Mechanical + Computer', price: 250 },
     { value: 'misc', label: 'فحوصات متنوعة - Miscellaneous Tests', price: 200 },
     { value: 'basic', label: 'فحص الأجزاء الأساسية - Basic Parts', price: 150 }
+  ] : [
+    { value: 'full', label: 'Full Inspection', price: 350 },
+    { value: 'mechanical', label: 'Mechanical + Computer Check', price: 250 },
+    { value: 'misc', label: 'Miscellaneous Tests', price: 200 },
+    { value: 'basic', label: 'Basic Parts Check', price: 150 }
   ]
 
   const handleChange = (e) => {
@@ -56,10 +63,10 @@ function Payment() {
       if (data.url) {
         window.location.href = data.url
       } else {
-        setError(data.error || 'حدث خطأ في إنشاء جلسة الدفع')
+        setError(data.error || (language === 'ar' ? 'حدث خطأ في إنشاء جلسة الدفع' : 'Error creating checkout session'))
       }
     } catch (err) {
-      setError('حدث خطأ في الاتصال بالخادم')
+      setError(language === 'ar' ? 'حدث خطأ في الاتصال بالخادم' : 'Connection error')
     }
     setLoading(false)
   }
@@ -68,9 +75,9 @@ function Payment() {
     <div className="payment-page">
       <div className="payment-hero">
         <div className="container">
-          <span className="section-badge">الدفع الآمن</span>
-          <h1>الدفع الإلكتروني</h1>
-          <p>ادفع بأمان عبر البطاقة البنكية</p>
+          <span className="section-badge">{t.payment.badge}</span>
+          <h1>{t.payment.title}</h1>
+          <p>{t.payment.subtitle}</p>
         </div>
       </div>
 
@@ -79,20 +86,20 @@ function Payment() {
           <div className="payment-info">
             <div className="security-badge">
               <Shield size={24} />
-              <span>دفع آمن ومشفر 100%</span>
+              <span>{t.payment.secure}</span>
             </div>
             
-            <h3>مميزات الدفع الإلكتروني</h3>
+            <h3>{t.payment.features}</h3>
             <ul className="payment-features">
-              <li><CheckCircle size={18} /> دفع آمن عبر Stripe</li>
-              <li><CheckCircle size={18} /> يدعم Visa و Mastercard</li>
-              <li><CheckCircle size={18} /> تشفير SSL/TLS</li>
-              <li><CheckCircle size={18} /> إيصال فوري بالبريد</li>
-              <li><CheckCircle size={18} /> لا نحتفظ ببيانات بطاقتك</li>
+              <li><CheckCircle size={18} /> {t.payment.secureStripe}</li>
+              <li><CheckCircle size={18} /> {t.payment.cards}</li>
+              <li><CheckCircle size={18} /> {t.payment.ssl}</li>
+              <li><CheckCircle size={18} /> {t.payment.receipt}</li>
+              <li><CheckCircle size={18} /> {language === 'ar' ? 'لا نحتفظ ببيانات بطاقتك' : 'We don\'t store your card data'}</li>
             </ul>
 
             <div className="accepted-cards">
-              <span>البطاقات المقبولة:</span>
+              <span>{language === 'ar' ? 'البطاقات المقبولة:' : 'Accepted Cards:'}</span>
               <div className="card-icons">
                 <img src="https://cdn.jsdelivr.net/gh/lipis/flag-icons/flags/4x3/visa.svg" alt="Visa" style={{ width: 50, height: 35, objectFit: 'contain', background: 'white', padding: 5, borderRadius: 5 }} />
                 <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" style={{ width: 50, height: 35, objectFit: 'contain', background: 'white', padding: 5, borderRadius: 5 }} />
@@ -109,19 +116,19 @@ function Payment() {
 
             <form onSubmit={handleSubmit} className="payment-form">
               <div className="form-group-new">
-                <label><User size={18} /> الاسم الكامل</label>
+                <label><User size={18} /> {t.payment.name}</label>
                 <input
                   type="text"
                   name="customerName"
                   value={formData.customerName}
                   onChange={handleChange}
                   required
-                  placeholder="أدخل اسمك الكامل"
+                  placeholder={t.payment.namePlaceholder}
                 />
               </div>
 
               <div className="form-group-new">
-                <label><Phone size={18} /> رقم الهاتف</label>
+                <label><Phone size={18} /> {t.payment.phone}</label>
                 <input
                   type="tel"
                   name="customerPhone"
@@ -133,7 +140,7 @@ function Payment() {
               </div>
 
               <div className="form-group-new">
-                <label><Mail size={18} /> البريد الإلكتروني (اختياري)</label>
+                <label><Mail size={18} /> {t.payment.email}</label>
                 <input
                   type="email"
                   name="customerEmail"
@@ -144,39 +151,39 @@ function Payment() {
               </div>
 
               <div className="form-group-new">
-                <label>نوع الخدمة</label>
+                <label>{t.payment.service}</label>
                 <select
                   name="serviceType"
                   value={formData.serviceType}
                   onChange={handleChange}
                   required
                 >
-                  <option value="">اختر نوع الخدمة</option>
+                  <option value="">{t.payment.selectService}</option>
                   {services.map(service => (
                     <option key={service.value} value={service.value}>
-                      {service.label} - {service.price} درهم
+                      {service.label} - {service.price} {t.common.aed}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="form-group-new">
-                <label><CreditCard size={18} /> المبلغ (درهم)</label>
+                <label><CreditCard size={18} /> {t.payment.amount}</label>
                 <input
                   type="number"
                   name="amount"
                   value={formData.amount}
                   onChange={handleChange}
                   required
-                  placeholder="المبلغ بالدرهم"
+                  placeholder={language === 'ar' ? 'المبلغ بالدرهم' : 'Amount in AED'}
                   min="1"
                   readOnly={formData.serviceType !== ''}
                 />
               </div>
 
               <div className="amount-display">
-                <span>المبلغ الإجمالي:</span>
-                <span className="total-amount">{formData.amount || 0} درهم</span>
+                <span>{language === 'ar' ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
+                <span className="total-amount">{formData.amount || 0} {t.common.aed}</span>
               </div>
 
               <button 
@@ -185,11 +192,11 @@ function Payment() {
                 disabled={loading || !formData.amount}
               >
                 <CreditCard size={20} />
-                {loading ? 'جاري التحويل...' : 'ادفع الآن'}
+                {loading ? t.payment.processing : t.payment.payNow}
               </button>
 
               <p className="payment-note">
-                سيتم تحويلك إلى صفحة الدفع الآمنة من Stripe
+                {language === 'ar' ? 'سيتم تحويلك إلى صفحة الدفع الآمنة من Stripe' : 'You will be redirected to Stripe\'s secure payment page'}
               </p>
             </form>
           </div>
