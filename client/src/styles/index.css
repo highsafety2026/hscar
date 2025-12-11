@@ -3049,3 +3049,182 @@ body {
     flex-direction: column;
   }
 }
+
+/* Service Selection Cards - Tasjeel Style */
+.service-selection-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.3rem;
+  color: var(--primary);
+  margin-bottom: 25px;
+}
+
+.service-cards-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.service-select-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border: 2px solid #e8e8e8;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.service-select-card:hover {
+  border-color: var(--card-color, var(--secondary));
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.service-select-card.selected {
+  border-color: var(--card-color, var(--secondary));
+  background: linear-gradient(135deg, rgba(200, 157, 42, 0.05) 0%, rgba(200, 157, 42, 0.02) 100%);
+}
+
+.service-card-icon {
+  width: 65px;
+  height: 65px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+}
+
+.service-card-info {
+  flex: 1;
+}
+
+.service-card-info h4 {
+  font-size: 1.2rem;
+  color: var(--primary);
+  margin-bottom: 4px;
+}
+
+.service-title-en {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 8px;
+}
+
+.service-desc {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.service-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.feature-tag {
+  background: #f0f4f8;
+  color: var(--primary);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.service-price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.card-arrow {
+  color: #ccc;
+  transition: all 0.3s ease;
+}
+
+.service-select-card:hover .card-arrow {
+  color: var(--secondary);
+  transform: translateX(-5px);
+}
+
+.selected-service-display {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-light));
+  border-radius: 12px;
+  color: white;
+  margin-bottom: 25px;
+}
+
+.service-badge {
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.service-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-name {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.service-price-small {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.year-select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 1rem;
+  background: white;
+  color: var(--primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.year-select:focus {
+  border-color: var(--secondary);
+  outline: none;
+}
+
+@media (max-width: 768px) {
+  .service-select-card {
+    flex-direction: column;
+    text-align: center;
+    padding: 25px 20px;
+  }
+
+  .card-arrow {
+    display: none;
+  }
+
+  .service-features {
+    justify-content: center;
+  }
+
+  .service-card-info h4 {
+    font-size: 1.1rem;
+  }
+}
