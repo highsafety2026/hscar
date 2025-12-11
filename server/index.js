@@ -571,6 +571,8 @@ app.post('/api/chat/analyze-pdf', upload.single('pdf'), async (req, res) => {
     console.log('PDF file received:', req.file.originalname, req.file.path);
     
     let pdfText = '';
+    let pdfImages = [];
+    
     try {
       const pdfBuffer = fs.readFileSync(req.file.path);
       const pdfData = await pdfParse(pdfBuffer);
@@ -578,7 +580,25 @@ app.post('/api/chat/analyze-pdf', upload.single('pdf'), async (req, res) => {
       console.log('PDF text extracted, length:', pdfText.length);
     } catch (parseErr) {
       console.error('PDF parse error:', parseErr.message);
-      pdfText = 'لم يتم استخراج النص من الملف. يرجى وصف محتوى التقرير.';
+    }
+
+    let useVision = false;
+    try {
+      const { pdf } = await import('pdf-to-img');
+      const pdfBuffer = fs.readFileSync(req.file.path);
+      const pages = await pdf(pdfBuffer, { scale: 2 });
+      let pageCount = 0;
+      for await (const page of pages) {
+        if (pageCount < 3) {
+          const base64Image = page.toString('base64');
+          pdfImages.push(`data:image/png;base64,${base64Image}`);
+          pageCount++;
+        }
+      }
+      useVision = pdfImages.length > 0;
+      console.log('PDF converted to images:', pdfImages.length, 'pages');
+    } catch (imgErr) {
+      console.error('PDF to image error:', imgErr.message);
     }
 
     try {
@@ -589,11 +609,13 @@ app.post('/api/chat/analyze-pdf', upload.single('pdf'), async (req, res) => {
 
     const pricesJson = JSON.stringify(UAE_CAR_PRICES);
 
-    const analysisPrompt = `أنت خبير في تقييم السيارات في السوق الإماراتي. قم بتحليل تقرير فحص السيارة التالي واستخرج:
+    const analysisPrompt = `أنت خبير في تقييم السيارات في السوق الإماراتي. قم بتحليل تقرير فحص السيارة المرفق واستخرج:
 1. نوع السيارة (الماركة والموديل)
 2. سنة الصنع
-3. قراءة العداد
-4. العيوب والمشاكل المذكورة في التقرير
+3. قراءة العداد (الكيلومترات)
+4. جميع العيوب والمشاكل المذكورة في التقرير بالتفصيل
+
+اقرأ كل النصوص والجداول والمربعات بعناية فائقة.
 
 ثم قم بتقدير سعر السيارة في السوق الإماراتي بناءً على:
 - الحالة العامة للسيارة
@@ -603,35 +625,55 @@ app.post('/api/chat/analyze-pdf', upload.single('pdf'), async (req, res) => {
 أسعار السيارات المرجعية في السوق الإماراتي (بالدرهم):
 ${pricesJson}
 
-نص تقرير الفحص:
-${pdfText}
+${!useVision && pdfText ? `نص تقرير الفحص:\n${pdfText}` : ''}
 
 قدم الرد بالتنسيق التالي:
 📋 **معلومات السيارة:**
 - الماركة والموديل: [...]
 - سنة الصنع: [...]
 - قراءة العداد: [...]
+- رقم الشاصي (إن وجد): [...]
 
-🔧 **العيوب المكتشفة:**
-[قائمة بالعيوب الرئيسية]
+🔧 **نتائج الفحص:**
+✅ الأجزاء السليمة: [...]
+⚠️ الأجزاء التي تحتاج صيانة: [...]
+❌ العيوب الخطيرة: [...]
 
 💰 **تقدير السعر في السوق الإماراتي:**
-- السعر المتوقع: [...] - [...] درهم إماراتي
-- نسبة الخصم بسبب العيوب: [...]%
+- السعر الأساسي للسيارة: [...] درهم
+- الخصم بسبب العيوب: [...] درهم ([...]%)
+- السعر النهائي المتوقع: [...] - [...] درهم
 
-📝 **ملاحظات:**
-[ملاحظات إضافية عن حالة السيارة]
+📝 **توصيات:**
+[نصائح للمشتري أو البائع]
 
 للمزيد من التفاصيل أو لحجز موعد فحص، تواصل معنا عبر واتساب: +971 54 220 6000`;
 
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
+    let messages;
+    if (useVision) {
+      const imageContents = pdfImages.map(img => ({
+        type: 'image_url',
+        image_url: { url: img, detail: 'high' }
+      }));
+      messages = [
+        { role: 'system', content: 'أنت خبير في تقييم السيارات ومحلل تقارير فحص السيارات في السوق الإماراتي. اقرأ جميع النصوص والجداول في الصور بدقة عالية وقدم تحليلاً شاملاً بالعربية.' },
+        { role: 'user', content: [
+          { type: 'text', text: analysisPrompt },
+          ...imageContents
+        ]}
+      ];
+    } else {
+      messages = [
         { role: 'system', content: 'أنت خبير في تقييم السيارات ومحلل تقارير فحص السيارات في السوق الإماراتي. قدم تحليلاً دقيقاً ومفيداً بالعربية.' },
         { role: 'user', content: analysisPrompt }
-      ],
-      max_tokens: 1500,
-      temperature: 0.5
+      ];
+    }
+
+    const completion = await openai.chat.completions.create({
+      model: useVision ? 'gpt-4o' : 'gpt-4o-mini',
+      messages: messages,
+      max_tokens: 2000,
+      temperature: 0.3
     });
 
     const reply = completion.choices[0].message.content;
