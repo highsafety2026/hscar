@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Search, ChevronDown, Car } from 'lucide-react'
+import { Search, ChevronDown, Car, Calendar, Clock, ChevronLeft, ChevronRight, Check, QrCode } from 'lucide-react'
 
 function Booking() {
   const carBrands = [
@@ -46,17 +46,24 @@ function Booking() {
     { name: 'سوزوكي', nameEn: 'Suzuki', models: ['جيمني', 'فيتارا', 'سويفت', 'ديزاير', 'ارتيجا'] }
   ]
 
+  const timeSlots = [
+    '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+    '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+    '15:00', '15:30', '16:00', '16:30', '17:00', '17:30'
+  ]
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    email: '',
     carBrand: '',
     carModel: '',
     carYear: '',
     serviceType: '',
-    preferredDate: '',
     notes: ''
   })
   const [success, setSuccess] = useState(false)
+  const [bookingId, setBookingId] = useState('')
   const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
@@ -65,6 +72,49 @@ function Booking() {
   const [modelSearchTerm, setModelSearchTerm] = useState('')
   const dropdownRef = useRef(null)
   const modelDropdownRef = useRef(null)
+
+  const [currentMonth, setCurrentMonth] = useState(new Date())
+  const [selectedDate, setSelectedDate] = useState(null)
+  const [selectedTime, setSelectedTime] = useState(null)
+  const [bookedSlots, setBookedSlots] = useState([])
+  const [loadingSlots, setLoadingSlots] = useState(false)
+  const [qrCode, setQrCode] = useState(null)
+  const [step, setStep] = useState(1)
+
+  useEffect(() => {
+    fetchQRCode()
+  }, [])
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchBookedSlots(selectedDate)
+    }
+  }, [selectedDate])
+
+  const fetchQRCode = async () => {
+    try {
+      const res = await fetch('/api/booking-qr')
+      const data = await res.json()
+      if (data.qrCode) {
+        setQrCode(data.qrCode)
+      }
+    } catch (error) {
+      console.error('Error fetching QR code:', error)
+    }
+  }
+
+  const fetchBookedSlots = async (date) => {
+    setLoadingSlots(true)
+    try {
+      const dateStr = date.toISOString().split('T')[0]
+      const res = await fetch(`/api/slots?date=${dateStr}`)
+      const data = await res.json()
+      setBookedSlots(data.bookedSlots || [])
+    } catch (error) {
+      console.error('Error fetching slots:', error)
+    }
+    setLoadingSlots(false)
+  }
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -108,8 +158,45 @@ function Booking() {
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
+  const getDaysInMonth = (date) => {
+    const year = date.getFullYear()
+    const month = date.getMonth()
+    const firstDay = new Date(year, month, 1)
+    const lastDay = new Date(year, month + 1, 0)
+    const days = []
+    
+    for (let i = 0; i < firstDay.getDay(); i++) {
+      days.push(null)
+    }
+    
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      days.push(new Date(year, month, i))
+    }
+    
+    return days
+  }
+
+  const isDateDisabled = (date) => {
+    if (!date) return true
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const dayOfWeek = date.getDay()
+    return date < today || dayOfWeek === 5
+  }
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString('ar-AE', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+  }
+
+  const monthNames = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+  const dayNames = ['أحد', 'اثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت']
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    if (!selectedDate || !selectedTime) {
+      alert('الرجاء اختيار التاريخ والوقت')
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch('/api/bookings', {
@@ -117,30 +204,40 @@ function Booking() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          carModel: `${formData.carBrand} ${formData.carModel}`
+          carModel: `${formData.carBrand} ${formData.carModel}`,
+          preferredDate: selectedDate.toISOString().split('T')[0],
+          preferredTime: selectedTime
         })
       })
       const data = await res.json()
       if (data.success) {
         setSuccess(true)
+        setBookingId(data.bookingId || '')
         setFormData({
           name: '',
           phone: '',
+          email: '',
           carBrand: '',
           carModel: '',
           carYear: '',
           serviceType: '',
-          preferredDate: '',
           notes: ''
         })
         setSearchTerm('')
         setModelSearchTerm('')
         setSelectedBrand(null)
+        setSelectedDate(null)
+        setSelectedTime(null)
+        setStep(1)
       }
     } catch (error) {
       console.error('Error:', error)
     }
     setLoading(false)
+  }
+
+  const isSlotBooked = (time) => {
+    return bookedSlots.includes(time)
   }
 
   return (
@@ -154,178 +251,333 @@ function Booking() {
       </div>
 
       <div className="container" style={{ padding: '60px 24px' }}>
-        <div className="booking-form-container">
-          {success && (
-            <div className="success-message-new">
-              <Car size={40} />
-              <h3>تم استلام طلبك بنجاح!</h3>
-              <p>سنتواصل معك قريباً لتأكيد الموعد</p>
+        {success ? (
+          <div className="booking-success-card">
+            <div className="success-icon-large">
+              <Check size={60} />
             </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="booking-form">
-            <div className="form-row">
-              <div className="form-group-new">
-                <label>الاسم الكامل</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="أدخل اسمك الكامل"
-                />
-              </div>
-
-              <div className="form-group-new">
-                <label>رقم الهاتف</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                  placeholder="05XXXXXXXX"
-                />
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group-new" ref={dropdownRef}>
-                <label>نوع السيارة (الماركة)</label>
-                <div className="search-input-wrapper">
-                  <Search size={18} className="search-icon" />
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value)
-                      setShowDropdown(true)
-                      setSelectedBrand(null)
-                    }}
-                    onFocus={() => setShowDropdown(true)}
-                    placeholder="ابحث عن الماركة... مثال: تويوتا أو Toyota"
-                    required
-                  />
-                  <ChevronDown size={18} className="dropdown-icon" />
-                </div>
-                {showDropdown && (
-                  <div className="car-dropdown">
-                    {filteredBrands.length > 0 ? (
-                      filteredBrands.map((brand, index) => (
-                        <div 
-                          key={index} 
-                          className="car-dropdown-item"
-                          onClick={() => handleBrandSelect(brand)}
-                        >
-                          <span className="brand-ar">{brand.name}</span>
-                          <span className="brand-en">{brand.nameEn}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="no-results">لا توجد نتائج</div>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="form-group-new" ref={modelDropdownRef}>
-                <label>الموديل</label>
-                <div className="search-input-wrapper">
-                  <Car size={18} className="search-icon" />
-                  <input
-                    type="text"
-                    value={modelSearchTerm}
-                    onChange={(e) => {
-                      setModelSearchTerm(e.target.value)
-                      setShowModelDropdown(true)
-                    }}
-                    onFocus={() => setShowModelDropdown(true)}
-                    placeholder={selectedBrand ? "اختر الموديل..." : "اختر الماركة أولاً"}
-                    disabled={!selectedBrand}
-                    required
-                  />
-                  <ChevronDown size={18} className="dropdown-icon" />
-                </div>
-                {showModelDropdown && selectedBrand && (
-                  <div className="car-dropdown">
-                    {filteredModels.length > 0 ? (
-                      filteredModels.map((model, index) => (
-                        <div 
-                          key={index} 
-                          className="car-dropdown-item"
-                          onClick={() => handleModelSelect(model)}
-                        >
-                          <span className="brand-ar">{model}</span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="no-results">لا توجد نتائج</div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="form-row">
-              <div className="form-group-new">
-                <label>سنة الصنع</label>
-                <input
-                  type="number"
-                  name="carYear"
-                  value={formData.carYear}
-                  onChange={handleChange}
-                  required
-                  placeholder="مثال: 2020"
-                  min="1990"
-                  max="2025"
-                />
-              </div>
-
-              <div className="form-group-new">
-                <label>التاريخ المفضل</label>
-                <input
-                  type="date"
-                  name="preferredDate"
-                  value={formData.preferredDate}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-group-new">
-              <label>نوع الخدمة</label>
-              <select
-                name="serviceType"
-                value={formData.serviceType}
-                onChange={handleChange}
-                required
-              >
-                <option value="">اختر نوع الخدمة</option>
-                <option value="full">الفحص الشامل - Full Inspection</option>
-                <option value="mechanical">فحص الميكانيكا والكمبيوتر - Mechanical + Computer</option>
-                <option value="misc">فحوصات متنوعة - Miscellaneous Tests</option>
-                <option value="basic">فحص الأجزاء الأساسية - Basic Parts</option>
-              </select>
-            </div>
-
-            <div className="form-group-new">
-              <label>ملاحظات إضافية</label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                rows="3"
-                placeholder="أي ملاحظات أو استفسارات..."
-              />
-            </div>
-
-            <button type="submit" className="booking-submit-btn" disabled={loading}>
-              {loading ? 'جاري الإرسال...' : 'إرسال طلب الحجز'}
+            <h2>تم الحجز بنجاح!</h2>
+            <p>رقم الحجز الخاص بك</p>
+            <div className="booking-id-display">{bookingId}</div>
+            <p className="success-note">سنتواصل معك قريباً لتأكيد الموعد على الرقم المسجل</p>
+            <button onClick={() => setSuccess(false)} className="btn-new-booking">
+              حجز موعد جديد
             </button>
-          </form>
-        </div>
+          </div>
+        ) : (
+          <div className="booking-layout">
+            <div className="booking-steps">
+              <div className={`step ${step >= 1 ? 'active' : ''}`}>
+                <span className="step-number">1</span>
+                <span className="step-label">اختر التاريخ</span>
+              </div>
+              <div className="step-line"></div>
+              <div className={`step ${step >= 2 ? 'active' : ''}`}>
+                <span className="step-number">2</span>
+                <span className="step-label">اختر الوقت</span>
+              </div>
+              <div className="step-line"></div>
+              <div className={`step ${step >= 3 ? 'active' : ''}`}>
+                <span className="step-number">3</span>
+                <span className="step-label">بيانات السيارة</span>
+              </div>
+            </div>
+
+            <div className="booking-content">
+              {step === 1 && (
+                <div className="calendar-section">
+                  <div className="calendar-header">
+                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))}>
+                      <ChevronRight size={24} />
+                    </button>
+                    <h3>
+                      <Calendar size={20} />
+                      {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+                    </h3>
+                    <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))}>
+                      <ChevronLeft size={24} />
+                    </button>
+                  </div>
+                  
+                  <div className="calendar-days-header">
+                    {dayNames.map(day => (
+                      <div key={day} className="day-name">{day}</div>
+                    ))}
+                  </div>
+                  
+                  <div className="calendar-grid">
+                    {getDaysInMonth(currentMonth).map((day, index) => (
+                      <button
+                        key={index}
+                        className={`calendar-day ${!day ? 'empty' : ''} ${isDateDisabled(day) ? 'disabled' : ''} ${selectedDate && day && day.toDateString() === selectedDate.toDateString() ? 'selected' : ''}`}
+                        onClick={() => {
+                          if (day && !isDateDisabled(day)) {
+                            setSelectedDate(day)
+                            setSelectedTime(null)
+                            setStep(2)
+                          }
+                        }}
+                        disabled={isDateDisabled(day)}
+                      >
+                        {day ? day.getDate() : ''}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="calendar-legend">
+                    <div className="legend-item">
+                      <span className="legend-dot available"></span>
+                      <span>متاح</span>
+                    </div>
+                    <div className="legend-item">
+                      <span className="legend-dot disabled"></span>
+                      <span>غير متاح</span>
+                    </div>
+                    <div className="legend-item">
+                      <span className="legend-dot friday"></span>
+                      <span>الجمعة (عطلة)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="time-slots-section">
+                  <div className="selected-date-display">
+                    <Calendar size={20} />
+                    <span>{formatDate(selectedDate)}</span>
+                    <button onClick={() => setStep(1)} className="change-date-btn">تغيير</button>
+                  </div>
+                  
+                  <h3><Clock size={20} /> اختر الوقت المناسب</h3>
+                  
+                  {loadingSlots ? (
+                    <div className="loading-slots">جاري تحميل المواعيد...</div>
+                  ) : (
+                    <div className="time-slots-grid">
+                      {timeSlots.map(time => (
+                        <button
+                          key={time}
+                          className={`time-slot ${isSlotBooked(time) ? 'booked' : ''} ${selectedTime === time ? 'selected' : ''}`}
+                          onClick={() => {
+                            if (!isSlotBooked(time)) {
+                              setSelectedTime(time)
+                              setStep(3)
+                            }
+                          }}
+                          disabled={isSlotBooked(time)}
+                        >
+                          <Clock size={16} />
+                          <span>{time}</span>
+                          {isSlotBooked(time) && <span className="booked-label">محجوز</span>}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  <button onClick={() => setStep(1)} className="back-btn">
+                    <ChevronRight size={18} /> العودة للتقويم
+                  </button>
+                </div>
+              )}
+
+              {step === 3 && (
+                <div className="booking-form-section">
+                  <div className="selected-datetime-display">
+                    <div className="datetime-item">
+                      <Calendar size={18} />
+                      <span>{formatDate(selectedDate)}</span>
+                    </div>
+                    <div className="datetime-item">
+                      <Clock size={18} />
+                      <span>{selectedTime}</span>
+                    </div>
+                    <button onClick={() => setStep(1)} className="change-btn">تغيير</button>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="booking-form">
+                    <div className="form-row">
+                      <div className="form-group-new">
+                        <label>الاسم الكامل</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          required
+                          placeholder="أدخل اسمك الكامل"
+                        />
+                      </div>
+
+                      <div className="form-group-new">
+                        <label>رقم الهاتف</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          required
+                          placeholder="05XXXXXXXX"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group-new">
+                      <label>البريد الإلكتروني (اختياري)</label>
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="example@email.com"
+                      />
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group-new" ref={dropdownRef}>
+                        <label>نوع السيارة (الماركة)</label>
+                        <div className="search-input-wrapper">
+                          <Search size={18} className="search-icon" />
+                          <input
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => {
+                              setSearchTerm(e.target.value)
+                              setShowDropdown(true)
+                              setSelectedBrand(null)
+                            }}
+                            onFocus={() => setShowDropdown(true)}
+                            placeholder="ابحث عن الماركة..."
+                            required
+                          />
+                          <ChevronDown size={18} className="dropdown-icon" />
+                        </div>
+                        {showDropdown && (
+                          <div className="car-dropdown">
+                            {filteredBrands.length > 0 ? (
+                              filteredBrands.map((brand, index) => (
+                                <div 
+                                  key={index} 
+                                  className="car-dropdown-item"
+                                  onClick={() => handleBrandSelect(brand)}
+                                >
+                                  <span className="brand-ar">{brand.name}</span>
+                                  <span className="brand-en">{brand.nameEn}</span>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="no-results">لا توجد نتائج</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="form-group-new" ref={modelDropdownRef}>
+                        <label>الموديل</label>
+                        <div className="search-input-wrapper">
+                          <Car size={18} className="search-icon" />
+                          <input
+                            type="text"
+                            value={modelSearchTerm}
+                            onChange={(e) => {
+                              setModelSearchTerm(e.target.value)
+                              setShowModelDropdown(true)
+                            }}
+                            onFocus={() => setShowModelDropdown(true)}
+                            placeholder={selectedBrand ? "اختر الموديل..." : "اختر الماركة أولاً"}
+                            disabled={!selectedBrand}
+                            required
+                          />
+                          <ChevronDown size={18} className="dropdown-icon" />
+                        </div>
+                        {showModelDropdown && selectedBrand && (
+                          <div className="car-dropdown">
+                            {filteredModels.length > 0 ? (
+                              filteredModels.map((model, index) => (
+                                <div 
+                                  key={index} 
+                                  className="car-dropdown-item"
+                                  onClick={() => handleModelSelect(model)}
+                                >
+                                  <span className="brand-ar">{model}</span>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="no-results">لا توجد نتائج</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="form-row">
+                      <div className="form-group-new">
+                        <label>سنة الصنع</label>
+                        <input
+                          type="number"
+                          name="carYear"
+                          value={formData.carYear}
+                          onChange={handleChange}
+                          required
+                          placeholder="مثال: 2020"
+                          min="1990"
+                          max="2025"
+                        />
+                      </div>
+
+                      <div className="form-group-new">
+                        <label>نوع الخدمة</label>
+                        <select
+                          name="serviceType"
+                          value={formData.serviceType}
+                          onChange={handleChange}
+                          required
+                        >
+                          <option value="">اختر نوع الخدمة</option>
+                          <option value="full">الفحص الشامل - Full Inspection</option>
+                          <option value="mechanical">فحص الميكانيكا والكمبيوتر - Mechanical + Computer</option>
+                          <option value="misc">فحوصات متنوعة - Miscellaneous Tests</option>
+                          <option value="basic">فحص الأجزاء الأساسية - Basic Parts</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="form-group-new">
+                      <label>ملاحظات إضافية</label>
+                      <textarea
+                        name="notes"
+                        value={formData.notes}
+                        onChange={handleChange}
+                        rows="3"
+                        placeholder="أي ملاحظات أو استفسارات..."
+                      />
+                    </div>
+
+                    <div className="form-actions">
+                      <button type="button" onClick={() => setStep(2)} className="back-btn">
+                        <ChevronRight size={18} /> العودة
+                      </button>
+                      <button type="submit" className="booking-submit-btn" disabled={loading}>
+                        {loading ? 'جاري الإرسال...' : 'تأكيد الحجز'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+            </div>
+
+            {qrCode && (
+              <div className="qr-section">
+                <div className="qr-card">
+                  <QrCode size={24} />
+                  <h4>امسح للحجز السريع</h4>
+                  <img src={qrCode} alt="QR Code for booking" className="qr-image" />
+                  <p>امسح الكود للوصول لصفحة الحجز</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )

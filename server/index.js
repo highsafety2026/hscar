@@ -300,9 +300,14 @@ function checkBookingConflict(date, time, excludeId = null) {
 
 app.post('/api/bookings', (req, res) => {
   const db = loadDB();
-  const { date, time } = req.body;
+  const { preferredDate, preferredTime } = req.body;
   
-  const conflict = checkBookingConflict(date, time);
+  const conflict = db.bookings.find(b => 
+    b.preferredDate === preferredDate && 
+    b.preferredTime === preferredTime && 
+    b.status !== 'cancelled'
+  );
+  
   if (conflict) {
     return res.status(409).json({ 
       success: false, 
@@ -311,16 +316,56 @@ app.post('/api/bookings', (req, res) => {
     });
   }
   
-  const booking = { id: uuidv4(), ...req.body, createdAt: new Date().toISOString(), status: 'pending' };
+  const bookingId = 'HS-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
+  const booking = { 
+    id: uuidv4(), 
+    bookingId,
+    ...req.body, 
+    createdAt: new Date().toISOString(), 
+    status: 'pending' 
+  };
   db.bookings.push(booking);
   saveDB(db);
-  res.json({ success: true, booking });
+  res.json({ success: true, booking, bookingId });
 });
 
 app.post('/api/bookings/check-availability', (req, res) => {
   const { date, time } = req.body;
   const conflict = checkBookingConflict(date, time);
   res.json({ available: !conflict });
+});
+
+app.get('/api/slots', (req, res) => {
+  const { date } = req.query;
+  if (!date) {
+    return res.json({ bookedSlots: [] });
+  }
+  const db = loadDB();
+  const bookedSlots = db.bookings
+    .filter(b => b.preferredDate === date && b.status !== 'cancelled')
+    .map(b => b.preferredTime);
+  res.json({ bookedSlots });
+});
+
+const QRCode = require('qrcode');
+
+app.get('/api/booking-qr', async (req, res) => {
+  try {
+    const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
+    const bookingUrl = `https://${domain}/booking`;
+    const qrCode = await QRCode.toDataURL(bookingUrl, {
+      width: 200,
+      margin: 2,
+      color: {
+        dark: '#0B1F3A',
+        light: '#FFFFFF'
+      }
+    });
+    res.json({ qrCode, url: bookingUrl });
+  } catch (error) {
+    console.error('QR Code error:', error);
+    res.status(500).json({ error: 'Failed to generate QR code' });
+  }
 });
 
 app.get('/api/bookings', authMiddleware, (req, res) => {
