@@ -122,6 +122,16 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - PostgreSQL appointment_slots table with availability tracking
 
 ## Recent Changes (December 2024)
+- **3D Car Model with Full Rotation** - Replaced static image with interactive Three.js 3D car model
+  - 360° horizontal rotation with OrbitControls
+  - Near-180° vertical tilt (0.05π to 0.95π) to view chassis underneath
+  - Visible underside components: chassis plate, axles, exhaust pipes, brake discs
+  - Auto-rotate toggle, zoom, and pan controls
+  - Proper WebGL cleanup (animation frame cancellation, geometry/material disposal)
+  - Graceful fallback for unsupported browsers
+- **Removed download button** from smart report page per user request
+
+
 - **MAJOR REDESIGN: Realistic 3D Interactive Inspection Report - v3.0**
   - **Realistic 3D Car Model**: Complete sedan with proper geometry (body, hood, trunk, windows, wheels, headlights, taillights, bumpers, mirrors)
   - **360° Rotation**: Full OrbitControls with smooth damping, zoom, and pan controls
