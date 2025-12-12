@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { Upload, X, AlertCircle, CheckCircle, AlertTriangle, Zap } from 'lucide-react'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+import { Upload, X, AlertCircle, CheckCircle, AlertTriangle, RotateCw, Car } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
-// Map severity to color
 const getSeverityColor = (severity) => {
   const colorMap = {
     high: '#EA4335',
@@ -13,7 +13,6 @@ const getSeverityColor = (severity) => {
   return colorMap[severity] || '#999'
 }
 
-// Transform defect data from JSON format to UI format
 const transformDefects = (defectList) => {
   return defectList.map(d => ({
     id: d.id,
@@ -22,36 +21,263 @@ const transformDefects = (defectList) => {
     nameEn: d.location,
     description: d.shortDescAr,
     descriptionEn: d.shortDesc,
+    detailedDescription: d.detailedDescAr,
+    detailedDescriptionEn: d.detailedDesc,
     severity: d.severity,
     severityColor: getSeverityColor(d.severity),
     recommendations: d.recommendationsAr,
     recommendationsEn: d.recommendations,
     estimatedCost: `${d.estimatedCostMin}-${d.estimatedCostMax}`,
+    type: d.typeAr,
+    typeEn: d.type,
     fullData: d
   }))
 }
 
+function createRealisticCar(scene) {
+  const carGroup = new THREE.Group()
+
+  // Main body - sleek sedan shape
+  const bodyShape = new THREE.Shape()
+  bodyShape.moveTo(-2.2, 0.3)
+  bodyShape.lineTo(-2.2, 0.6)
+  bodyShape.lineTo(-1.8, 0.6)
+  bodyShape.lineTo(-1.5, 1.1)
+  bodyShape.lineTo(-0.3, 1.3)
+  bodyShape.lineTo(0.8, 1.3)
+  bodyShape.lineTo(1.5, 1.0)
+  bodyShape.lineTo(2.0, 0.6)
+  bodyShape.lineTo(2.2, 0.6)
+  bodyShape.lineTo(2.2, 0.3)
+  bodyShape.lineTo(-2.2, 0.3)
+
+  const extrudeSettings = {
+    steps: 1,
+    depth: 1.6,
+    bevelEnabled: true,
+    bevelThickness: 0.1,
+    bevelSize: 0.1,
+    bevelSegments: 3
+  }
+
+  const bodyGeometry = new THREE.ExtrudeGeometry(bodyShape, extrudeSettings)
+  bodyGeometry.center()
+  const bodyMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0x1a3a5c,
+    metalness: 0.9,
+    roughness: 0.2,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.1
+  })
+  const body = new THREE.Mesh(bodyGeometry, bodyMaterial)
+  body.rotation.y = Math.PI / 2
+  body.position.y = 0.1
+  carGroup.add(body)
+
+  // Hood
+  const hoodGeometry = new THREE.BoxGeometry(1.4, 0.15, 1.5)
+  const hoodMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0x1a3a5c,
+    metalness: 0.9,
+    roughness: 0.2,
+    clearcoat: 1.0
+  })
+  const hood = new THREE.Mesh(hoodGeometry, hoodMaterial)
+  hood.position.set(1.3, 0.72, 0)
+  carGroup.add(hood)
+
+  // Trunk
+  const trunkGeometry = new THREE.BoxGeometry(0.8, 0.15, 1.4)
+  const trunk = new THREE.Mesh(trunkGeometry, hoodMaterial)
+  trunk.position.set(-1.5, 0.72, 0)
+  carGroup.add(trunk)
+
+  // Windows - glass material
+  const glassMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0x88ccff,
+    metalness: 0.1,
+    roughness: 0.1,
+    transparent: true,
+    opacity: 0.7,
+    transmission: 0.9
+  })
+
+  // Front windshield
+  const windshieldGeometry = new THREE.PlaneGeometry(1.4, 0.5)
+  const windshield = new THREE.Mesh(windshieldGeometry, glassMaterial)
+  windshield.position.set(0.9, 1.05, 0)
+  windshield.rotation.y = 0
+  windshield.rotation.x = -0.3
+  carGroup.add(windshield)
+
+  // Rear windshield
+  const rearWindshield = new THREE.Mesh(windshieldGeometry, glassMaterial)
+  rearWindshield.position.set(-0.9, 1.0, 0)
+  rearWindshield.rotation.x = 0.3
+  carGroup.add(rearWindshield)
+
+  // Side windows
+  const sideWindowGeometry = new THREE.PlaneGeometry(1.2, 0.4)
+  const leftWindow = new THREE.Mesh(sideWindowGeometry, glassMaterial)
+  leftWindow.position.set(0, 1.05, 0.81)
+  leftWindow.rotation.y = 0
+  carGroup.add(leftWindow)
+
+  const rightWindow = new THREE.Mesh(sideWindowGeometry, glassMaterial)
+  rightWindow.position.set(0, 1.05, -0.81)
+  rightWindow.rotation.y = Math.PI
+  carGroup.add(rightWindow)
+
+  // Wheels with realistic detail
+  const wheelGeometry = new THREE.CylinderGeometry(0.35, 0.35, 0.25, 32)
+  const tireMaterial = new THREE.MeshStandardMaterial({
+    color: 0x1a1a1a,
+    metalness: 0.1,
+    roughness: 0.9
+  })
+
+  // Rim
+  const rimGeometry = new THREE.CylinderGeometry(0.25, 0.25, 0.26, 16)
+  const rimMaterial = new THREE.MeshStandardMaterial({
+    color: 0xcccccc,
+    metalness: 0.9,
+    roughness: 0.3
+  })
+
+  const wheelPositions = [
+    [1.3, 0.35, 0.9],
+    [1.3, 0.35, -0.9],
+    [-1.3, 0.35, 0.9],
+    [-1.3, 0.35, -0.9]
+  ]
+
+  wheelPositions.forEach(pos => {
+    const wheelGroup = new THREE.Group()
+    
+    const tire = new THREE.Mesh(wheelGeometry, tireMaterial)
+    tire.rotation.x = Math.PI / 2
+    wheelGroup.add(tire)
+
+    const rim = new THREE.Mesh(rimGeometry, rimMaterial)
+    rim.rotation.x = Math.PI / 2
+    wheelGroup.add(rim)
+
+    // Wheel spokes
+    for (let i = 0; i < 5; i++) {
+      const spokeGeometry = new THREE.BoxGeometry(0.04, 0.2, 0.02)
+      const spoke = new THREE.Mesh(spokeGeometry, rimMaterial)
+      spoke.rotation.z = (i * Math.PI * 2) / 5
+      spoke.position.z = 0.13
+      wheelGroup.add(spoke)
+    }
+
+    wheelGroup.position.set(...pos)
+    carGroup.add(wheelGroup)
+  })
+
+  // Headlights
+  const headlightGeometry = new THREE.BoxGeometry(0.15, 0.15, 0.5)
+  const headlightMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffffee,
+    emissive: 0xffffee,
+    emissiveIntensity: 0.5
+  })
+
+  const leftHeadlight = new THREE.Mesh(headlightGeometry, headlightMaterial)
+  leftHeadlight.position.set(2.1, 0.55, 0.55)
+  carGroup.add(leftHeadlight)
+
+  const rightHeadlight = new THREE.Mesh(headlightGeometry, headlightMaterial)
+  rightHeadlight.position.set(2.1, 0.55, -0.55)
+  carGroup.add(rightHeadlight)
+
+  // Taillights
+  const taillightMaterial = new THREE.MeshStandardMaterial({
+    color: 0xff3333,
+    emissive: 0xff0000,
+    emissiveIntensity: 0.3
+  })
+
+  const leftTaillight = new THREE.Mesh(headlightGeometry, taillightMaterial)
+  leftTaillight.position.set(-2.1, 0.55, 0.55)
+  carGroup.add(leftTaillight)
+
+  const rightTaillight = new THREE.Mesh(headlightGeometry, taillightMaterial)
+  rightTaillight.position.set(-2.1, 0.55, -0.55)
+  carGroup.add(rightTaillight)
+
+  // Grille
+  const grilleGeometry = new THREE.BoxGeometry(0.05, 0.25, 1.0)
+  const grilleMaterial = new THREE.MeshStandardMaterial({
+    color: 0x222222,
+    metalness: 0.8
+  })
+  const grille = new THREE.Mesh(grilleGeometry, grilleMaterial)
+  grille.position.set(2.15, 0.45, 0)
+  carGroup.add(grille)
+
+  // Front bumper
+  const bumperGeometry = new THREE.BoxGeometry(0.2, 0.2, 1.7)
+  const bumperMaterial = new THREE.MeshStandardMaterial({
+    color: 0x333333,
+    metalness: 0.3,
+    roughness: 0.6
+  })
+  const frontBumper = new THREE.Mesh(bumperGeometry, bumperMaterial)
+  frontBumper.position.set(2.2, 0.3, 0)
+  carGroup.add(frontBumper)
+
+  // Rear bumper
+  const rearBumper = new THREE.Mesh(bumperGeometry, bumperMaterial)
+  rearBumper.position.set(-2.2, 0.3, 0)
+  carGroup.add(rearBumper)
+
+  // Side mirrors
+  const mirrorGeometry = new THREE.BoxGeometry(0.1, 0.08, 0.15)
+  const mirrorMaterial = new THREE.MeshStandardMaterial({
+    color: 0x1a3a5c,
+    metalness: 0.9
+  })
+
+  const leftMirror = new THREE.Mesh(mirrorGeometry, mirrorMaterial)
+  leftMirror.position.set(0.7, 0.95, 0.95)
+  carGroup.add(leftMirror)
+
+  const rightMirror = new THREE.Mesh(mirrorGeometry, mirrorMaterial)
+  rightMirror.position.set(0.7, 0.95, -0.95)
+  carGroup.add(rightMirror)
+
+  // Ground shadow plane
+  const shadowGeometry = new THREE.PlaneGeometry(5, 3)
+  const shadowMaterial = new THREE.MeshBasicMaterial({
+    color: 0x000000,
+    transparent: true,
+    opacity: 0.15
+  })
+  const shadow = new THREE.Mesh(shadowGeometry, shadowMaterial)
+  shadow.rotation.x = -Math.PI / 2
+  shadow.position.y = 0.01
+  carGroup.add(shadow)
+
+  scene.add(carGroup)
+  return carGroup
+}
+
 function InteractiveReport() {
-  const { language, t } = useLanguage()
+  const { language } = useLanguage()
   const isRTL = language === 'ar'
   const mountRef = useRef(null)
-  const sceneRef = useRef(null)
-  const rendererRef = useRef(null)
-  const defectPointsRef = useRef([])
-  const cameraRef = useRef(null)
-  const raycasterRef = useRef(new THREE.Raycaster())
-  const mouseRef = useRef(new THREE.Vector2())
+  const controlsRef = useRef(null)
+  const carGroupRef = useRef(null)
 
   const [selectedDefect, setSelectedDefect] = useState(null)
-  const [rotation, setRotation] = useState({ x: 0, y: 0 })
-  const [isDragging, setIsDragging] = useState(false)
   const [webglError, setWebglError] = useState(false)
   const [defectData, setDefectData] = useState([])
   const [carInfo, setCarInfo] = useState(null)
+  const [autoRotate, setAutoRotate] = useState(true)
   const [uploadStatus, setUploadStatus] = useState(null)
   const fileInputRef = useRef(null)
 
-  // Load demo defect data from JSON
   useEffect(() => {
     fetch('/data/defects.json')
       .then(res => res.json())
@@ -67,216 +293,195 @@ function InteractiveReport() {
 
   const getSeverityLabel = (severity) => {
     if (language === 'ar') {
-      return severity === 'high' ? 'خطير جداً' : severity === 'medium' ? 'متوسط' : 'منخفض'
+      return severity === 'high' ? 'خطير' : severity === 'medium' ? 'متوسط' : 'منخفض'
     }
     return severity === 'high' ? 'High' : severity === 'medium' ? 'Medium' : 'Low'
   }
 
   useEffect(() => {
-    if (!mountRef.current) return
+    if (!mountRef.current || defectData.length === 0) return
 
-    // Scene setup
+    const container = mountRef.current
+    const width = container.clientWidth
+    const height = container.clientHeight || 450
+
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0xf5f7fa)
-    sceneRef.current = scene
+    scene.background = new THREE.Color(0xf0f4f8)
 
-    // Camera setup
-    const width = mountRef.current.clientWidth
-    const height = mountRef.current.clientHeight
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
-    camera.position.set(4, 2, 4)
+    const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000)
+    camera.position.set(5, 3, 5)
     camera.lookAt(0, 0.5, 0)
-    cameraRef.current = camera
 
-    // Renderer setup
     let renderer
     try {
-      renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true })
       renderer.setSize(width, height)
-      renderer.setPixelRatio(window.devicePixelRatio)
-      mountRef.current.appendChild(renderer.domElement)
-      rendererRef.current = renderer
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.shadowMap.enabled = true
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap
+      renderer.toneMapping = THREE.ACESFilmicToneMapping
+      renderer.toneMappingExposure = 1.2
+      container.appendChild(renderer.domElement)
     } catch (err) {
       setWebglError(true)
       return
     }
 
-    // Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8)
+    // Lighting setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
     scene.add(ambientLight)
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
-    directionalLight.position.set(5, 5, 5)
-    scene.add(directionalLight)
 
-    // Create simple car body using geometric shapes
-    const bodyGroup = new THREE.Group()
-    
-    // Main body
-    const bodyGeometry = new THREE.BoxGeometry(2, 1, 4)
-    const bodyMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a3a52,
-      metalness: 0.4,
-      roughness: 0.4
+    const mainLight = new THREE.DirectionalLight(0xffffff, 1.0)
+    mainLight.position.set(5, 10, 7)
+    mainLight.castShadow = true
+    scene.add(mainLight)
+
+    const fillLight = new THREE.DirectionalLight(0xffffff, 0.4)
+    fillLight.position.set(-5, 5, -5)
+    scene.add(fillLight)
+
+    const rimLight = new THREE.DirectionalLight(0xaaddff, 0.3)
+    rimLight.position.set(0, 5, -10)
+    scene.add(rimLight)
+
+    // Ground plane
+    const groundGeometry = new THREE.PlaneGeometry(20, 20)
+    const groundMaterial = new THREE.MeshStandardMaterial({
+      color: 0xe8eef5,
+      metalness: 0.1,
+      roughness: 0.8
     })
-    const bodyMesh = new THREE.Mesh(bodyGeometry, bodyMaterial)
-    bodyMesh.position.y = 0.5
-    bodyGroup.add(bodyMesh)
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial)
+    ground.rotation.x = -Math.PI / 2
+    ground.position.y = 0
+    ground.receiveShadow = true
+    scene.add(ground)
 
-    // Front bumper
-    const bumperGeometry = new THREE.BoxGeometry(2.2, 0.3, 0.4)
-    const bumperMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x333333,
-      metalness: 0.3
-    })
-    const bumperMesh = new THREE.Mesh(bumperGeometry, bumperMaterial)
-    bumperMesh.position.set(0, 0.3, 2)
-    bodyGroup.add(bumperMesh)
+    // Create car
+    const carGroup = createRealisticCar(scene)
+    carGroupRef.current = carGroup
 
-    // Roof
-    const roofGeometry = new THREE.BoxGeometry(1.8, 0.3, 2)
-    const roofMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x1a3a52,
-      metalness: 0.3
-    })
-    const roofMesh = new THREE.Mesh(roofGeometry, roofMaterial)
-    roofMesh.position.set(0, 1.3, 0)
-    bodyGroup.add(roofMesh)
-
-    // Wheels
-    const wheelGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.3, 32)
-    const wheelMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x222222,
-      metalness: 0.5
-    })
-    
-    const wheelPositions = [
-      [-0.8, 0.4, 1.2],
-      [0.8, 0.4, 1.2],
-      [-0.8, 0.4, -1.2],
-      [0.8, 0.4, -1.2]
-    ]
-    
-    wheelPositions.forEach(pos => {
-      const wheel = new THREE.Mesh(wheelGeometry, wheelMaterial)
-      wheel.rotation.z = Math.PI / 2
-      wheel.position.set(...pos)
-      bodyGroup.add(wheel)
-    })
-
-    scene.add(bodyGroup)
-
-    // Create defect point markers
-    const defectMarkerGroup = new THREE.Group()
-    defectPointsRef.current = []
-
+    // Add defect markers
+    const defectMarkers = []
     if (defectData && defectData.length > 0) {
       defectData.forEach((defect) => {
-        const markerGeometry = new THREE.SphereGeometry(0.25, 32, 32)
-        const markerMaterial = new THREE.MeshStandardMaterial({
+        const markerGroup = new THREE.Group()
+
+        // Outer glow ring
+        const ringGeometry = new THREE.RingGeometry(0.12, 0.18, 32)
+        const ringMaterial = new THREE.MeshBasicMaterial({
+          color: defect.severityColor,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.6
+        })
+        const ring = new THREE.Mesh(ringGeometry, ringMaterial)
+        markerGroup.add(ring)
+
+        // Center sphere
+        const sphereGeometry = new THREE.SphereGeometry(0.1, 16, 16)
+        const sphereMaterial = new THREE.MeshStandardMaterial({
           color: defect.severityColor,
           emissive: defect.severityColor,
-          emissiveIntensity: 0.5,
-          metalness: 0.7
+          emissiveIntensity: 0.8,
+          metalness: 0.5,
+          roughness: 0.3
         })
-        const marker = new THREE.Mesh(markerGeometry, markerMaterial)
-        marker.position.set(defect.position.x, defect.position.y, defect.position.z)
-        marker.userData = { defectId: defect.id, defect }
-        marker.interactive = true
-        defectMarkerGroup.add(marker)
-        defectPointsRef.current.push(marker)
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+        markerGroup.add(sphere)
+
+        markerGroup.position.set(defect.position.x, defect.position.y, defect.position.z)
+        markerGroup.userData = { defectId: defect.id, defect }
+        carGroup.add(markerGroup)
+        defectMarkers.push(markerGroup)
       })
     }
 
-    scene.add(defectMarkerGroup)
+    // OrbitControls
+    const controls = new OrbitControls(camera, renderer.domElement)
+    controls.enableDamping = true
+    controls.dampingFactor = 0.05
+    controls.enablePan = false
+    controls.minDistance = 4
+    controls.maxDistance = 12
+    controls.maxPolarAngle = Math.PI / 2.1
+    controls.autoRotate = true
+    controls.autoRotateSpeed = 1.0
+    controlsRef.current = controls
 
-    // Mouse interaction
-    const onMouseClick = (event) => {
+    // Raycaster for click detection
+    const raycaster = new THREE.Raycaster()
+    const mouse = new THREE.Vector2()
+
+    const onClick = (event) => {
       const rect = renderer.domElement.getBoundingClientRect()
-      mouseRef.current.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
-      mouseRef.current.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
+      mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1
+      mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1
 
-      raycasterRef.current.setFromCamera(mouseRef.current, camera)
-      const intersects = raycasterRef.current.intersectObjects(defectPointsRef.current)
+      raycaster.setFromCamera(mouse, camera)
+      const intersects = raycaster.intersectObjects(defectMarkers, true)
 
       if (intersects.length > 0) {
-        const selectedMarker = intersects[0].object
-        setSelectedDefect(selectedMarker.userData.defect)
+        let target = intersects[0].object
+        while (target && !target.userData.defect) {
+          target = target.parent
+        }
+        if (target?.userData?.defect) {
+          setSelectedDefect(target.userData.defect)
+        }
       }
     }
 
-    // Mouse drag for rotation
-    const onMouseDown = (event) => {
-      if (event.button === 0) {
-        setIsDragging(true)
-      }
-    }
-
-    const onMouseMove = (event) => {
-      if (!isDragging) return
-
-      const deltaMove = {
-        x: event.movementX,
-        y: event.movementY
-      }
-
-      setRotation((prev) => ({
-        x: prev.x + deltaMove.y * 0.005,
-        y: prev.y + deltaMove.x * 0.005
-      }))
-    }
-
-    const onMouseUp = () => {
-      setIsDragging(false)
-    }
-
-    renderer.domElement.addEventListener('click', onMouseClick)
-    renderer.domElement.addEventListener('mousedown', onMouseDown)
-    renderer.domElement.addEventListener('mousemove', onMouseMove)
-    renderer.domElement.addEventListener('mouseup', onMouseUp)
-    renderer.domElement.addEventListener('mouseleave', onMouseUp)
+    renderer.domElement.addEventListener('click', onClick)
 
     // Animation loop
-    if (renderer) {
-      const animate = () => {
-        requestAnimationFrame(animate)
+    let animationId
+    const animate = () => {
+      animationId = requestAnimationFrame(animate)
+      controls.update()
 
-        bodyGroup.rotation.x = rotation.x
-        bodyGroup.rotation.y = rotation.y
+      // Make markers face camera
+      defectMarkers.forEach(marker => {
+        marker.lookAt(camera.position)
+      })
 
-        // Make defect markers face camera
-        defectPointsRef.current.forEach((marker) => {
-          marker.lookAt(camera.position)
-        })
-
-        renderer.render(scene, camera)
-      }
-
-      animate()
+      renderer.render(scene, camera)
     }
+    animate()
 
-    // Handle window resize
+    // Resize handler
     const handleResize = () => {
+      if (!mountRef.current) return
       const newWidth = mountRef.current.clientWidth
-      const newHeight = mountRef.current.clientHeight
+      const newHeight = mountRef.current.clientHeight || 450
       camera.aspect = newWidth / newHeight
       camera.updateProjectionMatrix()
       renderer.setSize(newWidth, newHeight)
     }
-
     window.addEventListener('resize', handleResize)
 
     return () => {
+      cancelAnimationFrame(animationId)
       window.removeEventListener('resize', handleResize)
-      if (renderer) {
-        renderer.domElement.removeEventListener('click', onMouseClick)
-        renderer.domElement.removeEventListener('mousedown', onMouseDown)
-        renderer.domElement.removeEventListener('mousemove', onMouseMove)
-        renderer.domElement.removeEventListener('mouseup', onMouseUp)
-        renderer.domElement.removeEventListener('mouseleave', onMouseUp)
-        mountRef.current?.removeChild(renderer.domElement)
+      renderer.domElement.removeEventListener('click', onClick)
+      controls.dispose()
+      renderer.dispose()
+      if (container?.contains(renderer.domElement)) {
+        container.removeChild(renderer.domElement)
       }
     }
-  }, [rotation, isDragging, defectData])
+  }, [defectData])
+
+  // Separate effect for auto-rotate toggle
+  useEffect(() => {
+    if (controlsRef.current) {
+      controlsRef.current.autoRotate = autoRotate
+    }
+  }, [autoRotate])
+
+  const toggleAutoRotate = () => {
+    setAutoRotate(prev => !prev)
+  }
 
   const handleUploadClick = () => {
     fileInputRef.current?.click()
@@ -288,227 +493,228 @@ function InteractiveReport() {
 
     setUploadStatus({ status: 'uploading', message: language === 'ar' ? 'جاري الرفع...' : 'Uploading...' })
 
-    // Simulate upload with structure for future AI integration
     try {
-      // In future, this will send to AI analysis endpoint
-      // const formData = new FormData()
-      // formData.append('file', file)
-      // const response = await fetch('/api/analyze-inspection', {
-      //   method: 'POST',
-      //   body: formData
-      // })
-      // const aiAnalysis = await response.json()
-      // setDefectData(transformDefects(aiAnalysis.defects))
-
-      // For now, show success message
       setTimeout(() => {
         setUploadStatus({
           status: 'success',
           message: language === 'ar'
-            ? 'تم الرفع بنجاح! سيتم التحليل قريباً'
-            : 'File uploaded successfully! Analysis coming soon'
+            ? 'تم الرفع بنجاح! التحليل قريباً'
+            : 'Upload successful! Analysis coming soon'
         })
         setTimeout(() => setUploadStatus(null), 3000)
       }, 1000)
     } catch (error) {
       setUploadStatus({
         status: 'error',
-        message: language === 'ar' ? 'فشل الرفع. حاول مرة أخرى.' : 'Upload failed. Try again.'
+        message: language === 'ar' ? 'فشل الرفع' : 'Upload failed'
       })
       setTimeout(() => setUploadStatus(null), 3000)
     }
   }
 
   return (
-    <div className="interactive-report-page">
-      <section className="interactive-hero">
+    <div className="interactive-report-page" dir={isRTL ? 'rtl' : 'ltr'}>
+      {/* Hero Section */}
+      <section className="report-hero">
         <div className="container">
-          <div className="interactive-header">
-            <div className="demo-badge">
-              <Zap size={16} />
+          <div className="hero-content">
+            <div className="demo-tag">
+              <Car size={16} />
               {language === 'ar' ? 'نسخة تجريبية' : 'Demo Version'}
             </div>
-            <h1>{language === 'ar' ? 'تقرير فحص ذكي تفاعلي' : 'Interactive Smart Inspection Report'}</h1>
-            <p>{language === 'ar' ? 'اكتشف عيوب سيارتك بشكل تفاعلي وذكي' : 'Discover your car issues interactively and intelligently'}</p>
+            <h1>{language === 'ar' ? 'تقرير الفحص التفاعلي' : 'Interactive Inspection Report'}</h1>
+            <p>{language === 'ar' ? 'استكشف سيارتك بزاوية 360 درجة وتعرف على جميع النقاط' : 'Explore your car in 360° and discover all inspection points'}</p>
             {carInfo && (
-              <div className="car-info-badge">
-                <span>{carInfo.brand} {carInfo.model}</span>
-                <span>{carInfo.year}</span>
+              <div className="car-badge">
+                <span className="car-name">{carInfo.brand} {carInfo.model}</span>
+                <span className="car-year">{carInfo.year}</span>
               </div>
             )}
           </div>
         </div>
       </section>
 
-      <section className="interactive-content">
+      {/* 3D Viewer Section */}
+      <section className="viewer-section-full">
         <div className="container">
-          <div className="interactive-grid">
-            {/* 3D Viewer */}
-            <div className="viewer-section">
-              <div className="viewer-header">
-                <h2>{language === 'ar' ? 'نموذج السيارة ثلاثي الأبعاد' : '3D Car Model'}</h2>
-                <p className="viewer-hint">
-                  {language === 'ar' 
-                    ? '🖱️ اسحب لتدوير السيارة • انقر على النقاط الملونة لمشاهدة التفاصيل'
-                    : '🖱️ Drag to rotate • Click colored points for details'}
-                </p>
-              </div>
-              <div className="viewer-container" ref={mountRef}>
-                {webglError && (
-                  <div className="webgl-fallback">
-                    <AlertCircle size={40} />
-                    <p>{language === 'ar' ? 'نموذج ثلاثي الأبعاد تفاعلي' : 'Interactive 3D Model'}</p>
-                    <span>{language === 'ar' ? 'استخدم النقائمة اليسرى لاختيار العيوب' : 'Use the left panel to select defects'}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Defects List */}
-            <div className="defects-panel">
-              <div className="panel-header">
-                <h2>{language === 'ar' ? 'النقاط المكتشفة' : 'Detected Issues'}</h2>
-                <span className="defect-count">{defectData?.length || 0}</span>
-              </div>
-
-              <div className="defects-list">
-                {defectData && defectData.length > 0 ? defectData.map((defect) => (
-                  <div
-                    key={defect.id}
-                    className={`defect-item ${selectedDefect?.id === defect.id ? 'active' : ''}`}
-                    onClick={() => setSelectedDefect(defect)}
-                  >
-                    <div className="defect-item-header">
-                      <div
-                        className="severity-dot"
-                        style={{ backgroundColor: defect.severityColor }}
-                      />
-                      <div className="defect-item-info">
-                        <h3>{language === 'ar' ? defect.name : defect.nameEn}</h3>
-                        <span className="severity-label">{getSeverityLabel(defect.severity)}</span>
-                      </div>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="no-defects">
-                    <p>{language === 'ar' ? 'لا توجد عيوب مكتشفة' : 'No defects detected'}</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="panel-footer">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={handleFileUpload}
-                  style={{ display: 'none' }}
-                />
-                <button className="upload-btn" onClick={handleUploadClick}>
-                  <Upload size={18} />
-                  {language === 'ar' ? 'رفع تقرير PDF' : 'Upload PDF Report'}
+          <div className="viewer-card">
+            <div className="viewer-toolbar">
+              <h2>
+                <Car size={24} />
+                {language === 'ar' ? 'النموذج ثلاثي الأبعاد' : '3D Model Viewer'}
+              </h2>
+              <div className="toolbar-actions">
+                <button 
+                  className={`rotate-btn ${autoRotate ? 'active' : ''}`} 
+                  onClick={toggleAutoRotate}
+                  title={language === 'ar' ? 'تدوير تلقائي' : 'Auto Rotate'}
+                >
+                  <RotateCw size={18} />
+                  {language === 'ar' ? 'تدوير تلقائي' : 'Auto Rotate'}
                 </button>
-                {uploadStatus && (
-                  <div className={`upload-status ${uploadStatus.status}`}>
-                    {uploadStatus.status === 'uploading' && <div className="spinner" />}
-                    {uploadStatus.status === 'success' && <CheckCircle size={16} />}
-                    {uploadStatus.status === 'error' && <AlertCircle size={16} />}
-                    <span>{uploadStatus.message}</span>
-                  </div>
-                )}
-                <p className="upload-hint">
-                  {language === 'ar'
-                    ? 'رفع ملف PDF الخاص بتقرير السيارة (قريباً: تحليل ذكي)'
-                    : 'Upload your car inspection PDF file (Coming soon: AI analysis)'}
-                </p>
               </div>
             </div>
-          </div>
-
-          {/* Detail Modal */}
-          {selectedDefect && (
-            <div className="defect-detail-modal">
-              <div className="modal-content">
-                <button className="close-btn" onClick={() => setSelectedDefect(null)}>
-                  <X size={24} />
-                </button>
-
-                <div className="modal-header" style={{ borderLeftColor: selectedDefect.severityColor }}>
-                  <h2>{language === 'ar' ? selectedDefect.name : selectedDefect.nameEn}</h2>
-                  <div className="severity-badge" style={{ backgroundColor: selectedDefect.severityColor }}>
-                    {getSeverityLabel(selectedDefect.severity)}
-                  </div>
+            <p className="viewer-instructions">
+              {language === 'ar' 
+                ? '🖱️ اسحب للتدوير • تكبير/تصغير بالسكرول • انقر على النقاط الملونة'
+                : '🖱️ Drag to rotate • Scroll to zoom • Click colored markers'}
+            </p>
+            <div className="viewer-canvas" ref={mountRef}>
+              {webglError && (
+                <div className="webgl-error">
+                  <AlertCircle size={48} />
+                  <h3>{language === 'ar' ? 'غير متاح' : 'Not Available'}</h3>
+                  <p>{language === 'ar' ? 'المتصفح لا يدعم WebGL' : 'Your browser does not support WebGL'}</p>
                 </div>
-
-                <div className="modal-body">
-                  <div className="section">
-                    <h3>{language === 'ar' ? 'الوصف' : 'Description'}</h3>
-                    <p>{language === 'ar' ? selectedDefect.description : selectedDefect.descriptionEn}</p>
-                  </div>
-
-                  <div className="section">
-                    <h3>{language === 'ar' ? 'التوصيات' : 'Recommendations'}</h3>
-                    <div className="recommendation-box">
-                      <CheckCircle size={20} />
-                      <p>{language === 'ar' ? selectedDefect.recommendations : selectedDefect.recommendationsEn}</p>
-                    </div>
-                  </div>
-
-                  <div className="section">
-                    <h3>{language === 'ar' ? 'التكلفة المتوقعة' : 'Estimated Cost'}</h3>
-                    <div className="cost-display">
-                      <span className="cost-value">{selectedDefect.estimatedCost}</span>
-                      <span className="cost-currency">{language === 'ar' ? 'درهم' : 'AED'}</span>
-                    </div>
-                  </div>
-
-                  <div className="cta-section">
-                    <a href="/booking" className="cta-btn primary">
-                      {language === 'ar' ? 'احجز الآن' : 'Book Service'}
-                    </a>
-                    <a href="/report" className="cta-btn secondary">
-                      {language === 'ar' ? 'تحميل التقرير الكامل' : 'Download Full Report'}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Info Section */}
-      <section className="interactive-info">
-        <div className="container">
-          <div className="info-grid">
-            <div className="info-card">
-              <AlertTriangle size={32} />
-              <h3>{language === 'ar' ? 'معايير الخطورة' : 'Severity Levels'}</h3>
-              <div className="severity-list">
-                <div className="severity-item">
-                  <div className="dot" style={{ backgroundColor: '#EA4335' }} />
-                  <span>{language === 'ar' ? 'خطير جداً - يحتاج إصلاح فوري' : 'High - Urgent repair needed'}</span>
-                </div>
-                <div className="severity-item">
-                  <div className="dot" style={{ backgroundColor: '#FFA500' }} />
-                  <span>{language === 'ar' ? 'متوسط - يحتاج متابعة' : 'Medium - Needs monitoring'}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="info-card">
-              <CheckCircle size={32} />
-              <h3>{language === 'ar' ? 'كيفية الاستخدام' : 'How It Works'}</h3>
-              <ul className="usage-list">
-                <li>{language === 'ar' ? 'اسحب على النموذج لتدويره' : 'Drag the model to rotate'}</li>
-                <li>{language === 'ar' ? 'انقر على النقاط الملونة' : 'Click colored points'}</li>
-                <li>{language === 'ar' ? 'اقرأ التفاصيل والتوصيات' : 'Read details & recommendations'}</li>
-                <li>{language === 'ar' ? 'احجز خدمة إصلاح' : 'Book repair service'}</li>
-              </ul>
+              )}
             </div>
           </div>
         </div>
       </section>
+
+      {/* Defects Section */}
+      <section className="defects-section">
+        <div className="container">
+          <div className="section-header">
+            <h2>
+              <AlertTriangle size={24} />
+              {language === 'ar' ? 'نتائج الفحص' : 'Inspection Results'}
+            </h2>
+            <span className="defect-badge">{defectData?.length || 0} {language === 'ar' ? 'نقاط' : 'Issues'}</span>
+          </div>
+
+          <div className="defects-grid">
+            {defectData && defectData.length > 0 ? defectData.map((defect) => (
+              <div
+                key={defect.id}
+                className={`defect-card ${selectedDefect?.id === defect.id ? 'selected' : ''}`}
+                onClick={() => setSelectedDefect(defect)}
+              >
+                <div className="defect-header">
+                  <div className="severity-indicator" style={{ backgroundColor: defect.severityColor }} />
+                  <div className="defect-title">
+                    <h3>{language === 'ar' ? defect.name : defect.nameEn}</h3>
+                    <span className="defect-type">{language === 'ar' ? defect.type : defect.typeEn}</span>
+                  </div>
+                  <div className="severity-tag" style={{ backgroundColor: defect.severityColor }}>
+                    {getSeverityLabel(defect.severity)}
+                  </div>
+                </div>
+                <p className="defect-desc">{language === 'ar' ? defect.description : defect.descriptionEn}</p>
+                <div className="defect-footer">
+                  <span className="cost-estimate">
+                    {defect.estimatedCost} {language === 'ar' ? 'درهم' : 'AED'}
+                  </span>
+                  <button className="view-details-btn">
+                    {language === 'ar' ? 'عرض التفاصيل' : 'View Details'}
+                  </button>
+                </div>
+              </div>
+            )) : (
+              <div className="no-defects-msg">
+                <CheckCircle size={48} />
+                <p>{language === 'ar' ? 'لم يتم اكتشاف مشاكل' : 'No issues detected'}</p>
+              </div>
+            )}
+          </div>
+
+          {/* Upload Section */}
+          <div className="upload-section">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png"
+              onChange={handleFileUpload}
+              style={{ display: 'none' }}
+            />
+            <button className="upload-report-btn" onClick={handleUploadClick}>
+              <Upload size={20} />
+              {language === 'ar' ? 'رفع تقرير للتحليل' : 'Upload Report for Analysis'}
+            </button>
+            {uploadStatus && (
+              <div className={`upload-msg ${uploadStatus.status}`}>
+                {uploadStatus.status === 'uploading' && <div className="loading-spinner" />}
+                {uploadStatus.status === 'success' && <CheckCircle size={16} />}
+                {uploadStatus.status === 'error' && <AlertCircle size={16} />}
+                <span>{uploadStatus.message}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Severity Legend */}
+      <section className="legend-section">
+        <div className="container">
+          <div className="legend-grid">
+            <div className="legend-item">
+              <div className="legend-dot high" />
+              <span>{language === 'ar' ? 'خطير - يحتاج إصلاح فوري' : 'High - Urgent repair needed'}</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-dot medium" />
+              <span>{language === 'ar' ? 'متوسط - يحتاج متابعة' : 'Medium - Monitoring needed'}</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-dot low" />
+              <span>{language === 'ar' ? 'منخفض - ملاحظة بسيطة' : 'Low - Minor observation'}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Detail Modal */}
+      {selectedDefect && (
+        <div className="detail-modal-overlay" onClick={() => setSelectedDefect(null)}>
+          <div className="detail-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close" onClick={() => setSelectedDefect(null)}>
+              <X size={24} />
+            </button>
+
+            <div className="modal-header-bar" style={{ backgroundColor: selectedDefect.severityColor }}>
+              <h2>{language === 'ar' ? selectedDefect.name : selectedDefect.nameEn}</h2>
+              <span className="modal-severity">{getSeverityLabel(selectedDefect.severity)}</span>
+            </div>
+
+            <div className="modal-body-content">
+              <div className="info-block">
+                <h4>{language === 'ar' ? 'نوع المشكلة' : 'Issue Type'}</h4>
+                <p>{language === 'ar' ? selectedDefect.type : selectedDefect.typeEn}</p>
+              </div>
+
+              <div className="info-block">
+                <h4>{language === 'ar' ? 'الوصف التفصيلي' : 'Detailed Description'}</h4>
+                <p>{language === 'ar' ? (selectedDefect.detailedDescription || selectedDefect.description) : (selectedDefect.detailedDescriptionEn || selectedDefect.descriptionEn)}</p>
+              </div>
+
+              <div className="info-block recommendation">
+                <h4>{language === 'ar' ? 'التوصيات' : 'Recommendations'}</h4>
+                <div className="recommendation-content">
+                  <CheckCircle size={20} />
+                  <p>{language === 'ar' ? selectedDefect.recommendations : selectedDefect.recommendationsEn}</p>
+                </div>
+              </div>
+
+              <div className="cost-block">
+                <h4>{language === 'ar' ? 'التكلفة المتوقعة' : 'Estimated Cost'}</h4>
+                <div className="cost-amount">
+                  <span className="amount">{selectedDefect.estimatedCost}</span>
+                  <span className="currency">{language === 'ar' ? 'درهم' : 'AED'}</span>
+                </div>
+              </div>
+
+              <div className="modal-actions">
+                <a href="/booking" className="action-btn primary">
+                  {language === 'ar' ? 'احجز خدمة الإصلاح' : 'Book Repair Service'}
+                </a>
+                <a href="/report" className="action-btn secondary">
+                  {language === 'ar' ? 'تحميل التقرير' : 'Download Report'}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
