@@ -119,18 +119,23 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - PostgreSQL appointment_slots table with availability tracking
 
 ## Recent Changes (December 2024)
-- **ENHANCED: Smart Interactive 3D Inspection Report Viewer - v2.0**
-  - Data-driven architecture with JSON-based defect system (`/data/defects.json`)
-  - 3 realistic demo defects: Front Bumper Damage, Tire Issues, Lighting System Problem
-  - Structured defect data: ID, location, type, severity, short/detailed descriptions, recommendations, cost estimates
-  - Upload functionality with success/error feedback (ready for future AI integration)
-  - "Demo Version" badge clearly indicates test/prototype status
-  - Car info display (Brand, Model, Year)
-  - Click interactive defect markers to view detailed modal with severity, cost, recommendations
-  - Bilingual interface (Arabic/English) with full RTL support
-  - Responsive design for desktop, tablet, mobile
-  - Architecture ready for PDF analysis AI integration (/api/analyze-inspection endpoint structure in place)
-  - Fallback UI for WebGL environments
+- **MAJOR REDESIGN: Realistic 3D Interactive Inspection Report - v3.0**
+  - **Realistic 3D Car Model**: Complete sedan with proper geometry (body, hood, trunk, windows, wheels, headlights, taillights, bumpers, mirrors)
+  - **360° Rotation**: Full OrbitControls with smooth damping, zoom, and pan controls
+  - **Auto-Rotate Toggle**: Button to enable/disable automatic car rotation
+  - **Professional Design**: Restored original color scheme (Blue #0B1F3A, White, Gold #C89D2A, Gray, Red accents)
+  - **Defects Below Viewer**: Professional card layout showing all inspection issues below the 3D model
+  - **Interactive Defect Markers**: Glowing spheres on the 3D model that are clickable
+  - **Detailed Modal**: Shows defect type, severity, description, recommendations, and estimated cost
+  - **Data-driven Architecture**: JSON-based defect system (`/data/defects.json`) for easy management
+  - **3 Demo Defects**: Front Bumper Damage, Tire Issues, Lighting System Problem
+  - **Upload Functionality**: Ready for future AI integration with visual feedback
+  - **Demo Version Badge**: Clearly indicates prototype status
+  - **Car Info Display**: Shows Brand, Model, Year in hero section
+  - **Bilingual Interface**: Full Arabic/English support with RTL
+  - **Responsive Design**: Optimized for desktop, tablet, and mobile
+  - **WebGL Fallback**: Graceful error handling for unsupported browsers
+  - **Separate CSS**: Organized styles in `interactive-report.css`
 - Redesigned booking to tasjeel.com-style with clickable service selection cards (4-step wizard)
 - Service selection is now step 0 with beautiful cards showing icon, title, features, and price
 - Year input converted to dropdown (1990-2025) - no manual typing needed
