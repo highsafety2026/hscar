@@ -147,7 +147,10 @@ function Home() {
                     ))}
                   </ul>
                   <div className="service-footer">
-                    <Link to="/booking" className="service-btn">{t.services.bookNow}</Link>
+                    <Link to="/booking" className="service-btn">
+                      <span>{t.services.bookNow}</span>
+                      <ArrowIcon size={16} />
+                    </Link>
                   </div>
                 </div>
               </div>

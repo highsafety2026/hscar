@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Upload, AlertCircle, CheckCircle, AlertTriangle, Download, FileText, Car, Eye } from 'lucide-react'
+import { Upload, AlertCircle, CheckCircle, AlertTriangle, Download, FileText, Car, Eye, Loader, Search, FileCheck, Brain, Sparkles } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 import jsPDF from 'jspdf'
 import 'jspdf-autotable'
@@ -22,8 +22,15 @@ function InteractiveReport() {
   const [selectedDefect, setSelectedDefect] = useState(null)
   const [defectData, setDefectData] = useState([])
   const [carInfo, setCarInfo] = useState(null)
-  const [uploadStatus, setUploadStatus] = useState(null)
+  const [analysisResult, setAnalysisResult] = useState(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [analysisStep, setAnalysisStep] = useState(0)
+  const [pdfError, setPdfError] = useState(null)
   const fileInputRef = useRef(null)
+
+  const analysisSteps = language === 'ar' 
+    ? ['جاري رفع الملف...', 'قراءة محتوى التقرير...', 'تحليل بالذكاء الاصطناعي...', 'إنشاء التقرير...']
+    : ['Uploading file...', 'Reading report content...', 'AI Analysis in progress...', 'Generating report...']
 
   useEffect(() => {
     fetch('/data/defects.json')
@@ -43,122 +50,166 @@ function InteractiveReport() {
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
-    setUploadStatus({ status: 'uploading', message: language === 'ar' ? 'جاري الرفع...' : 'Uploading...' })
-    setTimeout(() => {
-      setUploadStatus({
-        status: 'success',
-        message: language === 'ar' ? 'تم الرفع بنجاح! التحليل قريباً' : 'Upload successful! Analysis coming soon'
+    
+    if (!file.type.includes('pdf')) {
+      setPdfError(language === 'ar' ? 'يرجى رفع ملف PDF فقط' : 'Please upload PDF files only')
+      return
+    }
+
+    setPdfError(null)
+    setIsAnalyzing(true)
+    setAnalysisStep(0)
+    setAnalysisResult(null)
+
+    const formData = new FormData()
+    formData.append('pdf', file)
+
+    let stepInterval = null
+
+    try {
+      stepInterval = setInterval(() => {
+        setAnalysisStep(prev => {
+          if (prev < analysisSteps.length - 1) return prev + 1
+          return prev
+        })
+      }, 2000)
+
+      const response = await fetch('/api/chat/analyze-pdf', {
+        method: 'POST',
+        body: formData
       })
-      setTimeout(() => setUploadStatus(null), 3000)
-    }, 1000)
+
+      if (!response.ok) throw new Error('Analysis failed')
+
+      const data = await response.json()
+      setAnalysisStep(analysisSteps.length)
+      setAnalysisResult(data.reply)
+    } catch (error) {
+      console.error('Analysis error:', error)
+      setPdfError(language === 'ar' ? 'حدث خطأ في التحليل. يرجى المحاولة مرة أخرى.' : 'Analysis failed. Please try again.')
+    } finally {
+      if (stepInterval) clearInterval(stepInterval)
+      setIsAnalyzing(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
   }
 
   const generatePDF = () => {
-    const doc = new jsPDF()
-    
-    doc.setFont('helvetica', 'bold')
-    doc.setFontSize(20)
-    doc.setTextColor(11, 31, 58)
-    doc.text('High Safety International', 105, 20, { align: 'center' })
-    
-    doc.setFontSize(14)
-    doc.setTextColor(100)
-    doc.text('Vehicle Inspection Report', 105, 30, { align: 'center' })
-    
-    if (carInfo) {
-      doc.setFontSize(12)
-      doc.setTextColor(0)
-      doc.text(`Vehicle: ${carInfo.brand} ${carInfo.model} (${carInfo.year})`, 20, 45)
-      doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 52)
-      doc.text(`Report ID: HSI-${Date.now().toString().slice(-6)}`, 20, 59)
-    }
-    
-    doc.setDrawColor(200, 157, 42)
-    doc.setLineWidth(1)
-    doc.line(20, 65, 190, 65)
-    
-    doc.setFontSize(14)
-    doc.setTextColor(11, 31, 58)
-    doc.text('Inspection Results', 20, 75)
-    
-    const tableData = defectData.map((d, i) => [
-      i + 1,
-      d.location,
-      d.type,
-      d.severity === 'high' ? 'High' : d.severity === 'medium' ? 'Medium' : 'Low',
-      d.shortDesc,
-      `${d.estimatedCostMin}-${d.estimatedCostMax} AED`
-    ])
-    
-    doc.autoTable({
-      startY: 80,
-      head: [['#', 'Location', 'Type', 'Severity', 'Description', 'Est. Cost']],
-      body: tableData,
-      theme: 'striped',
-      headStyles: {
-        fillColor: [11, 31, 58],
-        textColor: 255,
-        fontStyle: 'bold'
-      },
-      columnStyles: {
-        0: { cellWidth: 10 },
-        1: { cellWidth: 30 },
-        2: { cellWidth: 25 },
-        3: { cellWidth: 20 },
-        4: { cellWidth: 55 },
-        5: { cellWidth: 30 }
-      },
-      alternateRowStyles: { fillColor: [245, 245, 245] }
-    })
-    
-    const finalY = doc.lastAutoTable.finalY + 15
-    
-    doc.setFontSize(12)
-    doc.setTextColor(11, 31, 58)
-    doc.text('Detailed Findings:', 20, finalY)
-    
-    let yPos = finalY + 10
-    defectData.forEach((d, i) => {
-      if (yPos > 260) {
-        doc.addPage()
-        yPos = 20
+    try {
+      const doc = new jsPDF()
+      
+      doc.setFont('helvetica', 'bold')
+      doc.setFontSize(20)
+      doc.setTextColor(11, 31, 58)
+      doc.text('High Safety International', 105, 20, { align: 'center' })
+      
+      doc.setFontSize(14)
+      doc.setTextColor(100)
+      doc.text('Vehicle Inspection Report', 105, 30, { align: 'center' })
+      
+      if (carInfo) {
+        doc.setFontSize(12)
+        doc.setTextColor(0)
+        doc.text(`Vehicle: ${carInfo.brand} ${carInfo.model} (${carInfo.year})`, 20, 45)
+        doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 52)
+        doc.text(`Report ID: HSI-${Date.now().toString().slice(-6)}`, 20, 59)
       }
       
-      const severityColor = d.severity === 'high' ? [234, 67, 53] : d.severity === 'medium' ? [255, 165, 0] : [66, 133, 244]
-      doc.setFillColor(...severityColor)
-      doc.circle(25, yPos + 2, 3, 'F')
+      doc.setDrawColor(200, 157, 42)
+      doc.setLineWidth(1)
+      doc.line(20, 65, 190, 65)
       
-      doc.setFontSize(11)
-      doc.setTextColor(0)
-      doc.setFont('helvetica', 'bold')
-      doc.text(`${i + 1}. ${d.location} - ${d.type}`, 32, yPos + 4)
+      doc.setFontSize(14)
+      doc.setTextColor(11, 31, 58)
+      doc.text('Inspection Results', 20, 75)
       
-      doc.setFont('helvetica', 'normal')
-      doc.setFontSize(10)
-      doc.setTextColor(80)
+      if (defectData.length > 0) {
+        const tableData = defectData.map((d, i) => [
+          i + 1,
+          d.location || '',
+          d.type || '',
+          d.severity === 'high' ? 'High' : d.severity === 'medium' ? 'Medium' : 'Low',
+          d.shortDesc || '',
+          `${d.estimatedCostMin || 0}-${d.estimatedCostMax || 0} AED`
+        ])
+        
+        doc.autoTable({
+          startY: 80,
+          head: [['#', 'Location', 'Type', 'Severity', 'Description', 'Est. Cost']],
+          body: tableData,
+          theme: 'striped',
+          headStyles: {
+            fillColor: [11, 31, 58],
+            textColor: 255,
+            fontStyle: 'bold'
+          },
+          columnStyles: {
+            0: { cellWidth: 10 },
+            1: { cellWidth: 30 },
+            2: { cellWidth: 25 },
+            3: { cellWidth: 20 },
+            4: { cellWidth: 55 },
+            5: { cellWidth: 30 }
+          },
+          alternateRowStyles: { fillColor: [245, 245, 245] }
+        })
+        
+        const finalY = doc.lastAutoTable.finalY + 15
+        
+        doc.setFontSize(12)
+        doc.setTextColor(11, 31, 58)
+        doc.text('Detailed Findings:', 20, finalY)
+        
+        let yPos = finalY + 10
+        defectData.forEach((d, i) => {
+          if (yPos > 260) {
+            doc.addPage()
+            yPos = 20
+          }
+          
+          const severityColor = d.severity === 'high' ? [234, 67, 53] : d.severity === 'medium' ? [255, 165, 0] : [66, 133, 244]
+          doc.setFillColor(...severityColor)
+          doc.circle(25, yPos + 2, 3, 'F')
+          
+          doc.setFontSize(11)
+          doc.setTextColor(0)
+          doc.setFont('helvetica', 'bold')
+          doc.text(`${i + 1}. ${d.location || ''} - ${d.type || ''}`, 32, yPos + 4)
+          
+          doc.setFont('helvetica', 'normal')
+          doc.setFontSize(10)
+          doc.setTextColor(80)
+          
+          const descLines = doc.splitTextToSize(d.detailedDesc || '', 150)
+          doc.text(descLines, 32, yPos + 12)
+          yPos += 12 + (descLines.length * 5)
+          
+          doc.text(`Recommendation: ${d.recommendations || ''}`, 32, yPos)
+          yPos += 10
+          
+          doc.setTextColor(200, 157, 42)
+          doc.text(`Estimated Cost: ${d.estimatedCostMin || 0}-${d.estimatedCostMax || 0} AED`, 32, yPos)
+          yPos += 15
+        })
+      } else {
+        doc.setFontSize(12)
+        doc.text('No defects found - Vehicle in good condition', 20, 85)
+      }
       
-      const descLines = doc.splitTextToSize(d.detailedDesc, 150)
-      doc.text(descLines, 32, yPos + 12)
-      yPos += 12 + (descLines.length * 5)
+      const pageCount = doc.internal.getNumberOfPages()
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i)
+        doc.setFontSize(8)
+        doc.setTextColor(150)
+        doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' })
+        doc.text('High Safety International - WhatsApp: +971 54 220 6000', 105, 295, { align: 'center' })
+      }
       
-      doc.text(`Recommendation: ${d.recommendations}`, 32, yPos)
-      yPos += 10
-      
-      doc.setTextColor(200, 157, 42)
-      doc.text(`Estimated Cost: ${d.estimatedCostMin}-${d.estimatedCostMax} AED`, 32, yPos)
-      yPos += 15
-    })
-    
-    const pageCount = doc.internal.getNumberOfPages()
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i)
-      doc.setFontSize(8)
-      doc.setTextColor(150)
-      doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' })
-      doc.text('High Safety International - www.highsafety.ae', 105, 295, { align: 'center' })
+      doc.save(`inspection-report-${carInfo?.model || 'vehicle'}-${Date.now()}.pdf`)
+    } catch (error) {
+      console.error('PDF generation error:', error)
+      alert(language === 'ar' ? 'حدث خطأ في إنشاء التقرير' : 'Error generating PDF')
     }
-    
-    doc.save(`inspection-report-${carInfo?.model || 'vehicle'}-${Date.now()}.pdf`)
   }
 
   return (
@@ -167,79 +218,153 @@ function InteractiveReport() {
         <div className="container">
           <div className="hero-content">
             <div className="demo-tag">
-              <Car size={16} />
-              {language === 'ar' ? 'تقرير الفحص' : 'Inspection Report'}
+              <Sparkles size={16} />
+              {language === 'ar' ? 'تقرير ذكي' : 'Smart Report'}
             </div>
-            <h1>{language === 'ar' ? 'تقرير الفحص التفاعلي' : 'Interactive Inspection Report'}</h1>
-            {carInfo && (
-              <div className="car-badge">
-                <span className="car-name">{carInfo.brand} {carInfo.model}</span>
-                <span className="car-year">{carInfo.year}</span>
+            <h1>{language === 'ar' ? 'تحليل التقارير بالذكاء الاصطناعي' : 'AI-Powered Report Analysis'}</h1>
+            <p className="hero-subtitle">
+              {language === 'ar' 
+                ? 'ارفع تقرير الفحص واحصل على تحليل شامل ودقيق بالذكاء الاصطناعي'
+                : 'Upload your inspection report for comprehensive AI analysis'}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="upload-analysis-section">
+        <div className="container">
+          <div className="upload-card">
+            <div className="upload-icon-wrapper">
+              <FileText size={48} />
+            </div>
+            <h3>{language === 'ar' ? 'رفع تقرير للتحليل' : 'Upload Report for Analysis'}</h3>
+            <p>{language === 'ar' ? 'ارفع ملف PDF للحصول على تحليل ذكي شامل' : 'Upload a PDF file for comprehensive AI analysis'}</p>
+            
+            <input 
+              ref={fileInputRef} 
+              type="file" 
+              accept=".pdf" 
+              onChange={handleFileUpload} 
+              style={{ display: 'none' }} 
+            />
+            
+            <button 
+              className="upload-btn-main" 
+              onClick={handleUploadClick}
+              disabled={isAnalyzing}
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader className="spin" size={20} />
+                  {language === 'ar' ? 'جاري التحليل...' : 'Analyzing...'}
+                </>
+              ) : (
+                <>
+                  <Upload size={20} />
+                  {language === 'ar' ? 'اختر ملف PDF' : 'Choose PDF File'}
+                </>
+              )}
+            </button>
+
+            {pdfError && (
+              <div className="error-message">
+                <AlertCircle size={16} />
+                <span>{pdfError}</span>
               </div>
             )}
           </div>
+
+          {isAnalyzing && (
+            <div className="analysis-progress">
+              <h4>{language === 'ar' ? 'جاري تحليل التقرير' : 'Analyzing Report'}</h4>
+              <div className="progress-steps">
+                {analysisSteps.map((step, index) => (
+                  <div 
+                    key={index} 
+                    className={`progress-step ${index <= analysisStep ? 'active' : ''} ${index === analysisStep ? 'current' : ''}`}
+                  >
+                    <div className="step-icon">
+                      {index < analysisStep ? (
+                        <CheckCircle size={20} />
+                      ) : index === analysisStep ? (
+                        <Loader className="spin" size={20} />
+                      ) : (
+                        <div className="step-number">{index + 1}</div>
+                      )}
+                    </div>
+                    <span className="step-text">{step}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="progress-bar">
+                <div 
+                  className="progress-fill" 
+                  style={{ width: `${((analysisStep + 1) / analysisSteps.length) * 100}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {analysisResult && (
+            <div className="analysis-result">
+              <div className="result-header">
+                <Brain size={24} />
+                <h3>{language === 'ar' ? 'نتيجة التحليل الذكي' : 'AI Analysis Result'}</h3>
+              </div>
+              <div className="result-content">
+                <pre>{analysisResult}</pre>
+              </div>
+              <button className="close-result-btn" onClick={() => setAnalysisResult(null)}>
+                {language === 'ar' ? 'إغلاق' : 'Close'}
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
       <section className="car-visual-section">
         <div className="container">
+          <div className="section-header-center">
+            <h2>{language === 'ar' ? 'عرض السيارة' : 'Vehicle View'}</h2>
+          </div>
           <div className="car-display-card">
             <div className="car-image-container">
-              <svg viewBox="0 0 400 180" className="car-svg">
-                <defs>
-                  <linearGradient id="carBody" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#1a3a5c"/>
-                    <stop offset="100%" stopColor="#0d1f30"/>
-                  </linearGradient>
-                  <linearGradient id="glass" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#88ccff"/>
-                    <stop offset="100%" stopColor="#5599cc"/>
-                  </linearGradient>
-                </defs>
-                
-                <ellipse cx="200" cy="160" rx="170" ry="15" fill="rgba(0,0,0,0.1)"/>
-                
-                <path d="M40 110 L60 110 L80 70 L160 55 L260 55 L320 70 L360 110 L380 110 L380 130 L360 140 L40 140 L20 130 Z" fill="url(#carBody)" stroke="#0d1f30" strokeWidth="2"/>
-                
-                <path d="M95 70 L155 58 L155 100 L80 100 Z" fill="url(#glass)" opacity="0.8"/>
-                <path d="M165 58 L255 58 L255 100 L165 100 Z" fill="url(#glass)" opacity="0.8"/>
-                <path d="M265 58 L305 70 L305 100 L265 100 Z" fill="url(#glass)" opacity="0.8"/>
-                
-                <circle cx="95" cy="140" r="28" fill="#222"/>
-                <circle cx="95" cy="140" r="20" fill="#444"/>
-                <circle cx="95" cy="140" r="8" fill="#666"/>
-                
-                <circle cx="305" cy="140" r="28" fill="#222"/>
-                <circle cx="305" cy="140" r="20" fill="#444"/>
-                <circle cx="305" cy="140" r="8" fill="#666"/>
-                
-                <rect x="25" y="100" width="25" height="12" rx="3" fill="#ffee88"/>
-                <rect x="350" y="100" width="25" height="12" rx="3" fill="#ff6666"/>
-                
-                <rect x="140" y="120" width="120" height="8" rx="2" fill="#333"/>
-                
+              <img 
+                src="/images/realistic-car.jpg" 
+                alt="Vehicle" 
+                className="realistic-car-image"
+                onError={(e) => {
+                  e.target.style.display = 'none'
+                }}
+              />
+              <div className="defect-markers">
                 {defectData.map((d, i) => {
                   const positions = [
-                    { x: 50, y: 105 },
-                    { x: 95, y: 140 },
-                    { x: 365, y: 105 }
+                    { left: '15%', top: '50%' },
+                    { left: '30%', top: '75%' },
+                    { left: '85%', top: '50%' }
                   ]
-                  const pos = positions[i] || { x: 200, y: 100 }
+                  const pos = positions[i] || { left: '50%', top: '50%' }
                   return (
-                    <g key={d.id} onClick={() => setSelectedDefect(d)} style={{ cursor: 'pointer' }}>
-                      <circle cx={pos.x} cy={pos.y} r="12" fill={getSeverityColor(d.severity)} opacity="0.3">
-                        <animate attributeName="r" values="12;16;12" dur="1.5s" repeatCount="indefinite"/>
-                      </circle>
-                      <circle cx={pos.x} cy={pos.y} r="8" fill={getSeverityColor(d.severity)}/>
-                      <text x={pos.x} y={pos.y + 4} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">{i + 1}</text>
-                    </g>
+                    <div
+                      key={d.id}
+                      className={`defect-marker severity-${d.severity}`}
+                      style={{ left: pos.left, top: pos.top }}
+                      onClick={() => setSelectedDefect(d)}
+                    >
+                      <span>{i + 1}</span>
+                    </div>
                   )
                 })}
-              </svg>
+              </div>
             </div>
-            <p className="car-instructions">
-              {language === 'ar' ? 'اضغط على النقاط المرقمة لعرض التفاصيل' : 'Click numbered points to view details'}
-            </p>
+            {carInfo && (
+              <div className="car-info-badge">
+                <Car size={18} />
+                <span>{carInfo.brand} {carInfo.model}</span>
+                <span className="year-badge">{carInfo.year}</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -303,21 +428,6 @@ function InteractiveReport() {
               <p>{language === 'ar' ? 'لم يتم اكتشاف مشاكل' : 'No issues detected'}</p>
             </div>
           )}
-
-          <div className="upload-section">
-            <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" onChange={handleFileUpload} style={{ display: 'none' }} />
-            <button className="upload-btn" onClick={handleUploadClick}>
-              <Upload size={20} />
-              {language === 'ar' ? 'رفع تقرير للتحليل' : 'Upload Report for Analysis'}
-            </button>
-            {uploadStatus && (
-              <div className={`upload-msg ${uploadStatus.status}`}>
-                {uploadStatus.status === 'success' && <CheckCircle size={16} />}
-                {uploadStatus.status === 'error' && <AlertCircle size={16} />}
-                <span>{uploadStatus.message}</span>
-              </div>
-            )}
-          </div>
         </div>
       </section>
 
