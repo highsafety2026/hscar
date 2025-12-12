@@ -76,11 +76,7 @@ function Home() {
 
   return (
     <div className="home-page">
-      <section className="hero-modern hero-video-section">
-        <video autoPlay muted loop playsInline className="hero-video-bg">
-          <source src="/videos/hero-video.mp4" type="video/mp4" />
-        </video>
-        <div className="hero-video-overlay"></div>
+      <section className="hero-modern">
         <div className="container">
           <div className="hero-content">
             <div className="hero-badge">
