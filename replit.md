@@ -101,13 +101,16 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 ## Running the Project
 - Development: `npm run dev` (runs both frontend and backend concurrently)
 
-## Bilingual System
-- Language toggle button in header (Globe icon)
+## Trilingual System (Arabic, English, Russian)
+- Professional language switcher dropdown in header with Globe icon
+- Shows flag emoji + language name for current selection
+- Dropdown menu with all 3 languages and checkmark for active
 - Translations stored in `client/src/i18n/translations.js`
 - Language context provider in `client/src/i18n/LanguageContext.jsx`
-- Supported pages: Home, Header, Footer, Payment, PaymentSuccess, PaymentCancel
+- LANGUAGES array: Arabic (🇦🇪), English (🇬🇧), Russian (🇷🇺)
+- Supported pages: All pages (Home, Services, Booking, Report, Payment, etc.)
 - Language preference saved to localStorage
-- RTL/LTR direction automatically applied
+- RTL/LTR direction automatically applied based on language
 
 ## Booking System
 - Real-time calendar with date/time slot selection
