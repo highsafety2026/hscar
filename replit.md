@@ -52,10 +52,11 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 ## Pages
 1. **Home** - Modern hero, stats, services preview, gallery, location
 2. **Services** - 4 detailed service cards with all inspection items
-3. **Booking** - Clean appointment form (payment section removed)
+3. **Booking** - 4-step wizard (service → date → time → details) with clickable selections
 4. **Report Lookup** - Download PDF + view inspection images gallery
-5. **Admin Login** - Admin authentication
-6. **Admin Dashboard** - Upload reports with PDF + images (up to 10)
+5. **Interactive Report** - NEW 3D interactive car inspection viewer with defect points (demo feature)
+6. **Admin Login** - Admin authentication
+7. **Admin Dashboard** - Upload reports with PDF + images (up to 10)
 
 ## Report System Features
 - Upload PDF report with up to 10 inspection images
@@ -118,21 +119,17 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - PostgreSQL appointment_slots table with availability tracking
 
 ## Recent Changes (December 2024)
+- **NEW: Smart Interactive 3D Inspection Report Viewer** - 360° rotatable 3D car model with interactive defect points
+  - Click on colored defect markers to see detailed descriptions, severity levels, and repair recommendations
+  - 3 demo defects with realistic inspection scenarios (bumper damage, tire issues, lighting problems)
+  - Shows estimated repair costs and booking CTAs
+  - Bilingual interface (Arabic/English) with full RTL support
+  - Responsive design for desktop and mobile
+  - Fallback UI for environments without WebGL support
+  - Ready for future PDF analysis integration to auto-detect defects
 - Redesigned booking to tasjeel.com-style with clickable service selection cards (4-step wizard)
 - Service selection is now step 0 with beautiful cards showing icon, title, features, and price
 - Year input converted to dropdown (1990-2025) - no manual typing needed
 - Added video background to hero section (hs_20251211_123323_0000_1765442313427.mp4)
 - Implemented real-time calendar booking system with time slots
 - Added 4-step booking wizard with visual progress indicator (Service → Date → Time → Details)
-- Added double-booking prevention with server-side validation
-- Added QR code generation for booking links (/api/bookings/:id/qr)
-- Added bilingual support (Arabic/English) with language toggle
-- Redesigned entire website with Dubizzle-inspired modern style
-- Added stats bar with animated counters
-- Created service cards with prices and features
-- Added image upload support for reports (up to 10 images)
-- Implemented image gallery with click-to-enlarge in report lookup
-- Added floating social media buttons (WhatsApp, Facebook, TikTok)
-- Removed payment section from booking page
-- Removed WhatsApp/phone from location section
-- Updated location to Sharjah Industrial Area 13

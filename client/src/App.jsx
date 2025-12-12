@@ -9,6 +9,7 @@ import Home from './pages/Home'
 import Services from './pages/Services'
 import Booking from './pages/Booking'
 import ReportLookup from './pages/ReportLookup'
+import InteractiveReport from './pages/InteractiveReport'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 import Payment from './pages/Payment'
@@ -27,6 +28,7 @@ function App() {
               <Route path="/services" element={<Services />} />
               <Route path="/booking" element={<Booking />} />
               <Route path="/report" element={<ReportLookup />} />
+              <Route path="/interactive" element={<InteractiveReport />} />
               <Route path="/payment" element={<Payment />} />
               <Route path="/payment/success" element={<PaymentSuccess />} />
               <Route path="/payment/cancel" element={<PaymentCancel />} />

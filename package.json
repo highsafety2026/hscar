@@ -21,6 +21,7 @@
     "qrcode": "^1.5.4",
     "stripe": "^20.0.0",
     "stripe-replit-sync": "^1.0.0",
+    "three": "^0.182.0",
     "uuid": "^9.0.0"
   }
 }
