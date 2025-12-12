@@ -1,49 +1,35 @@
 import { useState, useEffect, useRef } from 'react'
 import * as THREE from 'three'
-import { Upload, X, AlertCircle, CheckCircle, AlertTriangle } from 'lucide-react'
+import { Upload, X, AlertCircle, CheckCircle, AlertTriangle, Zap } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
-const defectData = [
-  {
-    id: 1,
-    position: { x: 2, y: 1.5, z: 0 },
-    name: 'تلف في المصد الأمامي',
-    nameEn: 'Front Bumper Damage',
-    description: 'خدش وتشقق في المصد الأمامي',
-    descriptionEn: 'Scratches and cracks in front bumper',
-    severity: 'high',
-    severityColor: '#EA4335',
-    recommendations: 'استبدال المصد الأمامي أو إصلاح السطح',
-    recommendationsEn: 'Replace front bumper or surface repair',
-    estimatedCost: '500-1500'
-  },
-  {
-    id: 2,
-    position: { x: 0, y: 0.5, z: 1.5 },
-    name: 'مشكلة في الإطارات',
-    nameEn: 'Tire Issues',
-    description: 'تآكل غير متساوٍ على الإطارات',
-    descriptionEn: 'Uneven tire wear and low tread',
-    severity: 'medium',
-    severityColor: '#FFA500',
-    recommendations: 'استبدال الإطارات وفحص التوازن',
-    recommendationsEn: 'Replace tires and check wheel alignment',
-    estimatedCost: '300-800'
-  },
-  {
-    id: 3,
-    position: { x: -1.5, y: 2, z: 0.5 },
-    name: 'ضعف في نظام الإضاءة',
-    nameEn: 'Lighting System Issue',
-    description: 'إضاءة الرأس اليسرى خافتة أو معطلة',
-    descriptionEn: 'Left headlight is dim or not working',
-    severity: 'medium',
-    severityColor: '#FFA500',
-    recommendations: 'استبدال المصباح أو فحص الأسلاك',
-    recommendationsEn: 'Replace bulb or check electrical wiring',
-    estimatedCost: '100-300'
+// Map severity to color
+const getSeverityColor = (severity) => {
+  const colorMap = {
+    high: '#EA4335',
+    medium: '#FFA500',
+    low: '#4285F4'
   }
-]
+  return colorMap[severity] || '#999'
+}
+
+// Transform defect data from JSON format to UI format
+const transformDefects = (defectList) => {
+  return defectList.map(d => ({
+    id: d.id,
+    position: d.position,
+    name: d.locationAr,
+    nameEn: d.location,
+    description: d.shortDescAr,
+    descriptionEn: d.shortDesc,
+    severity: d.severity,
+    severityColor: getSeverityColor(d.severity),
+    recommendations: d.recommendationsAr,
+    recommendationsEn: d.recommendations,
+    estimatedCost: `${d.estimatedCostMin}-${d.estimatedCostMax}`,
+    fullData: d
+  }))
+}
 
 function InteractiveReport() {
   const { language, t } = useLanguage()
@@ -60,6 +46,24 @@ function InteractiveReport() {
   const [rotation, setRotation] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [webglError, setWebglError] = useState(false)
+  const [defectData, setDefectData] = useState([])
+  const [carInfo, setCarInfo] = useState(null)
+  const [uploadStatus, setUploadStatus] = useState(null)
+  const fileInputRef = useRef(null)
+
+  // Load demo defect data from JSON
+  useEffect(() => {
+    fetch('/data/defects.json')
+      .then(res => res.json())
+      .then(data => {
+        setCarInfo(data.carInfo)
+        setDefectData(transformDefects(data.defects))
+      })
+      .catch(err => {
+        console.error('Error loading defect data:', err)
+        setDefectData([])
+      })
+  }, [])
 
   const getSeverityLabel = (severity) => {
     if (language === 'ar') {
@@ -165,21 +169,23 @@ function InteractiveReport() {
     const defectMarkerGroup = new THREE.Group()
     defectPointsRef.current = []
 
-    defectData.forEach((defect) => {
-      const markerGeometry = new THREE.SphereGeometry(0.25, 32, 32)
-      const markerMaterial = new THREE.MeshStandardMaterial({
-        color: defect.severityColor,
-        emissive: defect.severityColor,
-        emissiveIntensity: 0.5,
-        metalness: 0.7
+    if (defectData && defectData.length > 0) {
+      defectData.forEach((defect) => {
+        const markerGeometry = new THREE.SphereGeometry(0.25, 32, 32)
+        const markerMaterial = new THREE.MeshStandardMaterial({
+          color: defect.severityColor,
+          emissive: defect.severityColor,
+          emissiveIntensity: 0.5,
+          metalness: 0.7
+        })
+        const marker = new THREE.Mesh(markerGeometry, markerMaterial)
+        marker.position.set(defect.position.x, defect.position.y, defect.position.z)
+        marker.userData = { defectId: defect.id, defect }
+        marker.interactive = true
+        defectMarkerGroup.add(marker)
+        defectPointsRef.current.push(marker)
       })
-      const marker = new THREE.Mesh(markerGeometry, markerMaterial)
-      marker.position.set(defect.position.x, defect.position.y, defect.position.z)
-      marker.userData = { defectId: defect.id, defect }
-      marker.interactive = true
-      defectMarkerGroup.add(marker)
-      defectPointsRef.current.push(marker)
-    })
+    }
 
     scene.add(defectMarkerGroup)
 
@@ -270,15 +276,66 @@ function InteractiveReport() {
         mountRef.current?.removeChild(renderer.domElement)
       }
     }
-  }, [rotation, isDragging])
+  }, [rotation, isDragging, defectData])
+
+  const handleUploadClick = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadStatus({ status: 'uploading', message: language === 'ar' ? 'جاري الرفع...' : 'Uploading...' })
+
+    // Simulate upload with structure for future AI integration
+    try {
+      // In future, this will send to AI analysis endpoint
+      // const formData = new FormData()
+      // formData.append('file', file)
+      // const response = await fetch('/api/analyze-inspection', {
+      //   method: 'POST',
+      //   body: formData
+      // })
+      // const aiAnalysis = await response.json()
+      // setDefectData(transformDefects(aiAnalysis.defects))
+
+      // For now, show success message
+      setTimeout(() => {
+        setUploadStatus({
+          status: 'success',
+          message: language === 'ar'
+            ? 'تم الرفع بنجاح! سيتم التحليل قريباً'
+            : 'File uploaded successfully! Analysis coming soon'
+        })
+        setTimeout(() => setUploadStatus(null), 3000)
+      }, 1000)
+    } catch (error) {
+      setUploadStatus({
+        status: 'error',
+        message: language === 'ar' ? 'فشل الرفع. حاول مرة أخرى.' : 'Upload failed. Try again.'
+      })
+      setTimeout(() => setUploadStatus(null), 3000)
+    }
+  }
 
   return (
     <div className="interactive-report-page">
       <section className="interactive-hero">
         <div className="container">
           <div className="interactive-header">
+            <div className="demo-badge">
+              <Zap size={16} />
+              {language === 'ar' ? 'نسخة تجريبية' : 'Demo Version'}
+            </div>
             <h1>{language === 'ar' ? 'تقرير فحص ذكي تفاعلي' : 'Interactive Smart Inspection Report'}</h1>
             <p>{language === 'ar' ? 'اكتشف عيوب سيارتك بشكل تفاعلي وذكي' : 'Discover your car issues interactively and intelligently'}</p>
+            {carInfo && (
+              <div className="car-info-badge">
+                <span>{carInfo.brand} {carInfo.model}</span>
+                <span>{carInfo.year}</span>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -311,11 +368,11 @@ function InteractiveReport() {
             <div className="defects-panel">
               <div className="panel-header">
                 <h2>{language === 'ar' ? 'النقاط المكتشفة' : 'Detected Issues'}</h2>
-                <span className="defect-count">{defectData.length}</span>
+                <span className="defect-count">{defectData?.length || 0}</span>
               </div>
 
               <div className="defects-list">
-                {defectData.map((defect) => (
+                {defectData && defectData.length > 0 ? defectData.map((defect) => (
                   <div
                     key={defect.id}
                     className={`defect-item ${selectedDefect?.id === defect.id ? 'active' : ''}`}
@@ -332,18 +389,37 @@ function InteractiveReport() {
                       </div>
                     </div>
                   </div>
-                ))}
+                )) : (
+                  <div className="no-defects">
+                    <p>{language === 'ar' ? 'لا توجد عيوب مكتشفة' : 'No defects detected'}</p>
+                  </div>
+                )}
               </div>
 
               <div className="panel-footer">
-                <button className="upload-btn">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={handleFileUpload}
+                  style={{ display: 'none' }}
+                />
+                <button className="upload-btn" onClick={handleUploadClick}>
                   <Upload size={18} />
                   {language === 'ar' ? 'رفع تقرير PDF' : 'Upload PDF Report'}
                 </button>
+                {uploadStatus && (
+                  <div className={`upload-status ${uploadStatus.status}`}>
+                    {uploadStatus.status === 'uploading' && <div className="spinner" />}
+                    {uploadStatus.status === 'success' && <CheckCircle size={16} />}
+                    {uploadStatus.status === 'error' && <AlertCircle size={16} />}
+                    <span>{uploadStatus.message}</span>
+                  </div>
+                )}
                 <p className="upload-hint">
                   {language === 'ar'
-                    ? 'رفع ملف PDF الخاص بتقرير السيارة'
-                    : 'Upload your car inspection PDF file'}
+                    ? 'رفع ملف PDF الخاص بتقرير السيارة (قريباً: تحليل ذكي)'
+                    : 'Upload your car inspection PDF file (Coming soon: AI analysis)'}
                 </p>
               </div>
             </div>
