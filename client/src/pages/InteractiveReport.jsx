@@ -1,8 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { Upload, AlertCircle, CheckCircle, AlertTriangle, Download, FileText, Car, Eye, Loader, Search, FileCheck, Brain, Sparkles } from 'lucide-react'
+import { Upload, AlertCircle, CheckCircle, AlertTriangle, FileText, Car, Eye, Loader, Brain, Sparkles } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
-import jsPDF from 'jspdf'
-import 'jspdf-autotable'
+import Car3DViewer from '../components/Car3DViewer'
 
 const getSeverityColor = (severity) => {
   const colorMap = { high: '#EA4335', medium: '#FFA500', low: '#4285F4' }
@@ -91,124 +90,6 @@ function InteractiveReport() {
       if (stepInterval) clearInterval(stepInterval)
       setIsAnalyzing(false)
       if (fileInputRef.current) fileInputRef.current.value = ''
-    }
-  }
-
-  const generatePDF = () => {
-    try {
-      const doc = new jsPDF()
-      
-      doc.setFont('helvetica', 'bold')
-      doc.setFontSize(20)
-      doc.setTextColor(11, 31, 58)
-      doc.text('High Safety International', 105, 20, { align: 'center' })
-      
-      doc.setFontSize(14)
-      doc.setTextColor(100)
-      doc.text('Vehicle Inspection Report', 105, 30, { align: 'center' })
-      
-      if (carInfo) {
-        doc.setFontSize(12)
-        doc.setTextColor(0)
-        doc.text(`Vehicle: ${carInfo.brand} ${carInfo.model} (${carInfo.year})`, 20, 45)
-        doc.text(`Date: ${new Date().toLocaleDateString()}`, 20, 52)
-        doc.text(`Report ID: HSI-${Date.now().toString().slice(-6)}`, 20, 59)
-      }
-      
-      doc.setDrawColor(200, 157, 42)
-      doc.setLineWidth(1)
-      doc.line(20, 65, 190, 65)
-      
-      doc.setFontSize(14)
-      doc.setTextColor(11, 31, 58)
-      doc.text('Inspection Results', 20, 75)
-      
-      if (defectData.length > 0) {
-        const tableData = defectData.map((d, i) => [
-          i + 1,
-          d.location || '',
-          d.type || '',
-          d.severity === 'high' ? 'High' : d.severity === 'medium' ? 'Medium' : 'Low',
-          d.shortDesc || '',
-          `${d.estimatedCostMin || 0}-${d.estimatedCostMax || 0} AED`
-        ])
-        
-        doc.autoTable({
-          startY: 80,
-          head: [['#', 'Location', 'Type', 'Severity', 'Description', 'Est. Cost']],
-          body: tableData,
-          theme: 'striped',
-          headStyles: {
-            fillColor: [11, 31, 58],
-            textColor: 255,
-            fontStyle: 'bold'
-          },
-          columnStyles: {
-            0: { cellWidth: 10 },
-            1: { cellWidth: 30 },
-            2: { cellWidth: 25 },
-            3: { cellWidth: 20 },
-            4: { cellWidth: 55 },
-            5: { cellWidth: 30 }
-          },
-          alternateRowStyles: { fillColor: [245, 245, 245] }
-        })
-        
-        const finalY = doc.lastAutoTable.finalY + 15
-        
-        doc.setFontSize(12)
-        doc.setTextColor(11, 31, 58)
-        doc.text('Detailed Findings:', 20, finalY)
-        
-        let yPos = finalY + 10
-        defectData.forEach((d, i) => {
-          if (yPos > 260) {
-            doc.addPage()
-            yPos = 20
-          }
-          
-          const severityColor = d.severity === 'high' ? [234, 67, 53] : d.severity === 'medium' ? [255, 165, 0] : [66, 133, 244]
-          doc.setFillColor(...severityColor)
-          doc.circle(25, yPos + 2, 3, 'F')
-          
-          doc.setFontSize(11)
-          doc.setTextColor(0)
-          doc.setFont('helvetica', 'bold')
-          doc.text(`${i + 1}. ${d.location || ''} - ${d.type || ''}`, 32, yPos + 4)
-          
-          doc.setFont('helvetica', 'normal')
-          doc.setFontSize(10)
-          doc.setTextColor(80)
-          
-          const descLines = doc.splitTextToSize(d.detailedDesc || '', 150)
-          doc.text(descLines, 32, yPos + 12)
-          yPos += 12 + (descLines.length * 5)
-          
-          doc.text(`Recommendation: ${d.recommendations || ''}`, 32, yPos)
-          yPos += 10
-          
-          doc.setTextColor(200, 157, 42)
-          doc.text(`Estimated Cost: ${d.estimatedCostMin || 0}-${d.estimatedCostMax || 0} AED`, 32, yPos)
-          yPos += 15
-        })
-      } else {
-        doc.setFontSize(12)
-        doc.text('No defects found - Vehicle in good condition', 20, 85)
-      }
-      
-      const pageCount = doc.internal.getNumberOfPages()
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i)
-        doc.setFontSize(8)
-        doc.setTextColor(150)
-        doc.text(`Page ${i} of ${pageCount}`, 105, 290, { align: 'center' })
-        doc.text('High Safety International - WhatsApp: +971 54 220 6000', 105, 295, { align: 'center' })
-      }
-      
-      doc.save(`inspection-report-${carInfo?.model || 'vehicle'}-${Date.now()}.pdf`)
-    } catch (error) {
-      console.error('PDF generation error:', error)
-      alert(language === 'ar' ? 'حدث خطأ في إنشاء التقرير' : 'Error generating PDF')
     }
   }
 
@@ -325,39 +206,15 @@ function InteractiveReport() {
       <section className="car-visual-section">
         <div className="container">
           <div className="section-header-center">
-            <h2>{language === 'ar' ? 'عرض السيارة' : 'Vehicle View'}</h2>
+            <h2>{language === 'ar' ? 'نموذج السيارة ثلاثي الأبعاد' : '3D Vehicle Model'}</h2>
+            <p className="section-subtitle">
+              {language === 'ar' 
+                ? 'اسحب للتدوير وشاهد السيارة من جميع الزوايا بما فيها الشاصي'
+                : 'Drag to rotate and view the car from all angles including chassis'}
+            </p>
           </div>
           <div className="car-display-card">
-            <div className="car-image-container">
-              <img 
-                src="/images/realistic-car.jpg" 
-                alt="Vehicle" 
-                className="realistic-car-image"
-                onError={(e) => {
-                  e.target.style.display = 'none'
-                }}
-              />
-              <div className="defect-markers">
-                {defectData.map((d, i) => {
-                  const positions = [
-                    { left: '15%', top: '50%' },
-                    { left: '30%', top: '75%' },
-                    { left: '85%', top: '50%' }
-                  ]
-                  const pos = positions[i] || { left: '50%', top: '50%' }
-                  return (
-                    <div
-                      key={d.id}
-                      className={`defect-marker severity-${d.severity}`}
-                      style={{ left: pos.left, top: pos.top }}
-                      onClick={() => setSelectedDefect(d)}
-                    >
-                      <span>{i + 1}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+            <Car3DViewer language={language} />
             {carInfo && (
               <div className="car-info-badge">
                 <Car size={18} />
@@ -377,10 +234,6 @@ function InteractiveReport() {
               <h2>{language === 'ar' ? 'نتائج الفحص' : 'Inspection Results'}</h2>
               <span className="count-badge">{defectData.length}</span>
             </div>
-            <button className="download-pdf-btn" onClick={generatePDF}>
-              <Download size={18} />
-              {language === 'ar' ? 'تحميل PDF' : 'Download PDF'}
-            </button>
           </div>
 
           <div className="defects-table-wrapper">

@@ -574,3 +574,84 @@
   margin: 0;
   font-size: 0.95rem;
 }
+
+/* 3D Car Viewer Styles */
+.car-3d-viewer {
+  width: 100%;
+}
+
+.viewer-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: linear-gradient(135deg, var(--primary), #0d2847);
+  border-radius: 12px 12px 0 0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.control-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(200, 157, 42, 0.5);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 25px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.control-btn:hover,
+.control-btn.active {
+  background: rgba(200, 157, 42, 0.3);
+  border-color: #C89D2A;
+}
+
+.viewer-hint {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+}
+
+.threejs-container {
+  position: relative;
+}
+
+.loading-3d {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--primary);
+}
+
+.loading-3d .spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #e0e0e0;
+  border-top-color: var(--secondary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+.loading-3d p {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.section-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.car-display-card .car-info-badge {
+  background: var(--primary);
+  margin-top: 0;
+  border-radius: 0 0 12px 12px;
+  justify-content: center;
+}
