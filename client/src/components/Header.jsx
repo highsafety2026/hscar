@@ -1,15 +1,27 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, Smartphone, CreditCard } from 'lucide-react'
+import { Menu, X, Smartphone, CreditCard, Globe, ChevronDown, Check } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
 function Header() {
-  const { language, toggleLanguage, t } = useLanguage()
+  const { language, setLanguage, t, languages, currentLanguage } = useLanguage()
   const [menuOpen, setMenuOpen] = useState(false)
   const [deferredPrompt, setDeferredPrompt] = useState(null)
   const [isInstalled, setIsInstalled] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
   const [showIOSModal, setShowIOSModal] = useState(false)
+  const [showLangDropdown, setShowLangDropdown] = useState(false)
+  const langDropdownRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target)) {
+        setShowLangDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream
@@ -131,19 +143,107 @@ function Header() {
                 {t.nav.downloadApp}
               </button>
             )}
-            <div className="language-toggle">
+            <div className="language-switcher" ref={langDropdownRef}>
               <button 
-                className={language === 'ar' ? 'active' : ''}
-                onClick={() => { if(language !== 'ar') toggleLanguage(); setMenuOpen(false); }}
+                className="language-switcher-btn"
+                onClick={() => setShowLangDropdown(!showLangDropdown)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(200,157,42,0.5)',
+                  padding: '8px 14px',
+                  borderRadius: '25px',
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                  fontSize: '0.9rem',
+                  transition: 'all 0.3s ease'
+                }}
               >
-                عربي
+                <Globe size={16} style={{ color: '#C89D2A' }} />
+                <span style={{ fontSize: '1rem' }}>{currentLanguage?.flag}</span>
+                <span style={{ fontWeight: '500' }}>{currentLanguage?.name}</span>
+                <ChevronDown 
+                  size={14} 
+                  style={{ 
+                    color: '#C89D2A',
+                    transform: showLangDropdown ? 'rotate(180deg)' : 'rotate(0)',
+                    transition: 'transform 0.3s ease'
+                  }} 
+                />
               </button>
-              <button 
-                className={language === 'en' ? 'active' : ''}
-                onClick={() => { if(language !== 'en') toggleLanguage(); setMenuOpen(false); }}
-              >
-                EN
-              </button>
+              
+              {showLangDropdown && (
+                <div 
+                  className="language-dropdown"
+                  style={{
+                    position: 'absolute',
+                    top: '100%',
+                    left: language === 'ar' ? 'auto' : '0',
+                    right: language === 'ar' ? '0' : 'auto',
+                    marginTop: '8px',
+                    background: 'white',
+                    borderRadius: '12px',
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
+                    overflow: 'hidden',
+                    zIndex: 1000,
+                    minWidth: '180px',
+                    animation: 'fadeInDown 0.2s ease'
+                  }}
+                >
+                  <div style={{
+                    padding: '12px 16px',
+                    background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+                    color: 'white',
+                    fontSize: '0.85rem',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <Globe size={14} style={{ color: '#C89D2A' }} />
+                    {t.languageSwitcher?.title || 'Select Language'}
+                  </div>
+                  {languages.map((lang) => (
+                    <button
+                      key={lang.code}
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setShowLangDropdown(false);
+                        setMenuOpen(false);
+                      }}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        width: '100%',
+                        padding: '14px 16px',
+                        border: 'none',
+                        background: language === lang.code ? 'rgba(200,157,42,0.1)' : 'white',
+                        cursor: 'pointer',
+                        fontFamily: 'inherit',
+                        fontSize: '0.95rem',
+                        color: '#0B1F3A',
+                        textAlign: language === 'ar' ? 'right' : 'left',
+                        transition: 'background 0.2s ease',
+                        borderBottom: '1px solid #f0f0f0'
+                      }}
+                      onMouseEnter={(e) => e.target.style.background = 'rgba(200,157,42,0.1)'}
+                      onMouseLeave={(e) => e.target.style.background = language === lang.code ? 'rgba(200,157,42,0.1)' : 'white'}
+                    >
+                      <span style={{ fontSize: '1.3rem' }}>{lang.flag}</span>
+                      <span style={{ flex: 1, fontWeight: language === lang.code ? '600' : '400' }}>
+                        {lang.name}
+                      </span>
+                      {language === lang.code && (
+                        <Check size={16} style={{ color: '#C89D2A' }} />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </nav>
         </div>
