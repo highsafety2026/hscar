@@ -1,3 +1,24 @@
+/* Language Switcher Styles */
+.language-switcher {
+  position: relative;
+}
+
+.language-switcher-btn:hover {
+  background: rgba(255,255,255,0.2) !important;
+  border-color: #C89D2A !important;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Interactive Report Page Styles */
 .interactive-report-page {
   background: #f8fafb;
