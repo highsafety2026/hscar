@@ -119,17 +119,20 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - PostgreSQL appointment_slots table with availability tracking
 
 ## Recent Changes (December 2024)
-- **NEW: Smart Interactive 3D Inspection Report Viewer** - 360° rotatable 3D car model with interactive defect points
-  - Click on colored defect markers to see detailed descriptions, severity levels, and repair recommendations
-  - 3 demo defects with realistic inspection scenarios (bumper damage, tire issues, lighting problems)
-  - Shows estimated repair costs and booking CTAs
+- **ENHANCED: Smart Interactive 3D Inspection Report Viewer - v2.0**
+  - Data-driven architecture with JSON-based defect system (`/data/defects.json`)
+  - 3 realistic demo defects: Front Bumper Damage, Tire Issues, Lighting System Problem
+  - Structured defect data: ID, location, type, severity, short/detailed descriptions, recommendations, cost estimates
+  - Upload functionality with success/error feedback (ready for future AI integration)
+  - "Demo Version" badge clearly indicates test/prototype status
+  - Car info display (Brand, Model, Year)
+  - Click interactive defect markers to view detailed modal with severity, cost, recommendations
   - Bilingual interface (Arabic/English) with full RTL support
-  - Responsive design for desktop and mobile
-  - Fallback UI for environments without WebGL support
-  - Ready for future PDF analysis integration to auto-detect defects
+  - Responsive design for desktop, tablet, mobile
+  - Architecture ready for PDF analysis AI integration (/api/analyze-inspection endpoint structure in place)
+  - Fallback UI for WebGL environments
 - Redesigned booking to tasjeel.com-style with clickable service selection cards (4-step wizard)
 - Service selection is now step 0 with beautiful cards showing icon, title, features, and price
 - Year input converted to dropdown (1990-2025) - no manual typing needed
-- Added video background to hero section (hs_20251211_123323_0000_1765442313427.mp4)
+- Added video background to hero section
 - Implemented real-time calendar booking system with time slots
-- Added 4-step booking wizard with visual progress indicator (Service → Date → Time → Details)
