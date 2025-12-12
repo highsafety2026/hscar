@@ -101,9 +101,6 @@ function Home() {
               </Link>
             </div>
           </div>
-          <div className="hero-image">
-            <img src="/images/logo.png" alt="High Safety Logo" className="hero-logo" />
-          </div>
         </div>
       </section>
 
