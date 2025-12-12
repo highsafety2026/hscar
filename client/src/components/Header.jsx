@@ -89,6 +89,7 @@ function Header() {
             <Link to="/services" onClick={() => setMenuOpen(false)}>{t.nav.services}</Link>
             <Link to="/booking" onClick={() => setMenuOpen(false)}>{t.nav.booking}</Link>
             <Link to="/report" onClick={() => setMenuOpen(false)}>{t.nav.report}</Link>
+            <Link to="/interactive" onClick={() => setMenuOpen(false)} style={{ color: '#C89D2A', fontWeight: '600' }}>{t.nav.interactive}</Link>
             <Link 
               to="/payment" 
               onClick={() => setMenuOpen(false)}
