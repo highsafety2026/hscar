@@ -655,3 +655,119 @@
   border-radius: 0 0 12px 12px;
   justify-content: center;
 }
+
+/* Engineer Spotlight Section */
+.engineer-spotlight {
+  padding: 80px 0;
+  background: linear-gradient(180deg, #f8fafb 0%, #ffffff 100%);
+}
+
+.engineer-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 50px;
+  align-items: center;
+}
+
+.engineer-image-wrapper {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.engineer-image-wrapper img {
+  width: 100%;
+  height: 500px;
+  object-fit: cover;
+  display: block;
+}
+
+.engineer-badge {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, rgba(11, 31, 58, 0.95), rgba(26, 54, 93, 0.95));
+  color: white;
+  padding: 15px 20px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.engineer-badge svg {
+  color: #C89D2A;
+}
+
+.engineer-badge span {
+  font-weight: 600;
+}
+
+.engineer-content h2 {
+  font-size: 2rem;
+  color: var(--primary);
+  margin: 15px 0 20px;
+  line-height: 1.4;
+}
+
+.engineer-content p {
+  color: #555;
+  line-height: 1.8;
+  font-size: 1.05rem;
+  margin-bottom: 25px;
+}
+
+.engineer-features {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.engineer-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+  border-right: 3px solid #C89D2A;
+  transition: all 0.3s ease;
+}
+
+[dir="ltr"] .engineer-feature {
+  border-right: none;
+  border-left: 3px solid #C89D2A;
+}
+
+.engineer-feature:hover {
+  transform: translateX(5px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+[dir="ltr"] .engineer-feature:hover {
+  transform: translateX(-5px);
+}
+
+.engineer-feature span {
+  font-weight: 500;
+  color: #333;
+}
+
+@media (max-width: 900px) {
+  .engineer-grid {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  
+  .engineer-image-wrapper img {
+    height: 400px;
+  }
+  
+  .engineer-content h2 {
+    font-size: 1.6rem;
+  }
+}
