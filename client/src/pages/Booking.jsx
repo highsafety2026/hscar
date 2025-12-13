@@ -1,16 +1,28 @@
 import { useState, useRef, useEffect } from 'react'
-import { Car, Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool } from 'lucide-react'
+import { Car, Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Truck, Crown, Zap } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
 function Booking() {
   const { language, t } = useLanguage()
   const isRTL = language === 'ar' || language === 'ur' || language === 'fa'
   
+  const carCategories = [
+    { id: 'sedan', title: 'صالون', titleEn: 'Sedan', icon: <Car size={24} />, color: '#4285F4' },
+    { id: 'suv', title: 'دفع رباعي', titleEn: 'SUV / 4WD', icon: <Truck size={24} />, color: '#34A853' },
+    { id: 'luxury', title: 'فاخرة/رياضية', titleEn: 'Luxury/Sports', icon: <Crown size={24} />, color: '#C89D2A' }
+  ]
+
+  const pricing = {
+    sedan: { full: 500, mechanical: 250, misc: 200, basic: 300 },
+    suv: { full: 600, mechanical: 300, misc: 200, basic: 400 },
+    luxury: { full: 700, mechanical: 350, misc: 200, basic: 500 }
+  }
+
   const serviceTypes = [
-    { id: 'full', icon: <Shield size={20} />, title: 'الفحص الشامل', titleEn: 'Full Inspection', price: '500', color: '#C89D2A' },
-    { id: 'mechanical', icon: <Settings size={20} />, title: 'ميكانيكا + كمبيوتر', titleEn: 'Mechanical + Computer', price: '250', color: '#4285F4' },
-    { id: 'misc', icon: <Eye size={20} />, title: 'فحوصات متنوعة', titleEn: 'Various Tests', price: '200', color: '#34A853' },
-    { id: 'basic', icon: <FileCheck size={20} />, title: 'الأجزاء الأساسية', titleEn: 'Basic Parts', price: '300', color: '#EA4335' }
+    { id: 'full', icon: <Shield size={20} />, title: 'الفحص الشامل', titleEn: 'Full Inspection', color: '#C89D2A' },
+    { id: 'mechanical', icon: <Settings size={20} />, title: 'ميكانيكا + كمبيوتر', titleEn: 'Mechanical + Computer', color: '#4285F4' },
+    { id: 'misc', icon: <Eye size={20} />, title: 'فحوصات متنوعة', titleEn: 'Various Tests', color: '#34A853' },
+    { id: 'basic', icon: <FileCheck size={20} />, title: 'الأجزاء الأساسية', titleEn: 'Basic Parts', color: '#EA4335' }
   ]
 
   const contactMethods = [
@@ -37,10 +49,24 @@ function Booking() {
   const [selectedTime, setSelectedTime] = useState(null)
   const [bookedSlots, setBookedSlots] = useState([])
   const [step, setStep] = useState(0)
+  const [selectedCarCategory, setSelectedCarCategory] = useState(null)
   const [selectedService, setSelectedService] = useState(null)
+  const [urgentPdf, setUrgentPdf] = useState(false)
   const [signature, setSignature] = useState(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const canvasRef = useRef(null)
+
+  const getServicePrice = (serviceId) => {
+    if (!selectedCarCategory) return '---'
+    return pricing[selectedCarCategory.id][serviceId]
+  }
+
+  const getTotalPrice = () => {
+    if (!selectedCarCategory || !selectedService) return 0
+    let total = pricing[selectedCarCategory.id][selectedService.id]
+    if (urgentPdf) total += 1
+    return total
+  }
 
   useEffect(() => {
     if (selectedDate) {
@@ -144,7 +170,7 @@ function Booking() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!selectedDate || !selectedTime || !selectedService || !formData.contactMethod) {
+    if (!selectedDate || !selectedTime || !selectedService || !selectedCarCategory || !formData.contactMethod) {
       alert(language === 'ar' ? 'الرجاء إكمال جميع البيانات' : 'Please complete all fields')
       return
     }
@@ -156,6 +182,9 @@ function Booking() {
         body: JSON.stringify({
           ...formData,
           serviceType: selectedService.id,
+          carCategory: selectedCarCategory.id,
+          urgentPdf: urgentPdf,
+          totalPrice: getTotalPrice(),
           preferredDate: selectedDate.toISOString().split('T')[0],
           preferredTime: selectedTime,
           signature: signature
@@ -175,7 +204,7 @@ function Booking() {
   const isSlotBooked = (time) => bookedSlots.includes(time)
 
   const canProceed = () => {
-    if (step === 0) return selectedService
+    if (step === 0) return selectedCarCategory && selectedService
     if (step === 1) return selectedDate
     if (step === 2) return selectedTime
     if (step === 3) return formData.name && formData.phone && formData.carBrand && formData.carModel && formData.carYear && formData.contactMethod
@@ -185,6 +214,18 @@ function Booking() {
   const stepLabels = language === 'ar' 
     ? ['الخدمة', 'التاريخ', 'الوقت', 'البيانات']
     : ['Service', 'Date', 'Time', 'Details']
+
+  const resetBooking = () => {
+    setSuccess(false)
+    setStep(0)
+    setSelectedCarCategory(null)
+    setSelectedService(null)
+    setSelectedDate(null)
+    setSelectedTime(null)
+    setUrgentPdf(false)
+    setSignature(null)
+    setFormData({ name: '', phone: '', carBrand: '', carModel: '', carYear: '', contactMethod: '' })
+  }
 
   return (
     <div className="simple-booking">
@@ -220,7 +261,7 @@ function Booking() {
               </p>
             </div>
           </div>
-          <button onClick={() => { setSuccess(false); setStep(0); setSelectedService(null); setSelectedDate(null); setSelectedTime(null); setSignature(null); setFormData({ name: '', phone: '', carBrand: '', carModel: '', carYear: '', contactMethod: '' }); }}>
+          <button onClick={resetBooking}>
             {language === 'ar' ? 'حجز جديد' : 'New Booking'}
           </button>
         </div>
@@ -237,23 +278,107 @@ function Booking() {
 
           <div className="step-content">
             {step === 0 && (
-              <div className="services-compact">
-                {serviceTypes.map(s => (
-                  <div 
-                    key={s.id} 
-                    className={`service-item ${selectedService?.id === s.id ? 'selected' : ''}`}
-                    onClick={() => setSelectedService(s)}
-                    style={{ borderColor: selectedService?.id === s.id ? s.color : 'transparent' }}
-                  >
-                    <div className="service-icon" style={{ background: s.color }}>{s.icon}</div>
-                    <div className="service-info">
-                      <strong>{language === 'ar' ? s.title : s.titleEn}</strong>
-                      <small>{language === 'ar' ? s.titleEn : s.title}</small>
-                    </div>
-                    <div className="service-price">{s.price} <small>{language === 'ar' ? 'درهم' : 'AED'}</small></div>
-                    {selectedService?.id === s.id && <Check size={18} className="check-mark" style={{ color: s.color }} />}
+              <div className="service-selection-step">
+                <div className="category-section">
+                  <h3 className="section-title">
+                    {language === 'ar' ? '1. اختر فئة السيارة' : '1. Select Car Category'}
+                  </h3>
+                  <div className="car-categories">
+                    {carCategories.map(cat => (
+                      <div 
+                        key={cat.id} 
+                        className={`category-card ${selectedCarCategory?.id === cat.id ? 'selected' : ''}`}
+                        onClick={() => {
+                          setSelectedCarCategory(cat)
+                          setSelectedService(null)
+                        }}
+                        style={{ 
+                          borderColor: selectedCarCategory?.id === cat.id ? cat.color : 'transparent',
+                          background: selectedCarCategory?.id === cat.id ? `${cat.color}10` : 'white'
+                        }}
+                      >
+                        <div className="category-icon" style={{ color: cat.color }}>{cat.icon}</div>
+                        <div className="category-info">
+                          <strong>{language === 'ar' ? cat.title : cat.titleEn}</strong>
+                          <small>{language === 'ar' ? cat.titleEn : cat.title}</small>
+                        </div>
+                        {selectedCarCategory?.id === cat.id && <Check size={18} style={{ color: cat.color }} />}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+
+                {selectedCarCategory && (
+                  <div className="services-section">
+                    <h3 className="section-title">
+                      {language === 'ar' ? '2. اختر نوع الفحص' : '2. Select Inspection Type'}
+                    </h3>
+                    <div className="services-compact">
+                      {serviceTypes.map(s => (
+                        <div 
+                          key={s.id} 
+                          className={`service-item ${selectedService?.id === s.id ? 'selected' : ''}`}
+                          onClick={() => setSelectedService(s)}
+                          style={{ borderColor: selectedService?.id === s.id ? s.color : 'transparent' }}
+                        >
+                          <div className="service-icon" style={{ background: s.color }}>{s.icon}</div>
+                          <div className="service-info">
+                            <strong>{language === 'ar' ? s.title : s.titleEn}</strong>
+                            <small>{language === 'ar' ? s.titleEn : s.title}</small>
+                          </div>
+                          <div className="service-price">{getServicePrice(s.id)} <small>{language === 'ar' ? 'درهم' : 'AED'}</small></div>
+                          {selectedService?.id === s.id && <Check size={18} className="check-mark" style={{ color: s.color }} />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {selectedService && (
+                  <div className="urgent-pdf-section">
+                    <div 
+                      className={`urgent-pdf-toggle ${urgentPdf ? 'active' : ''}`}
+                      onClick={() => setUrgentPdf(!urgentPdf)}
+                    >
+                      <div className="urgent-icon">
+                        <Zap size={20} />
+                      </div>
+                      <div className="urgent-info">
+                        <strong>{language === 'ar' ? 'تقرير PDF عاجل' : 'Urgent PDF Report'}</strong>
+                        <small>{language === 'ar' ? 'احصل على التقرير فوراً' : 'Get report immediately'}</small>
+                      </div>
+                      <div className="urgent-price">
+                        +1 <small>{language === 'ar' ? 'درهم' : 'AED'}</small>
+                      </div>
+                      <div className={`toggle-switch ${urgentPdf ? 'on' : ''}`}>
+                        <div className="toggle-knob"></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedCarCategory && selectedService && (
+                  <div className="price-summary">
+                    <div className="summary-row">
+                      <span>{language === 'ar' ? 'فئة السيارة:' : 'Car Category:'}</span>
+                      <span>{language === 'ar' ? selectedCarCategory.title : selectedCarCategory.titleEn}</span>
+                    </div>
+                    <div className="summary-row">
+                      <span>{language === 'ar' ? 'نوع الفحص:' : 'Inspection Type:'}</span>
+                      <span>{language === 'ar' ? selectedService.title : selectedService.titleEn}</span>
+                    </div>
+                    {urgentPdf && (
+                      <div className="summary-row urgent">
+                        <span>{language === 'ar' ? 'PDF عاجل:' : 'Urgent PDF:'}</span>
+                        <span>+1 {language === 'ar' ? 'درهم' : 'AED'}</span>
+                      </div>
+                    )}
+                    <div className="summary-total">
+                      <span>{language === 'ar' ? 'الإجمالي:' : 'Total:'}</span>
+                      <span className="total-price">{getTotalPrice()} <small>{language === 'ar' ? 'درهم' : 'AED'}</small></span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -311,9 +436,11 @@ function Booking() {
             {step === 3 && (
               <form className="form-compact" onSubmit={handleSubmit}>
                 <div className="summary-bar">
+                  <span style={{ background: selectedCarCategory?.color }}>{language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</span>
                   <span style={{ background: selectedService?.color }}>{language === 'ar' ? selectedService?.title : selectedService?.titleEn}</span>
                   <span><Calendar size={14} /> {formatDate(selectedDate)}</span>
                   <span><Clock size={14} /> {selectedTime}</span>
+                  <span className="total-badge">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
                 </div>
                 <div className="form-grid">
                   <input 
@@ -442,6 +569,178 @@ function Booking() {
       )}
 
       <style>{`
+        .service-selection-step {
+          display: flex;
+          flex-direction: column;
+          gap: 25px;
+        }
+        .section-title {
+          font-size: 1.1rem;
+          color: #0B1F3A;
+          margin-bottom: 15px;
+          font-weight: 600;
+        }
+        .car-categories {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+        }
+        .category-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          padding: 20px 15px;
+          border: 3px solid transparent;
+          border-radius: 16px;
+          background: white;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+          position: relative;
+        }
+        .category-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+        }
+        .category-card.selected {
+          transform: translateY(-3px);
+          box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .category-card .check-mark {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+        }
+        .category-icon {
+          font-size: 1.5rem;
+        }
+        .category-info {
+          text-align: center;
+        }
+        .category-info strong {
+          display: block;
+          font-size: 0.95rem;
+          color: #0B1F3A;
+        }
+        .category-info small {
+          color: #666;
+          font-size: 0.75rem;
+        }
+        .urgent-pdf-section {
+          margin-top: 10px;
+        }
+        .urgent-pdf-toggle {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          padding: 15px 20px;
+          background: linear-gradient(135deg, #fff8e1 0%, #fff 100%);
+          border: 2px solid #ffd54f;
+          border-radius: 12px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .urgent-pdf-toggle:hover {
+          box-shadow: 0 4px 15px rgba(255,193,7,0.2);
+        }
+        .urgent-pdf-toggle.active {
+          background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+          border-color: #ff9800;
+        }
+        .urgent-icon {
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #ff9800, #ffc107);
+          border-radius: 10px;
+          color: white;
+        }
+        .urgent-info {
+          flex: 1;
+        }
+        .urgent-info strong {
+          display: block;
+          color: #0B1F3A;
+          font-size: 0.95rem;
+        }
+        .urgent-info small {
+          color: #666;
+          font-size: 0.8rem;
+        }
+        .urgent-price {
+          font-weight: 700;
+          font-size: 1.1rem;
+          color: #ff9800;
+        }
+        .urgent-price small {
+          font-size: 0.75rem;
+          font-weight: 500;
+        }
+        .toggle-switch {
+          width: 50px;
+          height: 28px;
+          background: #ccc;
+          border-radius: 14px;
+          position: relative;
+          transition: all 0.3s ease;
+        }
+        .toggle-switch.on {
+          background: linear-gradient(135deg, #ff9800, #ffc107);
+        }
+        .toggle-knob {
+          width: 24px;
+          height: 24px;
+          background: white;
+          border-radius: 50%;
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          transition: all 0.3s ease;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .toggle-switch.on .toggle-knob {
+          left: 24px;
+        }
+        .price-summary {
+          background: #f8f9fa;
+          padding: 20px;
+          border-radius: 12px;
+          margin-top: 10px;
+        }
+        .summary-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 8px 0;
+          border-bottom: 1px solid #e0e0e0;
+          color: #444;
+        }
+        .summary-row.urgent {
+          color: #ff9800;
+          font-weight: 500;
+        }
+        .summary-total {
+          display: flex;
+          justify-content: space-between;
+          padding-top: 15px;
+          margin-top: 5px;
+          font-weight: 700;
+          font-size: 1.2rem;
+          color: #0B1F3A;
+        }
+        .total-price {
+          color: #C89D2A;
+        }
+        .total-price small {
+          font-size: 0.8rem;
+        }
+        .summary-bar .total-badge {
+          background: linear-gradient(135deg, #C89D2A, #d4af37);
+          color: white;
+          font-weight: 600;
+        }
         .contact-method-section {
           grid-column: 1 / -1;
           margin: 15px 0;
@@ -506,6 +805,17 @@ function Booking() {
           margin: 15px 0;
         }
         @media (max-width: 600px) {
+          .car-categories {
+            grid-template-columns: 1fr;
+          }
+          .category-card {
+            flex-direction: row;
+            padding: 15px;
+          }
+          .category-info {
+            text-align: left;
+            flex: 1;
+          }
           .contact-methods {
             flex-direction: column;
           }
