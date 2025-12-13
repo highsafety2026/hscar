@@ -177,6 +177,41 @@ function Home() {
         </div>
       </section>
 
+      <section className="engineer-spotlight">
+        <div className="container">
+          <div className="engineer-grid">
+            <div className="engineer-image-wrapper">
+              <img src="/images/engineer.jpg" alt={language === 'ar' ? 'مهندسة الفحص' : 'Inspection Engineer'} />
+              <div className="engineer-badge">
+                <Shield size={20} />
+                <span>{language === 'ar' ? 'خبرة معتمدة' : 'Certified Expert'}</span>
+              </div>
+            </div>
+            <div className="engineer-content">
+              <span className="section-badge">{language === 'ar' ? 'فريقنا المتخصص' : 'Our Expert Team'}</span>
+              <h2>{language === 'ar' ? 'مهندسين ومهندسات ذوي خبرة' : 'Experienced Male & Female Engineers'}</h2>
+              <p>{language === 'ar' 
+                ? 'نفتخر بفريقنا المتميز من المهندسين والمهندسات المعتمدين الذين يتمتعون بخبرة واسعة في فحص السيارات باستخدام أحدث التقنيات والمعدات.'
+                : 'We are proud of our distinguished team of certified engineers with extensive experience in car inspection using the latest technologies and equipment.'}</p>
+              <div className="engineer-features">
+                <div className="engineer-feature">
+                  <CheckCircle size={20} color="#34A853" />
+                  <span>{language === 'ar' ? 'شهادات معتمدة دولياً' : 'Internationally certified'}</span>
+                </div>
+                <div className="engineer-feature">
+                  <CheckCircle size={20} color="#34A853" />
+                  <span>{language === 'ar' ? 'خبرة +10 سنوات' : '10+ years experience'}</span>
+                </div>
+                <div className="engineer-feature">
+                  <CheckCircle size={20} color="#34A853" />
+                  <span>{language === 'ar' ? 'تدريب مستمر' : 'Continuous training'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="gallery-section">
         <div className="container">
           <div className="section-header">
