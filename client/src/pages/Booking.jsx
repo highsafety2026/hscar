@@ -69,6 +69,15 @@ function Booking() {
   }
 
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    if (urlParams.get('urgent_pdf_paid') === 'true') {
+      setUrgentPdf(true)
+      sessionStorage.removeItem('urgentPdfPending')
+      window.history.replaceState({}, '', '/booking')
+    }
+  }, [])
+
+  useEffect(() => {
     if (selectedDate) {
       fetchBookedSlots(selectedDate)
     }
@@ -336,22 +345,53 @@ function Booking() {
 
                 {selectedService && (
                   <div className="urgent-pdf-section">
-                    <div 
-                      className={`urgent-pdf-toggle ${urgentPdf ? 'active' : ''}`}
-                      onClick={() => setUrgentPdf(!urgentPdf)}
-                    >
-                      <div className="urgent-icon">
-                        <Zap size={20} />
+                    <div className="urgent-pdf-card">
+                      <div className="urgent-header">
+                        <div className="urgent-icon">
+                          <Zap size={20} />
+                        </div>
+                        <div className="urgent-info">
+                          <strong>{language === 'ar' ? 'تقرير PDF عاجل' : 'Urgent PDF Report'}</strong>
+                          <small>{language === 'ar' ? 'احصل على التقرير فوراً بعد الفحص' : 'Get report immediately after inspection'}</small>
+                        </div>
                       </div>
-                      <div className="urgent-info">
-                        <strong>{language === 'ar' ? 'تقرير PDF عاجل' : 'Urgent PDF Report'}</strong>
-                        <small>{language === 'ar' ? 'احصل على التقرير فوراً' : 'Get report immediately'}</small>
-                      </div>
-                      <div className="urgent-price">
-                        +1 <small>{language === 'ar' ? 'درهم' : 'AED'}</small>
-                      </div>
-                      <div className={`toggle-switch ${urgentPdf ? 'on' : ''}`}>
-                        <div className="toggle-knob"></div>
+                      <div className="urgent-payment">
+                        <div className="urgent-price-box">
+                          <span className="price-amount">1</span>
+                          <span className="price-currency">{language === 'ar' ? 'درهم فقط' : 'AED only'}</span>
+                        </div>
+                        <button 
+                          type="button"
+                          className={`pay-urgent-btn ${urgentPdf ? 'paid' : ''}`}
+                          onClick={async () => {
+                            if (urgentPdf) return
+                            try {
+                              const res = await fetch('/api/create-urgent-pdf-payment', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ amount: 1 })
+                              })
+                              const data = await res.json()
+                              if (data.url) {
+                                sessionStorage.setItem('urgentPdfPending', 'true')
+                                window.location.href = data.url
+                              }
+                            } catch (err) {
+                              console.error('Payment error:', err)
+                            }
+                          }}
+                        >
+                          {urgentPdf ? (
+                            <>
+                              <Check size={18} />
+                              {language === 'ar' ? 'تم الدفع' : 'Paid'}
+                            </>
+                          ) : (
+                            <>
+                              {language === 'ar' ? 'ادفع 1 درهم' : 'Pay 1 AED'}
+                            </>
+                          )}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -370,12 +410,12 @@ function Booking() {
                     {urgentPdf && (
                       <div className="summary-row urgent">
                         <span>{language === 'ar' ? 'PDF عاجل:' : 'Urgent PDF:'}</span>
-                        <span>+1 {language === 'ar' ? 'درهم' : 'AED'}</span>
+                        <span style={{color: '#34A853'}}>✓ {language === 'ar' ? 'مدفوع' : 'Paid'}</span>
                       </div>
                     )}
                     <div className="summary-total">
-                      <span>{language === 'ar' ? 'الإجمالي:' : 'Total:'}</span>
-                      <span className="total-price">{getTotalPrice()} <small>{language === 'ar' ? 'درهم' : 'AED'}</small></span>
+                      <span>{language === 'ar' ? 'سعر الفحص:' : 'Inspection Price:'}</span>
+                      <span className="total-price">{pricing[selectedCarCategory.id][selectedService.id]} <small>{language === 'ar' ? 'درهم' : 'AED'}</small></span>
                     </div>
                   </div>
                 )}
@@ -630,32 +670,30 @@ function Booking() {
         .urgent-pdf-section {
           margin-top: 10px;
         }
-        .urgent-pdf-toggle {
+        .urgent-pdf-card {
+          background: linear-gradient(135deg, #fff8e1 0%, #fff 100%);
+          border: 2px solid #ffd54f;
+          border-radius: 16px;
+          padding: 20px;
+          transition: all 0.3s ease;
+        }
+        .urgent-pdf-card:hover {
+          box-shadow: 0 4px 20px rgba(255,193,7,0.25);
+        }
+        .urgent-header {
           display: flex;
           align-items: center;
           gap: 15px;
-          padding: 15px 20px;
-          background: linear-gradient(135deg, #fff8e1 0%, #fff 100%);
-          border: 2px solid #ffd54f;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        .urgent-pdf-toggle:hover {
-          box-shadow: 0 4px 15px rgba(255,193,7,0.2);
-        }
-        .urgent-pdf-toggle.active {
-          background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-          border-color: #ff9800;
+          margin-bottom: 15px;
         }
         .urgent-icon {
-          width: 40px;
-          height: 40px;
+          width: 45px;
+          height: 45px;
           display: flex;
           align-items: center;
           justify-content: center;
           background: linear-gradient(135deg, #ff9800, #ffc107);
-          border-radius: 10px;
+          border-radius: 12px;
           color: white;
         }
         .urgent-info {
@@ -664,45 +702,62 @@ function Booking() {
         .urgent-info strong {
           display: block;
           color: #0B1F3A;
-          font-size: 0.95rem;
+          font-size: 1rem;
         }
         .urgent-info small {
           color: #666;
-          font-size: 0.8rem;
+          font-size: 0.85rem;
         }
-        .urgent-price {
+        .urgent-payment {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 15px;
+          background: white;
+          padding: 15px;
+          border-radius: 12px;
+          border: 1px solid #ffe082;
+        }
+        .urgent-price-box {
+          display: flex;
+          align-items: baseline;
+          gap: 5px;
+        }
+        .price-amount {
+          font-size: 2rem;
           font-weight: 700;
-          font-size: 1.1rem;
           color: #ff9800;
         }
-        .urgent-price small {
-          font-size: 0.75rem;
-          font-weight: 500;
+        .price-currency {
+          font-size: 0.9rem;
+          color: #666;
         }
-        .toggle-switch {
-          width: 50px;
-          height: 28px;
-          background: #ccc;
-          border-radius: 14px;
-          position: relative;
+        .pay-urgent-btn {
+          padding: 12px 30px;
+          background: linear-gradient(135deg, #ff9800, #f57c00);
+          color: white;
+          border: none;
+          border-radius: 10px;
+          font-family: inherit;
+          font-size: 1rem;
+          font-weight: 600;
+          cursor: pointer;
           transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
-        .toggle-switch.on {
-          background: linear-gradient(135deg, #ff9800, #ffc107);
+        .pay-urgent-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 15px rgba(255,152,0,0.4);
         }
-        .toggle-knob {
-          width: 24px;
-          height: 24px;
-          background: white;
-          border-radius: 50%;
-          position: absolute;
-          top: 2px;
-          left: 2px;
-          transition: all 0.3s ease;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        .pay-urgent-btn.paid {
+          background: linear-gradient(135deg, #34A853, #2e7d32);
+          cursor: default;
         }
-        .toggle-switch.on .toggle-knob {
-          left: 24px;
+        .pay-urgent-btn.paid:hover {
+          transform: none;
+          box-shadow: none;
         }
         .price-summary {
           background: #f8f9fa;

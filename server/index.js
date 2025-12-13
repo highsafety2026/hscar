@@ -907,6 +907,43 @@ app.post('/api/create-checkout-session', async (req, res) => {
   }
 });
 
+app.post('/api/create-urgent-pdf-payment', async (req, res) => {
+  try {
+    const credentials = await getStripeCredentials();
+    if (!credentials) {
+      return res.status(503).json({ error: 'Stripe not configured' });
+    }
+
+    const Stripe = (await import('stripe')).default;
+    const stripe = new Stripe(credentials.secretKey, { apiVersion: '2023-10-16' });
+
+    const baseUrl = `https://${process.env.REPLIT_DOMAINS?.split(',')[0]}`;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'aed',
+          product_data: {
+            name: 'تقرير PDF عاجل',
+            description: 'Urgent PDF Report - احصل على التقرير فوراً',
+          },
+          unit_amount: 100,
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `${baseUrl}/booking?urgent_pdf_paid=true`,
+      cancel_url: `${baseUrl}/booking`,
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Urgent PDF payment error:', error);
+    res.status(500).json({ error: 'Failed to create payment session' });
+  }
+});
+
 app.get('/api/payment/verify/:sessionId', async (req, res) => {
   try {
     const { sessionId } = req.params;
