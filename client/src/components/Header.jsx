@@ -11,6 +11,7 @@ function Header() {
   const [isIOS, setIsIOS] = useState(false)
   const [showIOSModal, setShowIOSModal] = useState(false)
   const [showLangDropdown, setShowLangDropdown] = useState(false)
+  const [showAndroidModal, setShowAndroidModal] = useState(false)
   const langDropdownRef = useRef(null)
 
   useEffect(() => {
@@ -69,6 +70,8 @@ function Header() {
         setIsInstalled(true)
       }
       setDeferredPrompt(null)
+    } else {
+      setShowAndroidModal(true)
     }
   }
 
@@ -247,6 +250,97 @@ function Header() {
           </nav>
         </div>
       </header>
+
+      {showAndroidModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10001,
+          padding: '20px'
+        }} onClick={() => setShowAndroidModal(false)}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '30px',
+            maxWidth: '350px',
+            textAlign: 'center',
+            position: 'relative'
+          }} onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowAndroidModal(false)}
+              style={{
+                position: 'absolute',
+                top: '15px',
+                left: '15px',
+                background: '#f0f0f0',
+                border: 'none',
+                borderRadius: '50%',
+                width: '30px',
+                height: '30px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <X size={16} />
+            </button>
+            <div style={{
+              width: '70px',
+              height: '70px',
+              background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+              borderRadius: '15px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 20px'
+            }}>
+              <Smartphone size={35} color="#C89D2A" />
+            </div>
+            <h3 style={{ color: '#0B1F3A', marginBottom: '20px', fontSize: '1.2rem' }}>
+              {language === 'ar' ? 'تثبيت التطبيق' : 'Install App'}
+            </h3>
+            <div style={{ textAlign: language === 'ar' ? 'right' : 'left', color: '#333', lineHeight: '2.2', fontSize: '0.95rem' }}>
+              <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ background: '#C89D2A', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>1</span>
+                {language === 'ar' ? 'افتح الموقع في Chrome' : 'Open in Chrome browser'}
+              </p>
+              <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ background: '#C89D2A', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>2</span>
+                {language === 'ar' ? 'اضغط على ⋮ (القائمة)' : 'Tap ⋮ (menu)'}
+              </p>
+              <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ background: '#C89D2A', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>3</span>
+                {language === 'ar' ? 'اختر "إضافة إلى الشاشة الرئيسية"' : 'Select "Add to Home Screen"'}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowAndroidModal(false)}
+              style={{
+                marginTop: '25px',
+                background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+                color: 'white',
+                border: 'none',
+                padding: '14px 40px',
+                borderRadius: '10px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: '1rem'
+              }}
+            >
+              {language === 'ar' ? 'فهمت' : 'Got it'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {showIOSModal && (
         <div style={{

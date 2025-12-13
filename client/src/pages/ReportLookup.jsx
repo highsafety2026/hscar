@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { FileText, Download, Search, Image, X } from 'lucide-react'
+import { useLanguage } from '../i18n/LanguageContext'
 
 function ReportLookup() {
+  const { language, t } = useLanguage()
   const [code, setCode] = useState('')
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('')
@@ -25,14 +27,14 @@ function ReportLookup() {
       
       if (data.success) {
         setReport(data.report)
-        setMessage('تم العثور على التقرير!')
+        setMessage(t.report.found || 'Report found!')
         setMessageType('success')
       } else {
-        setMessage(data.message || 'لم يتم العثور على تقرير بهذا الكود')
+        setMessage(t.report.notFound)
         setMessageType('error')
       }
     } catch (error) {
-      setMessage('حدث خطأ، يرجى المحاولة لاحقاً')
+      setMessage(t.common.error)
       setMessageType('error')
     }
     setLoading(false)
@@ -61,8 +63,8 @@ function ReportLookup() {
             }}>
               <FileText size={40} color="#C89D2A" />
             </div>
-            <h2 className="section-title" style={{ marginBottom: '10px' }}>تحميل تقرير الفحص</h2>
-            <p style={{ color: '#666', fontSize: '1rem' }}>Download Inspection Report</p>
+            <h2 className="section-title" style={{ marginBottom: '10px' }}>{t.report.title}</h2>
+            <p style={{ color: '#666', fontSize: '1rem' }}>{t.report.subtitle}</p>
           </div>
           
           {message && (
@@ -87,17 +89,14 @@ function ReportLookup() {
                   fontWeight: '600',
                   color: '#0B1F3A'
                 }}>
-                  أدخل كود التقرير
-                  <span style={{ display: 'block', fontSize: '0.9rem', color: '#666', fontWeight: 'normal' }}>
-                    Enter Report Code
-                  </span>
+                  {t.report.codePlaceholder}
                 </label>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   required
-                  placeholder="مثال: ABC123"
+                  placeholder={language === 'ar' ? 'مثال: ABC123' : 'Example: ABC123'}
                   style={{
                     textAlign: 'center',
                     fontSize: '1.3rem',
@@ -113,7 +112,7 @@ function ReportLookup() {
                   marginTop: '10px',
                   textAlign: 'center'
                 }}>
-                  الكود موجود في إيصال الفحص
+                  {language === 'ar' ? 'الكود موجود في إيصال الفحص' : 'Code is found on your inspection receipt'}
                 </p>
               </div>
               <button 
@@ -131,11 +130,11 @@ function ReportLookup() {
                 disabled={loading || !code.trim()}
               >
                 {loading ? (
-                  'جاري البحث...'
+                  t.report.searching
                 ) : (
                   <>
                     <Search size={20} />
-                    البحث عن التقرير
+                    {t.report.search}
                   </>
                 )}
               </button>
@@ -148,7 +147,9 @@ function ReportLookup() {
                 borderRadius: '12px',
                 marginBottom: '20px'
               }}>
-                <p style={{ margin: '0 0 5px 0', color: '#666' }}>اسم العميل:</p>
+                <p style={{ margin: '0 0 5px 0', color: '#666' }}>
+                  {language === 'ar' ? 'اسم العميل:' : 'Customer Name:'}
+                </p>
                 <p style={{ 
                   margin: 0, 
                   fontSize: '1.2rem', 
@@ -177,7 +178,7 @@ function ReportLookup() {
                   }}
                 >
                   <Download size={22} />
-                  تحميل التقرير PDF
+                  {t.report.downloadPdf}
                 </a>
               )}
 
@@ -192,7 +193,7 @@ function ReportLookup() {
                     color: '#0B1F3A'
                   }}>
                     <Image size={20} />
-                    <span style={{ fontWeight: '600' }}>صور الفحص ({report.images.length})</span>
+                    <span style={{ fontWeight: '600' }}>{t.report.images} ({report.images.length})</span>
                   </div>
                   <div style={{
                     display: 'grid',
@@ -215,7 +216,7 @@ function ReportLookup() {
                       >
                         <img
                           src={`/uploads/${img}`}
-                          alt={`صورة فحص ${index + 1}`}
+                          alt={`${language === 'ar' ? 'صورة فحص' : 'Inspection image'} ${index + 1}`}
                           style={{
                             width: '100%',
                             height: '80px',
@@ -249,7 +250,7 @@ function ReportLookup() {
                     }}
                   >
                     <Download size={18} />
-                    تحميل جميع الصور
+                    {t.report.downloadAll}
                   </a>
                 </div>
               )}
@@ -262,7 +263,7 @@ function ReportLookup() {
                   padding: '12px'
                 }}
               >
-                بحث جديد | New Search
+                {language === 'ar' ? 'بحث جديد' : 'New Search'}
               </button>
             </div>
           )}
@@ -305,7 +306,7 @@ function ReportLookup() {
               </button>
               <img
                 src={selectedImage}
-                alt="صورة مكبرة"
+                alt={language === 'ar' ? 'صورة مكبرة' : 'Enlarged image'}
                 style={{
                   maxWidth: '90%',
                   maxHeight: '90%',
