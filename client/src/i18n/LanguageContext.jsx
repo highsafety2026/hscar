@@ -7,6 +7,10 @@ export const LANGUAGES = [
   { code: 'ar', name: 'العربية', flag: '🇦🇪', dir: 'rtl' },
   { code: 'en', name: 'English', flag: '🇬🇧', dir: 'ltr' },
   { code: 'ru', name: 'Русский', flag: '🇷🇺', dir: 'ltr' },
+  { code: 'ur', name: 'اردو', flag: '🇵🇰', dir: 'rtl' },
+  { code: 'fa', name: 'فارسی', flag: '🇮🇷', dir: 'rtl' },
+  { code: 'hi', name: 'हिंदी', flag: '🇮🇳', dir: 'ltr' },
+  { code: 'tr', name: 'Türkçe', flag: '🇹🇷', dir: 'ltr' },
 ];
 
 export function LanguageProvider({ children }) {
@@ -20,7 +24,7 @@ export function LanguageProvider({ children }) {
     return 'ar';
   });
 
-  const t = translations[language];
+  const t = translations[language] || translations['en'];
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
