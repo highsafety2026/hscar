@@ -1,16 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
-import { X, Send, Bot, User, FileText, Loader2, Sparkles } from 'lucide-react'
+import { X, Send, Bot, User, Sparkles } from 'lucide-react'
 
 function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'مرحباً! أنا المساعد الذكي لمركز الأمان العالي للفحص الفني. يمكنني مساعدتك في:\n\n📋 حجز موعد للفحص\n📄 تحليل تقرير الفحص وتقدير سعر السيارة\n❓ الإجابة على أي استفسارات\n\nكيف يمكنني خدمتك؟' }
+    { role: 'assistant', content: 'مرحباً! أنا المساعد الذكي لمركز الأمان العالي للفحص الفني. يمكنني مساعدتك في:\n\n📋 حجز موعد للفحص\n💰 الاستفسار عن الأسعار والخدمات\n📍 معلومات الموقع وساعات العمل\n❓ الإجابة على أي استفسارات\n\nكيف يمكنني خدمتك؟' }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [uploadingPdf, setUploadingPdf] = useState(false)
   const messagesEndRef = useRef(null)
-  const fileInputRef = useRef(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -50,45 +48,6 @@ function AIChatBot() {
       }])
     } finally {
       setIsLoading(false)
-    }
-  }
-
-  const handlePdfUpload = async (e) => {
-    const file = e.target.files?.[0]
-    if (!file || !file.name.toLowerCase().endsWith('.pdf')) {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'يرجى رفع ملف PDF فقط.' 
-      }])
-      return
-    }
-
-    setUploadingPdf(true)
-    setMessages(prev => [...prev, { 
-      role: 'user', 
-      content: `📄 تم رفع ملف: ${file.name}`,
-      isPdf: true
-    }])
-
-    try {
-      const formData = new FormData()
-      formData.append('pdf', file)
-
-      const response = await fetch('/api/chat/analyze-pdf', {
-        method: 'POST',
-        body: formData
-      })
-
-      const data = await response.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
-    } catch (error) {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'عذراً، حدث خطأ في تحليل الملف. يرجى التأكد من صحة ملف PDF والمحاولة مرة أخرى.' 
-      }])
-    } finally {
-      setUploadingPdf(false)
-      if (fileInputRef.current) fileInputRef.current.value = ''
     }
   }
 
@@ -321,7 +280,7 @@ function AIChatBot() {
                 )}
               </div>
             ))}
-            {(isLoading || uploadingPdf) && (
+            {isLoading && (
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                 <div style={{
                   width: '30px',
@@ -342,27 +301,14 @@ function AIChatBot() {
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                 }}>
                   <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    {uploadingPdf ? (
-                      <>
-                        <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
-                        <span style={{ fontSize: '0.85rem', color: '#666' }}>جاري تحليل التقرير...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ animation: 'bounce 1s infinite', animationDelay: '0s' }}>●</span>
-                        <span style={{ animation: 'bounce 1s infinite', animationDelay: '0.2s' }}>●</span>
-                        <span style={{ animation: 'bounce 1s infinite', animationDelay: '0.4s' }}>●</span>
-                      </>
-                    )}
+                    <span style={{ animation: 'bounce 1s infinite', animationDelay: '0s' }}>●</span>
+                    <span style={{ animation: 'bounce 1s infinite', animationDelay: '0.2s' }}>●</span>
+                    <span style={{ animation: 'bounce 1s infinite', animationDelay: '0.4s' }}>●</span>
                   </div>
                   <style>{`
                     @keyframes bounce {
                       0%, 60%, 100% { transform: translateY(0); }
                       30% { transform: translateY(-5px); }
-                    }
-                    @keyframes spin {
-                      from { transform: rotate(0deg); }
-                      to { transform: rotate(360deg); }
                     }
                   `}</style>
                 </div>
@@ -378,43 +324,6 @@ function AIChatBot() {
           }}>
             <div style={{
               display: 'flex',
-              gap: '8px',
-              marginBottom: '10px'
-            }}>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handlePdfUpload}
-                accept=".pdf"
-                style={{ display: 'none' }}
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploadingPdf || isLoading}
-                style={{
-                  flex: 1,
-                  padding: '10px',
-                  background: 'linear-gradient(135deg, #28a745, #20c997)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '10px',
-                  fontSize: '0.85rem',
-                  fontWeight: '600',
-                  cursor: uploadingPdf || isLoading ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  opacity: uploadingPdf || isLoading ? 0.6 : 1,
-                  fontFamily: 'inherit'
-                }}
-              >
-                <FileText size={16} />
-                رفع تقرير PDF
-              </button>
-            </div>
-            <div style={{
-              display: 'flex',
               gap: '10px'
             }}>
               <input
@@ -423,7 +332,7 @@ function AIChatBot() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
                 placeholder="اكتب سؤالك أو اطلب حجز موعد..."
-                disabled={isLoading || uploadingPdf}
+                disabled={isLoading}
                 style={{
                   flex: 1,
                   padding: '12px 15px',
@@ -439,7 +348,7 @@ function AIChatBot() {
               />
               <button
                 onClick={() => sendMessage()}
-                disabled={isLoading || uploadingPdf || !input.trim()}
+                disabled={isLoading || !input.trim()}
                 style={{
                   background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
                   color: 'white',
@@ -447,11 +356,11 @@ function AIChatBot() {
                   width: '45px',
                   height: '45px',
                   borderRadius: '50%',
-                  cursor: isLoading || uploadingPdf || !input.trim() ? 'not-allowed' : 'pointer',
+                  cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  opacity: isLoading || uploadingPdf || !input.trim() ? 0.5 : 1,
+                  opacity: isLoading || !input.trim() ? 0.5 : 1,
                   transition: 'all 0.3s'
                 }}
               >
