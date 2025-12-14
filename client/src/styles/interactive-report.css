@@ -937,6 +937,35 @@ body {
   padding: 0 15px;
 }
 
+@media (max-width: 640px) {
+  .booking-container {
+    max-width: 100%;
+    padding: 0 10px;
+    margin: -10px auto 0;
+  }
+  
+  .step-content {
+    padding: 15px 10px;
+    border-radius: 8px;
+  }
+  
+  .time-slots-grid {
+    padding: 10px 5px;
+    gap: 8px;
+  }
+  
+  .time-slot {
+    padding: 12px 8px;
+    font-size: 0.9rem;
+  }
+  
+  .steps-indicator {
+    padding: 12px 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+}
+
 .steps-indicator {
   display: flex;
   justify-content: space-between;
