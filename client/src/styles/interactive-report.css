@@ -81,22 +81,45 @@ body {
     display: none !important;
   }
   
+  .header {
+    padding: 10px 0 !important;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.25) !important;
+  }
+  
   .header .container {
     flex-direction: column !important;
+    gap: 12px !important;
+    padding: 8px 12px !important;
+    align-items: center !important;
+  }
+  
+  .header .logo {
     gap: 10px !important;
-    padding: 10px 15px !important;
+  }
+  
+  .header .logo img {
+    width: 42px !important;
+    height: 42px !important;
+  }
+  
+  .header .logo h1 {
+    font-size: 1rem !important;
   }
   
   .header .nav {
     display: flex !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
-    gap: 8px !important;
+    gap: 10px !important;
     width: 100% !important;
-    padding-bottom: 5px !important;
+    padding: 8px 4px 10px !important;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    justify-content: flex-start !important;
+    background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+    border-radius: 15px;
+    margin: 0 -4px;
   }
   
   .header .nav::-webkit-scrollbar {
@@ -110,23 +133,31 @@ body {
   }
   
   .header .nav a {
-    padding: 8px 12px !important;
-    font-size: 0.8rem !important;
+    padding: 10px 16px !important;
+    font-size: 0.85rem !important;
     white-space: nowrap !important;
-    border-radius: 8px !important;
-    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    font-weight: 600 !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1) !important;
   }
   
   .header .nav a:hover,
   .header .nav a:active {
-    background: rgba(200, 157, 42, 0.3) !important;
+    background: linear-gradient(135deg, rgba(200, 157, 42, 0.35), rgba(200, 157, 42, 0.2)) !important;
+    border-color: rgba(200, 157, 42, 0.5) !important;
+    transform: scale(1.02) !important;
   }
   
   .header .nav button {
-    padding: 8px 12px !important;
-    font-size: 0.8rem !important;
+    padding: 10px 14px !important;
+    font-size: 0.85rem !important;
     white-space: nowrap !important;
-    border-radius: 8px !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.15) !important;
   }
   
   .header .nav .language-switcher-pro {
@@ -134,27 +165,34 @@ body {
   }
   
   .header .nav .lang-switcher-btn-pro {
-    padding: 6px 10px !important;
-    font-size: 0.8rem !important;
-    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    font-size: 0.85rem !important;
+    border-radius: 14px !important;
+    gap: 8px !important;
   }
   
   .header .nav .lang-btn-icon {
-    width: 26px !important;
-    height: 26px !important;
+    width: 30px !important;
+    height: 30px !important;
   }
   
   .header .nav .lang-btn-icon svg {
-    width: 14px !important;
-    height: 14px !important;
+    width: 15px !important;
+    height: 15px !important;
   }
   
   .header .nav .lang-flag {
-    font-size: 1rem !important;
+    font-size: 1.2rem !important;
   }
   
   .header .nav .lang-code {
-    font-size: 0.75rem !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+  }
+  
+  .header .nav .lang-chevron {
+    width: 14px !important;
+    height: 14px !important;
   }
 }
 

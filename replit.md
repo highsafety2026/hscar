@@ -128,6 +128,17 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - PostgreSQL appointment_slots table with availability tracking
 
 ## Recent Changes (December 2024)
+- **Professional Mobile Header & Language Dropdown Redesign** (December 14)
+  - Mobile header now has a smooth horizontal scrollable navigation bar
+  - Navigation buttons have professional styling with borders and shadows
+  - Language dropdown appears as a centered modal popup on mobile (not bottom sheet)
+  - Language options in a 3-column grid with better spacing and hover effects
+  - Professional golden language switcher button with improved icon
+  - Dark overlay background when language modal is open
+  - Smooth animations using cubic-bezier easing
+  - Custom scrollbar styling for language options
+
+
 - **3D Car Category Selection on Booking Page** - Interactive Three.js 3D car models for car category selection
   - 5 unique 3D car models: Sedan, SUV, Classic, Luxury, VIP
   - Each car styled with appropriate colors (Blue, Green, Orange, Purple, Gold)
