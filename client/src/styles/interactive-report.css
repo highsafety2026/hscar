@@ -177,10 +177,11 @@ body {
 }
 
 .hero-subtitle {
-  font-size: 1rem;
-  opacity: 0.85;
-  line-height: 1.6;
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1.7;
   margin-bottom: 25px;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .hero-actions {
