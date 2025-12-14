@@ -337,7 +337,7 @@ textarea {
   border: 2px solid var(--border-light);
   border-radius: var(--radius-md);
   background: var(--bg-primary);
-  color: var(--text-primary);
+  color: #1a1a2e;
   transition: all var(--transition-fast);
   outline: none;
 }
