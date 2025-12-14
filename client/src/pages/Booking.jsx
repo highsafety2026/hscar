@@ -456,7 +456,6 @@ function Booking() {
                               </div>
                             </div>
                             <div className="service-price">
-                              <span className="price-prefix">+</span>
                               <span className="price-value">{getServicePrice(s.id)}</span>
                               <span className="price-currency">{language === 'ar' ? 'درهم' : 'AED'}</span>
                             </div>
