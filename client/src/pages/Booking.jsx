@@ -32,9 +32,17 @@ function Booking() {
       gradient: 'linear-gradient(135deg, #FF6B35 0%, #e55a2b 100%)'
     },
     { 
+      id: 'luxury', 
+      title: 'فاخرة', 
+      titleEn: 'Luxury',
+      emoji: '👑',
+      color: '#9C27B0',
+      gradient: 'linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)'
+    },
+    { 
       id: 'vip', 
-      title: 'VIP فاخرة', 
-      titleEn: 'VIP Luxury',
+      title: 'VIP', 
+      titleEn: 'VIP',
       emoji: '🏎️',
       color: '#C89D2A',
       gradient: 'linear-gradient(135deg, #C89D2A 0%, #9a7b1f 100%)'
@@ -45,6 +53,7 @@ function Booking() {
     sedan: { full: 500, mechanical: 250, misc: 200, basic: 300 },
     suv: { full: 600, mechanical: 300, misc: 200, basic: 400 },
     classic: { full: 600, mechanical: 350, misc: 200, basic: 400 },
+    luxury: { full: 700, mechanical: 350, misc: 200, basic: 500 },
     vip: { full: 1000, mechanical: 500, misc: 300, basic: 700 }
   }
 
