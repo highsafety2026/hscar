@@ -36,12 +36,17 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 └── package.json
 ```
 
-## Design System (Dubizzle-inspired)
-### Colors
-- Primary: #0B1F3A (Dark blue)
-- Secondary: #C89D2A (Gold)
-- Header: Neon Light Blue gradient (#00D4FF → #00A8CC → #0095B6)
-- Accent colors: Blue (#4285F4), Green (#34A853), Red (#EA4335)
+## Design System (Professional Neon Theme)
+### Colors - World-Class Car Inspection Center
+- **Primary Dark**: #0a0a1a (Deep space black)
+- **Neon Cyan**: #00D4FF (Main accent - header, buttons)
+- **Neon Blue**: #0066FF (Gradients)
+- **Neon Gold**: #FFD700 (Badges, highlights)
+- **Neon Green**: #00FF88 (Success states)
+- **Header**: Neon Light Blue gradient (#00D4FF → #00A8CC → #0095B6)
+- **Footer**: Dark gradient with neon border
+- **Buttons**: Neon cyan to blue gradient with glow effects
+- **Scrollbar**: Neon themed
 
 ### Components
 - Hero section with animated badge and stats bar
