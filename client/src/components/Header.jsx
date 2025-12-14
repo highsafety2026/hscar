@@ -365,8 +365,11 @@ function Header() {
             right: 0;
             border-radius: 24px 24px 0 0;
             min-width: 100%;
-            max-height: 70vh;
+            max-height: 80vh;
             animation: slideUp 0.3s ease;
+            z-index: 10002;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
           }
           
           @keyframes slideUp {
@@ -381,8 +384,22 @@ function Header() {
           }
           
           .lang-dropdown-grid {
-            grid-template-columns: repeat(4, 1fr);
-            max-height: 60vh;
+            grid-template-columns: repeat(3, 1fr);
+            max-height: none;
+            padding: 16px;
+            gap: 8px;
+          }
+          
+          .lang-option {
+            padding: 16px 10px;
+          }
+          
+          .lang-option-flag {
+            font-size: 2rem;
+          }
+          
+          .lang-option-name {
+            font-size: 0.8rem;
           }
           
           .lang-switcher-btn-pro {
@@ -408,6 +425,15 @@ function Header() {
         @media (max-width: 480px) {
           .lang-dropdown-grid {
             grid-template-columns: repeat(3, 1fr);
+            padding: 12px;
+          }
+          
+          .lang-option {
+            padding: 14px 8px;
+          }
+          
+          .lang-option-flag {
+            font-size: 1.8rem;
           }
         }
       `}</style>
