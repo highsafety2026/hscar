@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw } from 'lucide-react'
+import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
 function AdminDashboard() {
@@ -639,25 +639,31 @@ function AdminDashboard() {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ background: '#f8f9fa' }}>
-                      <th style={{ padding: '15px 15px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '15px 10px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                        {language === 'ar' ? 'كود الحجز' : 'Booking Code'}
+                      </th>
+                      <th style={{ padding: '15px 10px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'الاسم' : 'Name'}
                       </th>
-                      <th style={{ padding: '15px 15px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '15px 10px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'الهاتف' : 'Phone'}
                       </th>
-                      <th style={{ padding: '15px 15px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '15px 10px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                        {language === 'ar' ? 'التواصل' : 'Contact'}
+                      </th>
+                      <th style={{ padding: '15px 10px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'السيارة' : 'Car'}
                       </th>
-                      <th style={{ padding: '15px 15px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '15px 10px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'الخدمة' : 'Service'}
                       </th>
-                      <th style={{ padding: '15px 15px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '15px 10px', textAlign: language === 'ar' ? 'right' : 'left', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'التاريخ' : 'Date'}
                       </th>
-                      <th style={{ padding: '15px 15px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '15px 10px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'الحالة' : 'Status'}
                       </th>
-                      <th style={{ padding: '15px 15px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                      <th style={{ padding: '15px 10px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'إجراءات' : 'Actions'}
                       </th>
                     </tr>
@@ -665,21 +671,100 @@ function AdminDashboard() {
                   <tbody>
                     {filteredBookings.map(booking => (
                       <tr key={booking.id} style={{ borderBottom: '1px solid #eee' }}>
-                        <td style={{ padding: '15px', fontWeight: '500', color: '#333' }}>{booking.name}</td>
-                        <td style={{ padding: '15px', color: '#666' }}>
+                        <td style={{ padding: '12px 10px' }}>
+                          <div 
+                            style={{ 
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+                              color: '#C89D2A',
+                              padding: '5px 10px',
+                              borderRadius: '6px',
+                              fontFamily: 'monospace',
+                              fontWeight: '700',
+                              fontSize: '0.85rem',
+                              letterSpacing: '0.5px',
+                              cursor: 'pointer'
+                            }}
+                            onClick={() => {
+                              navigator.clipboard.writeText(booking.bookingId || `HS-${booking.id.substring(0,8).toUpperCase()}`)
+                              alert(language === 'ar' ? 'تم نسخ الكود!' : 'Code copied!')
+                            }}
+                            title={language === 'ar' ? 'انقر للنسخ' : 'Click to copy'}
+                          >
+                            <Copy size={12} />
+                            {booking.bookingId || `HS-${booking.id.substring(0,8).toUpperCase()}`}
+                          </div>
+                        </td>
+                        <td style={{ padding: '12px 10px', fontWeight: '500', color: '#333' }}>{booking.name}</td>
+                        <td style={{ padding: '12px 10px', color: '#666' }}>
                           <a href={`tel:${booking.phone}`} style={{ color: '#4285F4', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '5px' }}>
                             <Phone size={14} />
                             {booking.phone}
                           </a>
                         </td>
-                        <td style={{ padding: '15px', color: '#666' }}>
+                        <td style={{ padding: '12px 10px' }}>
+                          {booking.contactMethod === 'whatsapp' && (
+                            <span style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '4px', 
+                              background: 'rgba(37, 211, 102, 0.15)', 
+                              color: '#25D366', 
+                              padding: '5px 10px', 
+                              borderRadius: '15px', 
+                              fontSize: '0.8rem',
+                              fontWeight: '600'
+                            }}>
+                              <MessageCircle size={14} />
+                              {language === 'ar' ? 'واتساب' : 'WhatsApp'}
+                            </span>
+                          )}
+                          {booking.contactMethod === 'call' && (
+                            <span style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '4px', 
+                              background: 'rgba(66, 133, 244, 0.15)', 
+                              color: '#4285F4', 
+                              padding: '5px 10px', 
+                              borderRadius: '15px', 
+                              fontSize: '0.8rem',
+                              fontWeight: '600'
+                            }}>
+                              <PhoneCall size={14} />
+                              {language === 'ar' ? 'اتصال' : 'Call'}
+                            </span>
+                          )}
+                          {booking.contactMethod === 'both' && (
+                            <span style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '4px', 
+                              background: 'rgba(200, 157, 42, 0.15)', 
+                              color: '#C89D2A', 
+                              padding: '5px 10px', 
+                              borderRadius: '15px', 
+                              fontSize: '0.8rem',
+                              fontWeight: '600'
+                            }}>
+                              <Phone size={14} />
+                              {language === 'ar' ? 'الاثنين' : 'Both'}
+                            </span>
+                          )}
+                          {!booking.contactMethod && (
+                            <span style={{ color: '#999', fontSize: '0.8rem' }}>-</span>
+                          )}
+                        </td>
+                        <td style={{ padding: '12px 10px', color: '#666' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                             <Car size={14} color="#888" />
                             {booking.carBrand || ''} {booking.carModel} - {booking.carYear}
                           </div>
                         </td>
-                        <td style={{ padding: '15px', color: '#333', fontSize: '0.9rem' }}>{serviceTypes[booking.serviceType]}</td>
-                        <td style={{ padding: '15px', color: '#666', fontSize: '0.9rem' }}>
+                        <td style={{ padding: '12px 10px', color: '#333', fontSize: '0.85rem' }}>{serviceTypes[booking.serviceType]}</td>
+                        <td style={{ padding: '12px 10px', color: '#666', fontSize: '0.85rem' }}>
                           {booking.preferredDate}
                           {booking.preferredTime && <span style={{ display: 'block', fontSize: '0.8rem', color: '#888' }}>{booking.preferredTime}</span>}
                         </td>

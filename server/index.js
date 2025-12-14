@@ -733,6 +733,78 @@ app.post('/api/chat', async (req, res) => {
   try {
     const { message, history = [] } = req.body;
     
+    const bookingCodeMatch = message.match(/HS-[A-Z0-9]{6,14}/i);
+    if (bookingCodeMatch) {
+      const searchCode = bookingCodeMatch[0].toUpperCase();
+      const db = loadDB();
+      const booking = db.bookings.find(b => 
+        b.bookingId === searchCode || 
+        b.bookingId?.toUpperCase() === searchCode ||
+        (b.id && b.id.substring(0, 8).toUpperCase() === searchCode.replace('HS-', ''))
+      );
+      
+      if (booking) {
+        const statusMap = {
+          pending: { ar: 'قيد الانتظار ⏳', en: 'Pending ⏳' },
+          confirmed: { ar: 'مؤكد ✅', en: 'Confirmed ✅' },
+          completed: { ar: 'مكتمل ✅', en: 'Completed ✅' },
+          cancelled: { ar: 'ملغي ❌', en: 'Cancelled ❌' }
+        };
+        const status = statusMap[booking.status] || { ar: booking.status, en: booking.status };
+        const isArabic = /[\u0600-\u06FF]/.test(message);
+        
+        const contactMethodLabels = {
+          whatsapp: { ar: 'واتساب 💬', en: 'WhatsApp 💬' },
+          call: { ar: 'اتصال 📞', en: 'Call 📞' },
+          both: { ar: 'الاثنين (واتساب + اتصال) 📱', en: 'Both (WhatsApp + Call) 📱' }
+        };
+        const contactLabel = contactMethodLabels[booking.contactMethod] || { ar: '-', en: '-' };
+        
+        const reply = isArabic 
+          ? `✅ **تم العثور على الحجز!**
+
+📋 **رقم الحجز:** ${booking.bookingId || searchCode}
+👤 **الاسم:** ${booking.name}
+📱 **الهاتف:** ${booking.phone}
+🚗 **السيارة:** ${booking.carBrand || ''} ${booking.carModel || booking.carModel || ''}
+📅 **التاريخ:** ${booking.preferredDate || booking.date || '-'}
+⏰ **الوقت:** ${booking.preferredTime || booking.time || '-'}
+💰 **السعر:** ${booking.totalPrice || '-'} درهم
+📞 **طريقة التواصل:** ${contactLabel.ar}
+📊 **الحالة:** ${status.ar}
+
+للمزيد من المساعدة، تواصل معنا عبر واتساب: +971 54 220 6000
+أو قم بزيارة موقعنا: https://maps.google.com/?q=25.3463,55.4209`
+          : `✅ **Booking Found!**
+
+📋 **Booking Code:** ${booking.bookingId || searchCode}
+👤 **Name:** ${booking.name}
+📱 **Phone:** ${booking.phone}
+🚗 **Car:** ${booking.carBrand || ''} ${booking.carModel || ''}
+📅 **Date:** ${booking.preferredDate || booking.date || '-'}
+⏰ **Time:** ${booking.preferredTime || booking.time || '-'}
+💰 **Price:** ${booking.totalPrice || '-'} AED
+📞 **Contact Method:** ${contactLabel.en}
+📊 **Status:** ${status.en}
+
+For more assistance, contact us via WhatsApp: +971 54 220 6000
+Or visit our location: https://maps.google.com/?q=25.3463,55.4209`;
+        
+        return res.json({ reply });
+      } else {
+        const isArabic = /[\u0600-\u06FF]/.test(message);
+        const reply = isArabic
+          ? `❌ **لم يتم العثور على حجز بهذا الرقم: ${searchCode}**
+
+يرجى التأكد من صحة رقم الحجز. إذا كنت تحتاج مساعدة، تواصل معنا عبر واتساب: +971 54 220 6000`
+          : `❌ **Booking not found with code: ${searchCode}**
+
+Please verify the booking code. For assistance, contact us via WhatsApp: +971 54 220 6000`;
+        
+        return res.json({ reply });
+      }
+    }
+    
     const systemPrompt = `أنت المساعد الذكي لمركز "الأمان العالي الدولي للفحص الفني للسيارات" في الإمارات العربية المتحدة.
 
 معلومات المركز:
@@ -846,14 +918,16 @@ app.post('/api/chat', async (req, res) => {
           reply += `\n\n⚠️ **عذراً، هذا الموعد محجوز بالفعل!**\nالتاريخ: ${bookingData.date}\nالوقت: ${bookingData.time}\n\nيرجى اختيار موعد آخر. هل تريد اقتراح موعد بديل؟`;
         } else {
           const db = loadDB();
+          const bookingId = 'HS-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substr(2, 4).toUpperCase();
           const booking = {
             id: uuidv4(),
+            bookingId,
             name: bookingData.name,
             phone: bookingData.phone,
             carModel: bookingData.carModel,
             serviceType: bookingData.serviceType,
-            date: bookingData.date,
-            time: bookingData.time,
+            preferredDate: bookingData.date,
+            preferredTime: bookingData.time,
             createdAt: new Date().toISOString(),
             status: 'pending',
             source: 'ai_assistant'
@@ -862,7 +936,7 @@ app.post('/api/chat', async (req, res) => {
           saveDB(db);
           
           reply = reply.replace(/\[BOOKING_REQUEST\].*?\[\/BOOKING_REQUEST\]/s, '');
-          reply += `\n\n✅ **تم تأكيد الحجز بنجاح!**\n📋 رقم الحجز: ${booking.id.substring(0, 8).toUpperCase()}\n👤 الاسم: ${bookingData.name}\n📱 الهاتف: ${bookingData.phone}\n🚗 السيارة: ${bookingData.carModel}\n🔧 نوع الفحص: ${bookingData.serviceType}\n📅 التاريخ: ${bookingData.date}\n⏰ الوقت: ${bookingData.time}\n\nسيتم التواصل معك لتأكيد الموعد. شكراً لاختيارك مركز الأمان العالي!`;
+          reply += `\n\n✅ **تم تأكيد الحجز بنجاح!**\n📋 رقم الحجز: ${bookingId}\n👤 الاسم: ${bookingData.name}\n📱 الهاتف: ${bookingData.phone}\n🚗 السيارة: ${bookingData.carModel}\n🔧 نوع الفحص: ${bookingData.serviceType}\n📅 التاريخ: ${bookingData.date}\n⏰ الوقت: ${bookingData.time}\n\nسيتم التواصل معك لتأكيد الموعد. شكراً لاختيارك مركز الأمان العالي!\n\n📍 موقعنا: https://maps.google.com/?q=25.3463,55.4209`;
         }
       } catch (parseError) {
         console.error('Booking parse error:', parseError);
