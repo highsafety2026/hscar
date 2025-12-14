@@ -729,9 +729,204 @@ ${!useVision && pdfText ? `نص تقرير الفحص:\n${pdfText}` : ''}
   }
 });
 
+async function decodeVIN(vin) {
+  try {
+    const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevin/${vin}?format=json`);
+    const data = await response.json();
+    
+    if (!data.Results) return null;
+    
+    const getValue = (variableId) => {
+      const result = data.Results.find(r => r.VariableId === variableId);
+      return result?.Value && result.Value !== 'Not Applicable' ? result.Value : null;
+    };
+    
+    return {
+      vin: vin,
+      make: getValue(26) || getValue(27),
+      model: getValue(28),
+      year: getValue(29),
+      bodyClass: getValue(5),
+      vehicleType: getValue(39),
+      manufacturer: getValue(27),
+      plantCountry: getValue(75),
+      engineCylinders: getValue(9),
+      engineDisplacement: getValue(11),
+      fuelType: getValue(24),
+      driveType: getValue(15),
+      transmission: getValue(37),
+      doors: getValue(14),
+      gvwr: getValue(25),
+      errorCode: getValue(143)
+    };
+  } catch (error) {
+    console.error('VIN decode error:', error);
+    return null;
+  }
+}
+
+app.post('/api/decode-vin', async (req, res) => {
+  try {
+    const { vin } = req.body;
+    
+    if (!vin || vin.length !== 17) {
+      return res.status(400).json({ error: 'VIN must be exactly 17 characters' });
+    }
+    
+    const vinData = await decodeVIN(vin.toUpperCase());
+    
+    if (!vinData || !vinData.make) {
+      return res.status(404).json({ error: 'Could not decode VIN' });
+    }
+    
+    res.json(vinData);
+  } catch (error) {
+    console.error('VIN decode endpoint error:', error);
+    res.status(500).json({ error: 'Failed to decode VIN' });
+  }
+});
+
+app.post('/api/chat/analyze-vin-image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image provided' });
+    }
+    
+    const imageBuffer = fs.readFileSync(req.file.path);
+    const base64Image = imageBuffer.toString('base64');
+    const mimeType = req.file.mimetype || 'image/jpeg';
+    
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `Analyze this vehicle identification label/sticker image and extract all vehicle information. Look for:
+1. VIN (Vehicle Identification Number) - 17 character alphanumeric code
+2. Manufacturer name
+3. Model year
+4. Vehicle type
+5. GVWR (Gross Vehicle Weight Rating)
+6. Tire size information
+7. Any other relevant vehicle specifications
+
+Return the information in this exact JSON format:
+{
+  "vin": "extracted VIN or null",
+  "manufacturer": "manufacturer name",
+  "modelYear": "year",
+  "vehicleType": "type",
+  "model": "model code if visible",
+  "gvwr": "weight rating",
+  "tireInfo": "tire specifications",
+  "otherInfo": "any other relevant info"
+}
+
+If you cannot read certain information, set that field to null. Be accurate - only extract what you can clearly see.`
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${mimeType};base64,${base64Image}`
+              }
+            }
+          ]
+        }
+      ],
+      max_tokens: 1000
+    });
+    
+    const responseText = completion.choices[0].message.content;
+    
+    const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+    let extractedInfo = null;
+    
+    if (jsonMatch) {
+      try {
+        extractedInfo = JSON.parse(jsonMatch[0]);
+      } catch (e) {
+        extractedInfo = { rawResponse: responseText };
+      }
+    }
+    
+    if (extractedInfo && extractedInfo.vin && extractedInfo.vin.length === 17) {
+      const vinDetails = await decodeVIN(extractedInfo.vin);
+      if (vinDetails) {
+        extractedInfo.decodedVIN = vinDetails;
+      }
+    }
+    
+    fs.unlinkSync(req.file.path);
+    
+    res.json({ success: true, data: extractedInfo });
+  } catch (error) {
+    console.error('Image analysis error:', error);
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    res.status(500).json({ error: 'Failed to analyze image' });
+  }
+});
+
 app.post('/api/chat', async (req, res) => {
   try {
     const { message, history = [] } = req.body;
+    
+    const vinMatch = message.match(/\b[A-HJ-NPR-Z0-9]{17}\b/i);
+    if (vinMatch) {
+      const vin = vinMatch[0].toUpperCase();
+      const vinData = await decodeVIN(vin);
+      const isArabic = /[\u0600-\u06FF]/.test(message);
+      
+      if (vinData && vinData.make) {
+        const reply = isArabic
+          ? `🚗 **معلومات السيارة (رقم الشاصي: ${vin})**
+
+🏭 **الشركة المصنعة:** ${vinData.manufacturer || vinData.make || '-'}
+🚙 **الماركة:** ${vinData.make || '-'}
+📋 **الموديل:** ${vinData.model || '-'}
+📅 **سنة الصنع:** ${vinData.year || '-'}
+🏎️ **نوع المركبة:** ${vinData.bodyClass || vinData.vehicleType || '-'}
+🌍 **بلد الصنع:** ${vinData.plantCountry || '-'}
+⚙️ **المحرك:** ${vinData.engineCylinders ? vinData.engineCylinders + ' سلندر' : '-'} ${vinData.engineDisplacement ? '(' + vinData.engineDisplacement + 'L)' : ''}
+⛽ **نوع الوقود:** ${vinData.fuelType || '-'}
+🔄 **نظام الدفع:** ${vinData.driveType || '-'}
+🚪 **عدد الأبواب:** ${vinData.doors || '-'}
+
+هل تريد حجز موعد لفحص هذه السيارة؟ 📋`
+          : `🚗 **Vehicle Information (VIN: ${vin})**
+
+🏭 **Manufacturer:** ${vinData.manufacturer || vinData.make || '-'}
+🚙 **Make:** ${vinData.make || '-'}
+📋 **Model:** ${vinData.model || '-'}
+📅 **Year:** ${vinData.year || '-'}
+🏎️ **Vehicle Type:** ${vinData.bodyClass || vinData.vehicleType || '-'}
+🌍 **Country of Origin:** ${vinData.plantCountry || '-'}
+⚙️ **Engine:** ${vinData.engineCylinders ? vinData.engineCylinders + ' cylinders' : '-'} ${vinData.engineDisplacement ? '(' + vinData.engineDisplacement + 'L)' : ''}
+⛽ **Fuel Type:** ${vinData.fuelType || '-'}
+🔄 **Drive Type:** ${vinData.driveType || '-'}
+🚪 **Doors:** ${vinData.doors || '-'}
+
+Would you like to book an inspection for this vehicle? 📋`;
+        
+        return res.json({ reply });
+      } else {
+        const reply = isArabic
+          ? `❌ **لم نتمكن من العثور على معلومات لرقم الشاصي: ${vin}**
+
+يرجى التأكد من صحة الرقم. رقم الشاصي يتكون من 17 حرف ورقم.
+للمساعدة، تواصل معنا عبر واتساب: +971 54 220 6000`
+          : `❌ **Could not find information for VIN: ${vin}**
+
+Please verify the VIN is correct. A VIN consists of 17 alphanumeric characters.
+For assistance, contact us via WhatsApp: +971 54 220 6000`;
+        
+        return res.json({ reply });
+      }
+    }
     
     const bookingCodeMatch = message.match(/HS-[A-Z0-9]{6,14}/i);
     if (bookingCodeMatch) {
