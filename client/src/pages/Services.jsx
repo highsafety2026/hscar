@@ -1,6 +1,101 @@
 import { Link } from 'react-router-dom'
-import { CheckCircle, Shield, Settings, Eye, FileCheck, ArrowLeft, Car, Truck, Crown, Calendar } from 'lucide-react'
+import { CheckCircle, Shield, Settings, Eye, FileCheck, ArrowRight, Calendar, Star } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+
+const CarIcon = ({ type, size = 60 }) => {
+  const icons = {
+    sedan: (
+      <svg viewBox="0 0 100 50" width={size} height={size * 0.5} fill="currentColor">
+        <path d="M15,35 L15,40 C15,42 13,44 11,44 L6,44 C4,44 2,42 2,40 L2,35 C2,33 4,31 6,31 L11,31 C13,31 15,33 15,35 Z" opacity="0.9"/>
+        <path d="M98,35 L98,40 C98,42 96,44 94,44 L89,44 C87,44 85,42 85,40 L85,35 C85,33 87,31 89,31 L94,31 C96,31 98,33 98,35 Z" opacity="0.9"/>
+        <path d="M10,28 L90,28 C93,28 95,30 95,33 L95,38 C95,41 93,43 90,43 L10,43 C7,43 5,41 5,38 L5,33 C5,30 7,28 10,28 Z" opacity="0.3"/>
+        <path d="M18,15 C20,10 28,7 50,7 C72,7 80,10 82,15 L85,24 C86,26 85,28 83,28 L17,28 C15,28 14,26 15,24 L18,15 Z" opacity="0.8"/>
+        <path d="M25,12 L35,12 L35,22 L22,22 L25,12 Z M65,12 L75,12 L78,22 L65,22 L65,12 Z" fill="rgba(255,255,255,0.3)"/>
+        <circle cx="22" cy="38" r="7" opacity="0.9"/>
+        <circle cx="22" cy="38" r="4" fill="rgba(255,255,255,0.3)"/>
+        <circle cx="78" cy="38" r="7" opacity="0.9"/>
+        <circle cx="78" cy="38" r="4" fill="rgba(255,255,255,0.3)"/>
+        <rect x="40" y="30" width="20" height="3" rx="1" opacity="0.4"/>
+      </svg>
+    ),
+    suv: (
+      <svg viewBox="0 0 100 55" width={size} height={size * 0.55} fill="currentColor">
+        <path d="M15,40 L15,46 C15,48 13,50 11,50 L6,50 C4,50 2,48 2,46 L2,40 C2,38 4,36 6,36 L11,36 C13,36 15,38 15,40 Z" opacity="0.9"/>
+        <path d="M98,40 L98,46 C98,48 96,50 94,50 L89,50 C87,50 85,48 85,46 L85,40 C85,38 87,36 89,36 L94,36 C96,36 98,38 98,40 Z" opacity="0.9"/>
+        <path d="M8,32 L92,32 C95,32 97,34 97,37 L97,44 C97,47 95,49 92,49 L8,49 C5,49 3,47 3,44 L3,37 C3,34 5,32 8,32 Z" opacity="0.3"/>
+        <path d="M15,10 C18,5 30,3 50,3 C70,3 82,5 85,10 L90,28 C91,30 90,32 88,32 L12,32 C10,32 9,30 10,28 L15,10 Z" opacity="0.8"/>
+        <path d="M22,8 L35,8 L35,26 L18,26 L22,8 Z M65,8 L78,8 L82,26 L65,26 L65,8 Z" fill="rgba(255,255,255,0.3)"/>
+        <rect x="35" y="8" width="30" height="18" rx="2" fill="rgba(255,255,255,0.25)"/>
+        <circle cx="22" cy="44" r="9" opacity="0.9"/>
+        <circle cx="22" cy="44" r="5" fill="rgba(255,255,255,0.3)"/>
+        <circle cx="78" cy="44" r="9" opacity="0.9"/>
+        <circle cx="78" cy="44" r="5" fill="rgba(255,255,255,0.3)"/>
+        <rect x="10" y="32" width="6" height="4" rx="1" opacity="0.6"/>
+        <rect x="84" y="32" width="6" height="4" rx="1" opacity="0.6"/>
+      </svg>
+    ),
+    classic: (
+      <svg viewBox="0 0 100 50" width={size} height={size * 0.5} fill="currentColor">
+        <ellipse cx="20" cy="38" rx="10" ry="10" opacity="0.9"/>
+        <ellipse cx="20" cy="38" rx="5" ry="5" fill="rgba(255,255,255,0.3)"/>
+        <ellipse cx="80" cy="38" rx="10" ry="10" opacity="0.9"/>
+        <ellipse cx="80" cy="38" rx="5" ry="5" fill="rgba(255,255,255,0.3)"/>
+        <path d="M5,30 L95,30 C97,30 98,32 98,34 L98,38 C98,40 97,42 95,42 L5,42 C3,42 2,40 2,38 L2,34 C2,32 3,30 5,30 Z" opacity="0.3"/>
+        <path d="M12,20 L30,8 C35,5 45,4 50,4 C55,4 65,5 70,8 L88,20 L92,28 C93,30 92,32 90,32 L10,32 C8,32 7,30 8,28 L12,20 Z" opacity="0.8"/>
+        <path d="M35,10 L50,6 L65,10 L65,26 L35,26 L35,10 Z" fill="rgba(255,255,255,0.3)"/>
+        <circle cx="10" cy="28" r="4" opacity="0.6"/>
+        <circle cx="90" cy="28" r="4" opacity="0.6"/>
+        <rect x="42" y="28" width="16" height="6" rx="2" opacity="0.5"/>
+        <path d="M2,34 L12,34 L12,28 L6,28 C3,28 2,30 2,32 L2,34 Z" opacity="0.4"/>
+        <path d="M98,34 L88,34 L88,28 L94,28 C97,28 98,30 98,32 L98,34 Z" opacity="0.4"/>
+      </svg>
+    ),
+    luxury: (
+      <svg viewBox="0 0 100 45" width={size} height={size * 0.45} fill="currentColor">
+        <ellipse cx="20" cy="35" rx="8" ry="8" opacity="0.9"/>
+        <ellipse cx="20" cy="35" rx="4" ry="4" fill="rgba(255,255,255,0.4)"/>
+        <ellipse cx="80" cy="35" rx="8" ry="8" opacity="0.9"/>
+        <ellipse cx="80" cy="35" r="4" fill="rgba(255,255,255,0.4)"/>
+        <path d="M8,28 L92,28 C95,28 97,30 97,33 L97,36 C97,39 95,41 92,41 L8,41 C5,41 3,39 3,36 L3,33 C3,30 5,28 8,28 Z" opacity="0.25"/>
+        <path d="M15,14 C18,8 32,5 50,5 C68,5 82,8 85,14 L90,24 C91,26 90,28 88,28 L12,28 C10,28 9,26 10,24 L15,14 Z" opacity="0.85"/>
+        <path d="M22,10 L32,10 L32,24 L18,24 L22,10 Z" fill="rgba(255,255,255,0.35)"/>
+        <path d="M68,10 L78,10 L82,24 L68,24 L68,10 Z" fill="rgba(255,255,255,0.35)"/>
+        <path d="M36,8 L64,8 L64,24 L36,24 Z" fill="rgba(255,255,255,0.25)"/>
+        <rect x="4" y="26" width="10" height="4" rx="2" opacity="0.5"/>
+        <rect x="86" y="26" width="10" height="4" rx="2" opacity="0.5"/>
+        <path d="M45,28 L55,28 L55,32 L45,32 Z" opacity="0.3"/>
+        <circle cx="8" cy="20" r="3" opacity="0.7"/>
+        <circle cx="92" cy="20" r="3" opacity="0.7"/>
+      </svg>
+    ),
+    vip: (
+      <svg viewBox="0 0 100 50" width={size} height={size * 0.5} fill="currentColor">
+        <defs>
+          <linearGradient id="vipGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="currentColor" stopOpacity="1"/>
+            <stop offset="100%" stopColor="currentColor" stopOpacity="0.7"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="22" cy="38" rx="9" ry="9" opacity="0.95"/>
+        <ellipse cx="22" cy="38" rx="5" ry="5" fill="rgba(255,255,255,0.4)"/>
+        <ellipse cx="22" cy="38" rx="2" ry="2" opacity="0.8"/>
+        <ellipse cx="78" cy="38" rx="9" ry="9" opacity="0.95"/>
+        <ellipse cx="78" cy="38" rx="5" ry="5" fill="rgba(255,255,255,0.4)"/>
+        <ellipse cx="78" cy="38" rx="2" ry="2" opacity="0.8"/>
+        <path d="M6,30 L94,30 C97,30 99,32 99,35 L99,40 C99,43 97,45 94,45 L6,45 C3,45 1,43 1,40 L1,35 C1,32 3,30 6,30 Z" opacity="0.25"/>
+        <path d="M12,12 C15,6 30,3 50,3 C70,3 85,6 88,12 L94,26 C95,28 94,30 92,30 L8,30 C6,30 5,28 6,26 L12,12 Z" opacity="0.9"/>
+        <path d="M20,8 L32,8 L32,26 L16,26 L20,8 Z" fill="rgba(255,255,255,0.35)"/>
+        <path d="M68,8 L80,8 L84,26 L68,26 L68,8 Z" fill="rgba(255,255,255,0.35)"/>
+        <path d="M36,6 L64,6 L64,26 L36,26 Z" fill="rgba(255,255,255,0.3)"/>
+        <rect x="2" y="28" width="12" height="5" rx="2" opacity="0.6"/>
+        <rect x="86" y="28" width="12" height="5" rx="2" opacity="0.6"/>
+        <path d="M40,30 L60,30 L58,36 L42,36 Z" opacity="0.4"/>
+        <polygon points="50,0 52,4 56,4 53,7 54,11 50,9 46,11 47,7 44,4 48,4" fill="rgba(255,255,255,0.6)"/>
+      </svg>
+    )
+  }
+  return icons[type] || icons.sedan
+}
 
 function Services() {
   const { language, t } = useLanguage()
@@ -9,277 +104,482 @@ function Services() {
   const carCategories = [
     {
       id: 'sedan',
-      title: language === 'ar' ? 'السيارات الصالون' : 'Sedan Cars',
+      title: language === 'ar' ? 'صالون' : 'Sedan',
       subtitle: 'Sedan',
-      icon: <Car size={40} />,
       color: '#4285F4',
       bgGradient: 'linear-gradient(135deg, #4285F4, #1a73e8)',
-      services: [
-        { id: 'full', name: language === 'ar' ? 'الفحص الشامل' : 'Full Inspection', nameEn: 'Comprehensive', price: 500, icon: <Shield size={20} /> },
-        { id: 'mechanical', name: language === 'ar' ? 'ميكانيكا وكمبيوتر' : 'Mechanical + Computer', nameEn: 'Mechanical', price: 250, icon: <Settings size={20} /> },
-        { id: 'misc', name: language === 'ar' ? 'فحوصات متنوعة' : 'Various Tests', nameEn: 'Various', price: 200, icon: <Eye size={20} /> },
-        { id: 'basic', name: language === 'ar' ? 'الأجزاء الأساسية' : 'Basic Parts', nameEn: 'Basic', price: 300, icon: <FileCheck size={20} /> }
-      ]
+      prices: { full: 500, mechanical: 250, basic: 300, misc: 200 }
     },
     {
       id: 'suv',
-      title: language === 'ar' ? 'سيارات الدفع الرباعي' : '4WD / SUV',
+      title: language === 'ar' ? 'دفع رباعي / فورويل' : '4WD / SUV',
       subtitle: '4WD / SUV',
-      icon: <Truck size={40} />,
       color: '#34A853',
       bgGradient: 'linear-gradient(135deg, #34A853, #1e8e3e)',
-      services: [
-        { id: 'full', name: language === 'ar' ? 'الفحص الشامل' : 'Full Inspection', nameEn: 'Comprehensive', price: 600, icon: <Shield size={20} /> },
-        { id: 'mechanical', name: language === 'ar' ? 'ميكانيكا وكمبيوتر' : 'Mechanical + Computer', nameEn: 'Mechanical', price: 300, icon: <Settings size={20} /> },
-        { id: 'misc', name: language === 'ar' ? 'فحوصات متنوعة' : 'Various Tests', nameEn: 'Various', price: 200, icon: <Eye size={20} /> },
-        { id: 'basic', name: language === 'ar' ? 'الأجزاء الأساسية' : 'Basic Parts', nameEn: 'Basic', price: 400, icon: <FileCheck size={20} /> }
-      ]
+      prices: { full: 600, mechanical: 300, basic: 400, misc: 200 }
+    },
+    {
+      id: 'classic',
+      title: language === 'ar' ? 'كلاسيك' : 'Classic',
+      subtitle: 'Classic',
+      color: '#FF6B35',
+      bgGradient: 'linear-gradient(135deg, #FF6B35, #e55a2b)',
+      prices: { full: 600, mechanical: 350, basic: 400, misc: 200 }
     },
     {
       id: 'luxury',
-      title: language === 'ar' ? 'السيارات الفاخرة والرياضية' : 'Luxury & Sports Cars',
-      subtitle: 'Luxury / Coupe',
-      icon: <Crown size={40} />,
+      title: language === 'ar' ? 'فاخرة' : 'Luxury',
+      subtitle: 'Luxury',
+      color: '#9C27B0',
+      bgGradient: 'linear-gradient(135deg, #9C27B0, #7b1fa2)',
+      prices: { full: 700, mechanical: 350, basic: 500, misc: 200 }
+    },
+    {
+      id: 'vip',
+      title: language === 'ar' ? 'VIP فاخرة' : 'VIP Luxury',
+      subtitle: 'VIP',
       color: '#C89D2A',
       bgGradient: 'linear-gradient(135deg, #C89D2A, #a88420)',
-      services: [
-        { id: 'full', name: language === 'ar' ? 'الفحص الشامل' : 'Full Inspection', nameEn: 'Comprehensive', price: 700, icon: <Shield size={20} /> },
-        { id: 'mechanical', name: language === 'ar' ? 'ميكانيكا وكمبيوتر' : 'Mechanical + Computer', nameEn: 'Mechanical', price: 350, icon: <Settings size={20} /> },
-        { id: 'misc', name: language === 'ar' ? 'فحوصات متنوعة' : 'Various Tests', nameEn: 'Various', price: 200, icon: <Eye size={20} /> },
-        { id: 'basic', name: language === 'ar' ? 'الأجزاء الأساسية' : 'Basic Parts', nameEn: 'Basic', price: 500, icon: <FileCheck size={20} /> }
-      ]
+      prices: { full: 1000, mechanical: 500, basic: 700, misc: 300 }
     }
   ]
 
-  const inspectionItems = {
-    full: [
-      { ar: 'الماكينة', en: 'Engine' },
-      { ar: 'القير', en: 'Transmission' },
-      { ar: 'الكمبيوتر', en: 'Computer Scan' },
-      { ar: 'الشاصي', en: 'Chassis' },
-      { ar: 'الصبغ والحوادث', en: 'Paint & Accidents' },
-      { ar: 'نظام التبريد', en: 'Cooling System' },
-      { ar: 'نظام الفرامل', en: 'Brake System' },
-      { ar: 'الإيرباقات', en: 'Airbags' }
-    ],
-    mechanical: [
-      { ar: 'الماكينة', en: 'Engine' },
-      { ar: 'القير', en: 'Transmission' },
-      { ar: 'الكمبيوتر', en: 'Computer Scan' },
-      { ar: 'التسريبات', en: 'Leaks' },
-      { ar: 'حالة الزيوت', en: 'Oil Condition' }
-    ],
-    misc: [
-      { ar: 'صبغ فقط', en: 'Paint Only' },
-      { ar: 'شاصي فقط', en: 'Chassis Only' },
-      { ar: 'كمبيوتر فقط', en: 'Computer Only' },
-      { ar: 'فحص الغرق', en: 'Flood Check' }
-    ],
-    basic: [
-      { ar: 'الماكينة', en: 'Engine' },
-      { ar: 'القير', en: 'Transmission' },
-      { ar: 'الكمبيوتر', en: 'Computer' },
-      { ar: 'الشاصي', en: 'Chassis' }
-    ]
-  }
+  const serviceTypes = [
+    { 
+      id: 'full', 
+      name: language === 'ar' ? 'الفحص الشامل' : 'Full Inspection', 
+      nameEn: 'Comprehensive',
+      icon: <Shield size={24} />,
+      items: [
+        { ar: 'الماكينة', en: 'Engine' },
+        { ar: 'القير', en: 'Transmission' },
+        { ar: 'الكمبيوتر', en: 'Computer Scan' },
+        { ar: 'الشاصي', en: 'Chassis' },
+        { ar: 'الصبغ والحوادث', en: 'Paint & Accidents' },
+        { ar: 'نظام التبريد', en: 'Cooling System' },
+        { ar: 'نظام الفرامل', en: 'Brake System' },
+        { ar: 'الإيرباقات', en: 'Airbags' }
+      ]
+    },
+    { 
+      id: 'mechanical', 
+      name: language === 'ar' ? 'ميكانيكا + كمبيوتر' : 'Mechanical + Computer', 
+      nameEn: 'Mechanical',
+      icon: <Settings size={24} />,
+      items: [
+        { ar: 'الماكينة', en: 'Engine' },
+        { ar: 'القير', en: 'Transmission' },
+        { ar: 'الكمبيوتر', en: 'Computer Scan' },
+        { ar: 'التسريبات', en: 'Leaks' },
+        { ar: 'حالة الزيوت', en: 'Oil Condition' }
+      ]
+    },
+    { 
+      id: 'basic', 
+      name: language === 'ar' ? 'الأجزاء الأساسية' : 'Basic Parts', 
+      nameEn: 'Basic',
+      icon: <FileCheck size={24} />,
+      items: [
+        { ar: 'الماكينة', en: 'Engine' },
+        { ar: 'القير', en: 'Transmission' },
+        { ar: 'الكمبيوتر', en: 'Computer' },
+        { ar: 'الشاصي', en: 'Chassis' }
+      ]
+    },
+    { 
+      id: 'misc', 
+      name: language === 'ar' ? 'فحوصات متنوعة' : 'Various Tests', 
+      nameEn: 'Various',
+      icon: <Eye size={24} />,
+      items: [
+        { ar: 'صبغ فقط', en: 'Paint Only' },
+        { ar: 'شاصي فقط', en: 'Chassis Only' },
+        { ar: 'كمبيوتر فقط', en: 'Computer Only' },
+        { ar: 'فحص الغرق', en: 'Flood Check' }
+      ]
+    }
+  ]
 
   return (
     <div className="services-page-new">
       <div className="services-hero">
         <div className="container">
           <span className="section-badge">
-            {language === 'ar' ? 'خدماتنا المميزة' : 'Our Services'}
+            {language === 'ar' ? 'خدماتنا المميزة' : 'Our Premium Services'}
           </span>
           <h1>{language === 'ar' ? 'خدمات الفحص الفني' : 'Technical Inspection Services'}</h1>
-          <p>{language === 'ar' ? 'اختر الباقة الخاصة لسيارتك' : 'Choose the package for your car'}</p>
+          <p>{language === 'ar' ? 'اختر فئة سيارتك ونوع الفحص المناسب' : 'Choose your car category and inspection type'}</p>
         </div>
       </div>
 
       <div className="container" style={{ padding: '60px 24px' }}>
-        {carCategories.map((category) => (
-          <div key={category.id} className="car-category-section">
-            <div className="category-header" style={{ background: category.bgGradient }}>
-              <div className="category-icon">{category.icon}</div>
-              <div className="category-titles">
-                <h2>{category.title}</h2>
-                <span>{category.subtitle}</span>
+        <div className="section-title-wrapper">
+          <h2 className="section-main-title">
+            {language === 'ar' ? 'فئات السيارات' : 'Car Categories'}
+          </h2>
+          <p className="section-subtitle">
+            {language === 'ar' ? 'اختر فئة سيارتك لمعرفة الأسعار' : 'Select your car category to see prices'}
+          </p>
+        </div>
+
+        <div className="car-categories-horizontal-grid">
+          {carCategories.map((category) => (
+            <div 
+              key={category.id} 
+              className="car-category-card"
+              style={{ '--category-color': category.color, '--category-gradient': category.bgGradient }}
+            >
+              <div className="category-card-header" style={{ background: category.bgGradient }}>
+                <div className="category-icon-wrapper">
+                  <CarIcon type={category.id} size={70} />
+                </div>
+                <h3>{category.title}</h3>
+                <span className="category-subtitle">{category.subtitle}</span>
+              </div>
+              <div className="category-prices-list">
+                {serviceTypes.map((service) => (
+                  <div key={service.id} className="price-row">
+                    <div className="price-service-info">
+                      <span className="price-icon" style={{ color: category.color }}>{service.icon}</span>
+                      <span className="price-service-name">{service.name}</span>
+                    </div>
+                    <div className="price-value" style={{ background: category.bgGradient }}>
+                      <span>+{category.prices[service.id]}</span>
+                      <small>{language === 'ar' ? 'درهم' : 'AED'}</small>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Link 
+                to="/booking" 
+                className="category-book-btn"
+                style={{ background: category.bgGradient }}
+              >
+                <Calendar size={18} />
+                <span>{language === 'ar' ? 'احجز الآن' : 'Book Now'}</span>
+                <ArrowRight size={18} style={{ transform: isRTL ? 'rotate(180deg)' : 'none' }} />
+              </Link>
+            </div>
+          ))}
+        </div>
+
+        <div className="section-title-wrapper" style={{ marginTop: '80px' }}>
+          <h2 className="section-main-title">
+            {language === 'ar' ? 'تفاصيل الخدمات' : 'Service Details'}
+          </h2>
+          <p className="section-subtitle">
+            {language === 'ar' ? 'ماذا يشمل كل نوع فحص' : 'What each inspection type includes'}
+          </p>
+        </div>
+
+        <div className="services-details-grid">
+          {serviceTypes.map((service, idx) => (
+            <div key={service.id} className="service-detail-card">
+              <div className="service-detail-header">
+                <div className="service-detail-icon">
+                  {service.icon}
+                </div>
+                <div className="service-detail-titles">
+                  <h3>{service.name}</h3>
+                  <span>{service.nameEn}</span>
+                </div>
+                <div className="service-number">{idx + 1}</div>
+              </div>
+              <div className="service-items-list">
+                {service.items.map((item, itemIdx) => (
+                  <div key={itemIdx} className="service-item">
+                    <CheckCircle size={16} color="#34A853" />
+                    <span>{language === 'ar' ? item.ar : item.en}</span>
+                  </div>
+                ))}
               </div>
             </div>
+          ))}
+        </div>
 
-            <div className="category-services-grid">
-              {category.services.map((service) => (
-                <div key={service.id} className="service-price-card">
-                  <div className="service-card-icon" style={{ background: `${category.color}15`, color: category.color }}>
-                    {service.icon}
-                  </div>
-                  <h3>{service.name}</h3>
-                  <p className="service-name-en">{service.nameEn}</p>
-                  
-                  <div className="service-features">
-                    {inspectionItems[service.id]?.slice(0, 4).map((item, idx) => (
-                      <div key={idx} className="feature-item">
-                        <CheckCircle size={14} color={category.color} />
-                        <span>{language === 'ar' ? item.ar : item.en}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="service-price-tag">
-                    <span className="price-amount">{service.price}</span>
-                    <span className="price-currency">{language === 'ar' ? 'درهم' : 'AED'}</span>
-                  </div>
-
-                  <Link 
-                    to="/booking" 
-                    className="book-now-btn"
-                    style={{ 
-                      background: category.bgGradient,
-                      boxShadow: `0 4px 15px ${category.color}40`
-                    }}
-                  >
-                    <Calendar size={18} />
-                    <span>{language === 'ar' ? 'احجز الآن' : 'Book Now'}</span>
-                    {isRTL ? <ArrowLeft size={18} /> : <ArrowLeft size={18} style={{ transform: 'rotate(180deg)' }} />}
-                  </Link>
-                </div>
-              ))}
-            </div>
+        <div className="cta-section">
+          <div className="cta-content">
+            <Star size={40} color="#C89D2A" />
+            <h3>{language === 'ar' ? 'جاهز لفحص سيارتك؟' : 'Ready to inspect your car?'}</h3>
+            <p>{language === 'ar' ? 'احجز موعدك الآن واحصل على تقرير شامل' : 'Book your appointment now and get a comprehensive report'}</p>
+            <Link to="/booking" className="cta-main-btn">
+              <Calendar size={20} />
+              <span>{language === 'ar' ? 'احجز موعدك الآن' : 'Book Your Appointment'}</span>
+              <ArrowRight size={20} style={{ transform: isRTL ? 'rotate(180deg)' : 'none' }} />
+            </Link>
           </div>
-        ))}
+        </div>
       </div>
 
       <style>{`
-        .car-category-section {
-          margin-bottom: 50px;
+        .section-title-wrapper {
+          text-align: center;
+          margin-bottom: 40px;
+        }
+        .section-main-title {
+          font-size: 2rem;
+          font-weight: 800;
+          color: #0B1F3A;
+          margin: 0 0 10px;
+        }
+        .section-subtitle {
+          font-size: 1.1rem;
+          color: #666;
+          margin: 0;
+        }
+
+        .car-categories-horizontal-grid {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 20px;
+          margin-bottom: 60px;
+        }
+
+        @media (max-width: 1400px) {
+          .car-categories-horizontal-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        @media (max-width: 1000px) {
+          .car-categories-horizontal-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        .car-category-card {
           background: white;
           border-radius: 20px;
           overflow: hidden;
           box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-        }
-        .category-header {
-          padding: 30px 40px;
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          color: white;
-        }
-        .category-icon {
-          width: 70px;
-          height: 70px;
-          background: rgba(255,255,255,0.2);
-          border-radius: 15px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-        .category-titles h2 {
-          margin: 0;
-          font-size: 1.6rem;
-          font-weight: 700;
-        }
-        .category-titles span {
-          font-size: 1rem;
-          opacity: 0.9;
-        }
-        .category-services-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-          gap: 25px;
-          padding: 30px;
-        }
-        .service-price-card {
-          background: #f8f9fa;
-          border-radius: 16px;
-          padding: 25px;
-          text-align: center;
-          transition: all 0.3s ease;
+          transition: all 0.4s ease;
           border: 2px solid transparent;
         }
-        .service-price-card:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-          border-color: #C89D2A;
+        .car-category-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+          border-color: var(--category-color);
         }
-        .service-card-icon {
-          width: 50px;
-          height: 50px;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 15px;
-        }
-        .service-price-card h3 {
-          margin: 0 0 5px;
-          font-size: 1.1rem;
-          color: #0B1F3A;
-        }
-        .service-name-en {
-          font-size: 0.85rem;
-          color: #666;
-          margin: 0 0 15px;
-        }
-        .service-features {
-          text-align: ${isRTL ? 'right' : 'left'};
-          margin: 15px 0;
-        }
-        .feature-item {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 6px 0;
-          font-size: 0.85rem;
-          color: #444;
-        }
-        .service-price-tag {
-          background: linear-gradient(135deg, #0B1F3A, #1a365d);
+
+        .category-card-header {
+          padding: 25px 20px;
+          text-align: center;
           color: white;
-          padding: 15px;
-          border-radius: 12px;
-          margin: 20px 0 15px;
-          display: flex;
-          align-items: baseline;
-          justify-content: center;
-          gap: 8px;
         }
-        .price-amount {
-          font-size: 2rem;
-          font-weight: 800;
+        .category-icon-wrapper {
+          margin-bottom: 15px;
         }
-        .price-currency {
-          font-size: 1rem;
+        .category-card-header h3 {
+          margin: 0 0 5px;
+          font-size: 1.2rem;
+          font-weight: 700;
+        }
+        .category-subtitle {
+          font-size: 0.85rem;
           opacity: 0.9;
         }
-        .book-now-btn {
+
+        .category-prices-list {
+          padding: 20px 15px;
+        }
+        .price-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 0;
+          border-bottom: 1px solid #f0f0f0;
+        }
+        .price-row:last-child {
+          border-bottom: none;
+        }
+        .price-service-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .price-icon {
+          display: flex;
+        }
+        .price-icon svg {
+          width: 18px;
+          height: 18px;
+        }
+        .price-service-name {
+          font-size: 0.8rem;
+          color: #333;
+          font-weight: 500;
+        }
+        .price-value {
+          display: flex;
+          align-items: baseline;
+          gap: 4px;
+          color: white;
+          padding: 6px 12px;
+          border-radius: 20px;
+          font-weight: 700;
+          font-size: 0.9rem;
+        }
+        .price-value small {
+          font-size: 0.65rem;
+          font-weight: 500;
+          opacity: 0.9;
+        }
+
+        .category-book-btn {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 10px;
-          width: 100%;
-          padding: 14px 20px;
-          border: none;
+          gap: 8px;
+          margin: 15px;
+          padding: 14px;
           border-radius: 12px;
           color: white;
-          font-size: 1rem;
           font-weight: 700;
           text-decoration: none;
-          cursor: pointer;
+          font-size: 0.95rem;
           transition: all 0.3s ease;
-          font-family: inherit;
         }
-        .book-now-btn:hover {
+        .category-book-btn:hover {
           transform: scale(1.02);
           filter: brightness(1.1);
         }
-        @media (max-width: 768px) {
-          .category-header {
-            padding: 20px;
-            flex-direction: column;
-            text-align: center;
+
+        .services-details-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 25px;
+        }
+
+        .service-detail-card {
+          background: white;
+          border-radius: 20px;
+          overflow: hidden;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+          transition: all 0.3s ease;
+        }
+        .service-detail-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 15px 50px rgba(0,0,0,0.12);
+        }
+
+        .service-detail-header {
+          background: linear-gradient(135deg, #0B1F3A, #1a365d);
+          padding: 20px;
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          position: relative;
+        }
+        .service-detail-icon {
+          width: 50px;
+          height: 50px;
+          background: rgba(200,157,42,0.2);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #C89D2A;
+        }
+        .service-detail-titles h3 {
+          margin: 0 0 3px;
+          font-size: 1rem;
+          color: white;
+          font-weight: 700;
+        }
+        .service-detail-titles span {
+          font-size: 0.8rem;
+          color: rgba(255,255,255,0.7);
+        }
+        .service-number {
+          position: absolute;
+          top: 15px;
+          ${isRTL ? 'left' : 'right'}: 15px;
+          width: 30px;
+          height: 30px;
+          background: #C89D2A;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #0B1F3A;
+          font-weight: 800;
+          font-size: 0.9rem;
+        }
+
+        .service-items-list {
+          padding: 20px;
+        }
+        .service-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 10px 0;
+          border-bottom: 1px solid #f5f5f5;
+          font-size: 0.9rem;
+          color: #333;
+        }
+        .service-item:last-child {
+          border-bottom: none;
+        }
+
+        .cta-section {
+          margin-top: 80px;
+          background: linear-gradient(135deg, #0B1F3A, #1a365d);
+          border-radius: 30px;
+          padding: 60px 40px;
+          text-align: center;
+        }
+        .cta-content h3 {
+          color: white;
+          font-size: 2rem;
+          margin: 20px 0 15px;
+          font-weight: 800;
+        }
+        .cta-content p {
+          color: rgba(255,255,255,0.8);
+          font-size: 1.1rem;
+          margin: 0 0 30px;
+        }
+        .cta-main-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          background: linear-gradient(135deg, #C89D2A, #d4af37);
+          color: #0B1F3A;
+          padding: 18px 40px;
+          border-radius: 50px;
+          font-size: 1.1rem;
+          font-weight: 700;
+          text-decoration: none;
+          transition: all 0.3s ease;
+          box-shadow: 0 10px 30px rgba(200,157,42,0.4);
+        }
+        .cta-main-btn:hover {
+          transform: scale(1.05);
+          box-shadow: 0 15px 40px rgba(200,157,42,0.5);
+        }
+
+        @media (max-width: 1200px) {
+          .services-details-grid {
+            grid-template-columns: repeat(2, 1fr);
           }
-          .category-services-grid {
-            padding: 20px;
-            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+          .car-categories-horizontal-grid {
+            grid-template-columns: 1fr;
+          }
+          .services-details-grid {
+            grid-template-columns: 1fr;
+          }
+          .section-main-title {
+            font-size: 1.5rem;
+          }
+          .cta-content h3 {
+            font-size: 1.5rem;
+          }
+          .cta-section {
+            padding: 40px 20px;
           }
         }
       `}</style>
