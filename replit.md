@@ -122,6 +122,13 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 - PostgreSQL appointment_slots table with availability tracking
 
 ## Recent Changes (December 2024)
+- **3D Car Category Selection on Booking Page** - Interactive Three.js 3D car models for car category selection
+  - 5 unique 3D car models: Sedan, SUV, Classic, Luxury, VIP
+  - Each car styled with appropriate colors (Blue, Green, Orange, Purple, Gold)
+  - Auto-rotating animation that speeds up on hover/selection
+  - Proper WebGL cleanup to prevent memory leaks
+  - Graceful SVG fallback for browsers without WebGL support
+  - Component: `client/src/components/Car3DViewer.jsx`
 - **3D Car Model with Full Rotation** - Replaced static image with interactive Three.js 3D car model
   - 360° horizontal rotation with OrbitControls
   - Near-180° vertical tilt (0.05π to 0.95π) to view chassis underneath
