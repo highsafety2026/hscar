@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Star, Sparkles } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
-import Car3DViewer from '../components/Car3DViewer'
+import sedanImg from '../assets/cars/sedan.png'
+import suvImg from '../assets/cars/suv.png'
+import classicImg from '../assets/cars/classic.png'
+import luxuryImg from '../assets/cars/luxury.png'
+import vipImg from '../assets/cars/vip.png'
 
 function Booking() {
   const { language, t } = useLanguage()
@@ -13,35 +17,41 @@ function Booking() {
       title: 'صالون', 
       titleEn: 'Sedan',
       color: '#4285F4',
-      gradient: 'linear-gradient(135deg, #4285F4 0%, #1a73e8 100%)'
+      gradient: 'linear-gradient(135deg, #4285F4 0%, #1a73e8 100%)',
+      image: sedanImg
     },
     { 
       id: 'suv', 
       title: 'دفع رباعي', 
       titleEn: 'SUV / 4WD',
       color: '#34A853',
-      gradient: 'linear-gradient(135deg, #34A853 0%, #1e8e3e 100%)'
+      gradient: 'linear-gradient(135deg, #34A853 0%, #1e8e3e 100%)',
+      image: suvImg
     },
     { 
       id: 'classic', 
       title: 'كلاسيك', 
       titleEn: 'Classic',
       color: '#FF6B35',
-      gradient: 'linear-gradient(135deg, #FF6B35 0%, #e55a2b 100%)'
+      gradient: 'linear-gradient(135deg, #FF6B35 0%, #e55a2b 100%)',
+      image: classicImg,
+      hasPlus: true
     },
     { 
       id: 'luxury', 
       title: 'فاخرة', 
       titleEn: 'Luxury',
       color: '#9C27B0',
-      gradient: 'linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)'
+      gradient: 'linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)',
+      image: luxuryImg
     },
     { 
       id: 'vip', 
       title: 'VIP', 
       titleEn: 'VIP',
       color: '#C89D2A',
-      gradient: 'linear-gradient(135deg, #C89D2A 0%, #9a7b1f 100%)'
+      gradient: 'linear-gradient(135deg, #C89D2A 0%, #9a7b1f 100%)',
+      image: vipImg
     }
   ]
 
@@ -346,16 +356,23 @@ function Booking() {
                             setSelectedService(null)
                           }}
                         >
-                          <div className="category-icon category-icon-3d">
-                            <Car3DViewer 
-                              type={cat.id} 
-                              color={cat.color} 
-                              size={100} 
-                              isSelected={selectedCarCategory?.id === cat.id}
+                          <div className="category-icon category-icon-img">
+                            <img 
+                              src={cat.image} 
+                              alt={cat.titleEn}
+                              style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'contain',
+                                transition: 'transform 0.3s ease'
+                              }}
                             />
                           </div>
                           <div className="category-name">
-                            <strong>{language === 'ar' ? cat.title : cat.titleEn}</strong>
+                            <strong>
+                              {language === 'ar' ? cat.title : cat.titleEn}
+                              {cat.hasPlus && <span style={{ color: '#C89D2A', marginRight: '5px', marginLeft: '5px' }}>+</span>}
+                            </strong>
                             <small>{language === 'ar' ? cat.titleEn : cat.title}</small>
                           </div>
                           {selectedCarCategory?.id === cat.id && (
@@ -410,7 +427,7 @@ function Booking() {
                       </div>
                       <div className="summary-body">
                         <div className="summary-item">
-                          <Car3DViewer type={selectedCarCategory.id} color={selectedCarCategory.color} size={60} isSelected={true} />
+                          <img src={selectedCarCategory.image} alt={selectedCarCategory.titleEn} style={{ width: '60px', height: '60px', objectFit: 'contain' }} />
                           <span>{language === 'ar' ? selectedCarCategory.title : selectedCarCategory.titleEn}</span>
                         </div>
                         <div className="summary-divider">+</div>
@@ -494,7 +511,7 @@ function Booking() {
                 <form className="step-details" onSubmit={handleSubmit}>
                   <div className="booking-summary-bar">
                     <div className="summary-item-bar">
-                      {selectedCarCategory && <Car3DViewer type={selectedCarCategory.id} color={selectedCarCategory.color} size={40} isSelected={true} />}
+                      {selectedCarCategory && <img src={selectedCarCategory.image} alt={selectedCarCategory.titleEn} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
                       <span>{language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</span>
                     </div>
                     <div className="summary-item-bar">
