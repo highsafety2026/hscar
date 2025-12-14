@@ -78,7 +78,7 @@ function Home() {
     <div className="home-page">
       <section className="hero-modern">
         <div className="hero-video-bg">
-          <video autoPlay muted loop playsInline className="hero-video">
+          <video autoPlay loop playsInline className="hero-video">
             <source src="/videos/hero-bg.mp4" type="video/mp4" />
           </video>
           <div className="hero-video-overlay"></div>
