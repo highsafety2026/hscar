@@ -150,15 +150,69 @@ function Services() {
       name: language === 'ar' ? 'الفحص الشامل' : 'Full Inspection', 
       nameEn: 'Comprehensive',
       icon: <Shield size={24} />,
-      items: [
-        { ar: 'الماكينة', en: 'Engine' },
-        { ar: 'القير', en: 'Transmission' },
-        { ar: 'الكمبيوتر', en: 'Computer Scan' },
-        { ar: 'الشاصي', en: 'Chassis' },
-        { ar: 'الصبغ والحوادث', en: 'Paint & Accidents' },
-        { ar: 'نظام التبريد', en: 'Cooling System' },
-        { ar: 'نظام الفرامل', en: 'Brake System' },
-        { ar: 'الإيرباقات', en: 'Airbags' }
+      categories: [
+        {
+          title: language === 'ar' ? 'الأنظمة الميكانيكية' : 'Mechanical Systems',
+          items: [
+            { ar: 'الماكينة', en: 'Engine' },
+            { ar: 'القير', en: 'Transmission' },
+            { ar: 'الدبل', en: '4WD' },
+            { ar: 'الديفريشن', en: 'Differential' },
+            { ar: 'نظام التعليق', en: 'Suspension System' },
+            { ar: 'الأجزاء الميكانيكية أعلى وأسفل', en: 'Upper & Lower Mechanical Parts' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'الأنظمة الإلكترونية' : 'Electronic Systems',
+          items: [
+            { ar: 'الكمبيوتر', en: 'Computer' },
+            { ar: 'الإيرباقات', en: 'Airbags' },
+            { ar: 'الأجزاء الكهربائية', en: 'Electrical Parts' },
+            { ar: 'جميع الحساسات', en: 'All Sensors' },
+            { ar: 'البطارية', en: 'Battery' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'الهيكل والمظهر' : 'Body & Appearance',
+          items: [
+            { ar: 'الشاصي', en: 'Chassis' },
+            { ar: 'الصبغ', en: 'Paint' },
+            { ar: 'الحوادث', en: 'Accidents' },
+            { ar: 'الغرق', en: 'Flooding' },
+            { ar: 'نسبة الصدأ', en: 'Rust Level' },
+            { ar: 'أجزاء الهيكل الداخلية والخارجية', en: 'Internal & External Body Parts' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'الأنظمة الداخلية' : 'Internal Systems',
+          items: [
+            { ar: 'داخلية السيارة', en: 'Car Interior' },
+            { ar: 'داخل الماكينة', en: 'Engine Interior' },
+            { ar: 'نظام الصوت', en: 'Sound System' },
+            { ar: 'التحويل', en: 'Conversion' },
+            { ar: 'التعديل', en: 'Modification' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'السوائل والتبريد' : 'Fluids & Cooling',
+          items: [
+            { ar: 'التسريبات', en: 'Leaks' },
+            { ar: 'حالة الزيوت', en: 'Oil Condition' },
+            { ar: 'نظام التبريد', en: 'Cooling System' },
+            { ar: 'نظام التكييف', en: 'Air Conditioning System' },
+            { ar: 'نظام البترول', en: 'Fuel System' },
+            { ar: 'التزويد', en: 'Fuel Supply' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'الإضاءة والعجلات' : 'Lighting & Wheels',
+          items: [
+            { ar: 'الزجاج', en: 'Glass' },
+            { ar: 'الإضاءة', en: 'Lighting' },
+            { ar: 'التواير', en: 'Tires' },
+            { ar: 'الرنقات', en: 'Rims' }
+          ]
+        }
       ]
     },
     { 
@@ -166,12 +220,32 @@ function Services() {
       name: language === 'ar' ? 'ميكانيكا + كمبيوتر' : 'Mechanical + Computer', 
       nameEn: 'Mechanical',
       icon: <Settings size={24} />,
-      items: [
-        { ar: 'الماكينة', en: 'Engine' },
-        { ar: 'القير', en: 'Transmission' },
-        { ar: 'الكمبيوتر', en: 'Computer Scan' },
-        { ar: 'التسريبات', en: 'Leaks' },
-        { ar: 'حالة الزيوت', en: 'Oil Condition' }
+      categories: [
+        {
+          title: language === 'ar' ? 'الفحص الميكانيكي' : 'Mechanical Check',
+          items: [
+            { ar: 'التسريبات', en: 'Leaks' },
+            { ar: 'جميع أجزاء السيرفس', en: 'All Service Parts' },
+            { ar: 'حالة الزيوت', en: 'Oil Condition' },
+            { ar: 'التواير', en: 'Tires' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'الأنظمة' : 'Systems',
+          items: [
+            { ar: 'نظام التبريد', en: 'Cooling System' },
+            { ar: 'نظام البترول', en: 'Fuel System' },
+            { ar: 'التكييف', en: 'Air Conditioning' },
+            { ar: 'الكمبيوتر', en: 'Computer' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'المظهر الخارجي' : 'Exterior',
+          items: [
+            { ar: 'الإضاءة', en: 'Lighting' },
+            { ar: 'الزجاج', en: 'Glass' }
+          ]
+        }
       ]
     },
     { 
@@ -179,23 +253,50 @@ function Services() {
       name: language === 'ar' ? 'الأجزاء الأساسية' : 'Basic Parts', 
       nameEn: 'Basic',
       icon: <FileCheck size={24} />,
-      items: [
-        { ar: 'الماكينة', en: 'Engine' },
-        { ar: 'القير', en: 'Transmission' },
-        { ar: 'الكمبيوتر', en: 'Computer' },
-        { ar: 'الشاصي', en: 'Chassis' }
+      categories: [
+        {
+          title: language === 'ar' ? 'الأجزاء الرئيسية' : 'Main Parts',
+          items: [
+            { ar: 'الماكينة', en: 'Engine' },
+            { ar: 'القير', en: 'Transmission' },
+            { ar: 'الكمبيوتر', en: 'Computer' },
+            { ar: 'الإيرباقات', en: 'Airbags' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'الهيكل والمظهر' : 'Body & Exterior',
+          items: [
+            { ar: 'الشاصي', en: 'Chassis' },
+            { ar: 'الزجاج', en: 'Glass' },
+            { ar: 'الإضاءة', en: 'Lighting' }
+          ]
+        }
       ]
     },
     { 
       id: 'misc', 
-      name: language === 'ar' ? 'فحوصات متنوعة' : 'Various Tests', 
+      name: language === 'ar' ? 'فحوصات متنوعة' : 'Miscellaneous Tests', 
       nameEn: 'Various',
       icon: <Eye size={24} />,
-      items: [
-        { ar: 'صبغ فقط', en: 'Paint Only' },
-        { ar: 'شاصي فقط', en: 'Chassis Only' },
-        { ar: 'كمبيوتر فقط', en: 'Computer Only' },
-        { ar: 'فحص الغرق', en: 'Flood Check' }
+      categories: [
+        {
+          title: language === 'ar' ? 'فحوصات فردية' : 'Individual Tests',
+          items: [
+            { ar: 'صبغ فقط', en: 'Paint Only' },
+            { ar: 'ماكينة فقط', en: 'Engine Only' },
+            { ar: 'كمبيوتر فقط', en: 'Computer Only' },
+            { ar: 'شاصي فقط', en: 'Chassis Only' },
+            { ar: 'غرق فقط', en: 'Flooding Only' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'فحوصات مركبة' : 'Combined Tests',
+          items: [
+            { ar: 'ميكانيكا + شاصي فقط', en: 'Mechanical + Chassis Only' },
+            { ar: 'صبغ + شاصي فقط', en: 'Paint + Chassis Only' },
+            { ar: 'صبغ + حوادث فقط', en: 'Paint + Accidents Only' }
+          ]
+        }
       ]
     }
   ]
@@ -285,11 +386,21 @@ function Services() {
                 </div>
                 <div className="service-number">{idx + 1}</div>
               </div>
-              <div className="service-items-list">
-                {service.items.map((item, itemIdx) => (
-                  <div key={itemIdx} className="service-item">
-                    <CheckCircle size={16} color="#34A853" />
-                    <span>{language === 'ar' ? item.ar : item.en}</span>
+              <div className="service-categories-container">
+                {service.categories.map((category, catIdx) => (
+                  <div key={catIdx} className="service-category-group">
+                    <h4 className="category-group-title">{category.title}</h4>
+                    <div className="service-items-grid">
+                      {category.items.map((item, itemIdx) => (
+                        <div key={itemIdx} className="service-item-premium">
+                          <CheckCircle size={14} className="check-icon" />
+                          <div className="item-text">
+                            <span className="item-primary">{language === 'ar' ? item.ar : item.en}</span>
+                            <span className="item-secondary">{language === 'ar' ? item.en : item.ar}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -504,6 +615,82 @@ function Services() {
           color: #0B1F3A;
           font-weight: 800;
           font-size: 0.9rem;
+        }
+
+        .service-categories-container {
+          padding: 20px;
+        }
+        .service-category-group {
+          margin-bottom: 20px;
+        }
+        .service-category-group:last-child {
+          margin-bottom: 0;
+        }
+        .category-group-title {
+          font-size: 0.85rem;
+          font-weight: 700;
+          color: #C89D2A;
+          margin: 0 0 12px;
+          padding-bottom: 8px;
+          border-bottom: 2px solid rgba(200,157,42,0.2);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .category-group-title::before {
+          content: '';
+          width: 4px;
+          height: 16px;
+          background: linear-gradient(180deg, #C89D2A, #d4af37);
+          border-radius: 2px;
+        }
+        .service-items-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 8px;
+        }
+        .service-item-premium {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          padding: 10px 12px;
+          background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+          border-radius: 10px;
+          border: 1px solid #e8eef5;
+          transition: all 0.25s ease;
+        }
+        .service-item-premium:hover {
+          border-color: #C89D2A;
+          background: linear-gradient(135deg, rgba(200,157,42,0.05) 0%, #ffffff 100%);
+          transform: translateX(${isRTL ? '5px' : '-5px'});
+          box-shadow: 0 4px 15px rgba(200,157,42,0.1);
+        }
+        .service-item-premium .check-icon {
+          color: #34A853;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+        .item-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .item-primary {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #0B1F3A;
+          line-height: 1.3;
+        }
+        .item-secondary {
+          font-size: 0.7rem;
+          color: #888;
+          font-weight: 500;
+        }
+
+        @media (max-width: 900px) {
+          .service-items-grid {
+            grid-template-columns: 1fr;
+          }
         }
 
         .service-items-list {
