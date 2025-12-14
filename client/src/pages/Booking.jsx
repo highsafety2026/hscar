@@ -353,7 +353,7 @@ function Booking() {
               <div className="success-details">
                 <div className="detail-row">
                   <span className="detail-label">{language === 'ar' ? 'فئة السيارة' : 'Car Category'}</span>
-                  <span className="detail-value">{selectedCarCategory?.emoji} {language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</span>
+                  <span className="detail-value">{language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-label">{language === 'ar' ? 'نوع الفحص' : 'Inspection Type'}</span>
@@ -561,7 +561,7 @@ function Booking() {
                 <form className="step-details" onSubmit={handleSubmit}>
                   <div className="booking-summary-bar">
                     <div className="summary-item-bar">
-                      <span>{selectedCarCategory?.emoji}</span>
+                      {selectedCarCategory && <CarIcon type={selectedCarCategory.id} color={selectedCarCategory.color} />}
                       <span>{language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</span>
                     </div>
                     <div className="summary-item-bar">
