@@ -367,6 +367,56 @@ header a:hover {
   overflow: hidden;
 }
 
+/* Hero Video Background */
+.hero-video-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.hero-video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(11, 31, 58, 0.85) 0%,
+    rgba(11, 31, 58, 0.75) 50%,
+    rgba(26, 54, 93, 0.8) 100%
+  );
+  backdrop-filter: blur(2px);
+}
+
+.hero-modern .container,
+.hero-modern .hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .hero-video-overlay {
+    background: linear-gradient(
+      135deg,
+      rgba(11, 31, 58, 0.9) 0%,
+      rgba(11, 31, 58, 0.85) 50%,
+      rgba(26, 54, 93, 0.9) 100%
+    );
+  }
+}
+
 .hero::before,
 .booking-hero::before,
 .interactive-hero::before {
