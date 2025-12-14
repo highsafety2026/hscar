@@ -379,18 +379,22 @@ function Header() {
           }
           
           .lang-switcher-btn-pro {
-            padding: 6px 10px;
+            padding: 10px 14px;
           }
           .lang-btn-icon {
-            width: 28px;
-            height: 28px;
+            width: 36px;
+            height: 36px;
           }
           .lang-btn-icon svg {
-            width: 14px;
-            height: 14px;
+            width: 18px;
+            height: 18px;
+          }
+          .lang-flag {
+            font-size: 1.5rem;
           }
           .lang-code {
-            display: none;
+            font-size: 0.9rem;
+            font-weight: 700;
           }
         }
         
