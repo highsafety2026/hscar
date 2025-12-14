@@ -407,13 +407,8 @@ header a:hover {
 }
 
 @media (max-width: 768px) {
-  .hero-video-overlay {
-    background: linear-gradient(
-      135deg,
-      rgba(11, 31, 58, 0.9) 0%,
-      rgba(11, 31, 58, 0.85) 50%,
-      rgba(26, 54, 93, 0.9) 100%
-    );
+  .hero-video-bg.desktop-only {
+    display: none;
   }
 }
 
