@@ -407,8 +407,9 @@ header a:hover {
 }
 
 @media (max-width: 768px) {
-  .hero-video-bg.desktop-only {
-    display: none;
+  .hero-video {
+    min-width: 100%;
+    min-height: 100%;
   }
 }
 
