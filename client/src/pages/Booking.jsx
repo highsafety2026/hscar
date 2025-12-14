@@ -1,82 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Star, Sparkles } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import Car3DViewer from '../components/Car3DViewer'
 
 function Booking() {
   const { language, t } = useLanguage()
   const isRTL = language === 'ar' || language === 'ur' || language === 'fa' || language === 'he'
-
-  const CarIcon = ({ type, color }) => {
-    const icons = {
-      sedan: (
-        <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80px', height: '40px' }}>
-          <path d="M15 35 L25 35 L30 25 L45 18 L70 18 L80 25 L85 35 L15 35" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M35 18 L40 10 L60 10 L65 18" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="25" cy="38" r="7" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="75" cy="38" r="7" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="25" cy="38" r="3" fill="#666"/>
-          <circle cx="75" cy="38" r="3" fill="#666"/>
-          <rect x="38" y="12" width="12" height="6" rx="1" fill="#87CEEB" opacity="0.7"/>
-          <rect x="52" y="12" width="10" height="6" rx="1" fill="#87CEEB" opacity="0.7"/>
-        </svg>
-      ),
-      suv: (
-        <svg viewBox="0 0 100 55" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80px', height: '44px' }}>
-          <path d="M12 40 L20 40 L25 28 L35 15 L75 15 L85 28 L90 40 L12 40" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M38 15 L38 8 L72 8 L72 15" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="25" cy="44" r="9" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="77" cy="44" r="9" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="25" cy="44" r="4" fill="#666"/>
-          <circle cx="77" cy="44" r="4" fill="#666"/>
-          <rect x="40" y="10" width="10" height="5" rx="1" fill="#87CEEB" opacity="0.7"/>
-          <rect x="52" y="10" width="18" height="5" rx="1" fill="#87CEEB" opacity="0.7"/>
-        </svg>
-      ),
-      classic: (
-        <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80px', height: '40px' }}>
-          <path d="M10 35 L18 35 L22 28 L30 18 L70 18 L78 28 L82 35 L90 35 L90 38 L10 38 L10 35" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M32 18 L35 8 L65 8 L68 18" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="22" cy="40" r="8" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="78" cy="40" r="8" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="22" cy="40" r="4" fill="#C89D2A"/>
-          <circle cx="78" cy="40" r="4" fill="#C89D2A"/>
-          <rect x="38" y="10" width="10" height="8" rx="2" fill="#87CEEB" opacity="0.7"/>
-          <rect x="52" y="10" width="13" height="8" rx="2" fill="#87CEEB" opacity="0.7"/>
-          <circle cx="12" cy="32" r="3" fill="#FFD700"/>
-          <circle cx="88" cy="32" r="3" fill="#FF4444"/>
-        </svg>
-      ),
-      luxury: (
-        <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80px', height: '40px' }}>
-          <path d="M8 35 L18 35 L22 25 L35 15 L75 15 L88 25 L92 35 L8 35" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M38 15 L42 6 L68 6 L72 15" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="22" cy="38" r="7" fill="#222" stroke="#C89D2A" strokeWidth="2"/>
-          <circle cx="78" cy="38" r="7" fill="#222" stroke="#C89D2A" strokeWidth="2"/>
-          <circle cx="22" cy="38" r="3" fill="#C89D2A"/>
-          <circle cx="78" cy="38" r="3" fill="#C89D2A"/>
-          <rect x="44" y="8" width="8" height="7" rx="1" fill="#1a1a2e" opacity="0.8"/>
-          <rect x="54" y="8" width="15" height="7" rx="1" fill="#1a1a2e" opacity="0.8"/>
-          <path d="M50 2 L53 6 L50 5 L47 6 Z" fill="#C89D2A"/>
-        </svg>
-      ),
-      vip: (
-        <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '80px', height: '40px' }}>
-          <path d="M5 32 L15 32 L20 22 L40 12 L80 12 L92 22 L95 32 L5 32" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M42 12 L45 5 L75 5 L78 12" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="20" cy="36" r="8" fill="#111" stroke="#C89D2A" strokeWidth="3"/>
-          <circle cx="80" cy="36" r="8" fill="#111" stroke="#C89D2A" strokeWidth="3"/>
-          <circle cx="20" cy="36" r="3" fill="#C89D2A"/>
-          <circle cx="80" cy="36" r="3" fill="#C89D2A"/>
-          <rect x="48" y="7" width="6" height="5" rx="1" fill="#111" opacity="0.9"/>
-          <rect x="56" y="7" width="18" height="5" rx="1" fill="#111" opacity="0.9"/>
-          <path d="M50 0 L54 5 L50 3 L46 5 Z" fill="#C89D2A"/>
-          <path d="M7 28 L12 28" stroke="#C89D2A" strokeWidth="2"/>
-          <path d="M88 28 L93 28" stroke="#FF4444" strokeWidth="2"/>
-        </svg>
-      )
-    }
-    return icons[type] || icons.sedan
-  }
 
   const carCategories = [
     { 
@@ -417,8 +346,13 @@ function Booking() {
                             setSelectedService(null)
                           }}
                         >
-                          <div className="category-icon">
-                            <CarIcon type={cat.id} color={cat.color} />
+                          <div className="category-icon category-icon-3d">
+                            <Car3DViewer 
+                              type={cat.id} 
+                              color={cat.color} 
+                              size={100} 
+                              isSelected={selectedCarCategory?.id === cat.id}
+                            />
                           </div>
                           <div className="category-name">
                             <strong>{language === 'ar' ? cat.title : cat.titleEn}</strong>
@@ -476,7 +410,7 @@ function Booking() {
                       </div>
                       <div className="summary-body">
                         <div className="summary-item">
-                          <CarIcon type={selectedCarCategory.id} color={selectedCarCategory.color} />
+                          <Car3DViewer type={selectedCarCategory.id} color={selectedCarCategory.color} size={60} isSelected={true} />
                           <span>{language === 'ar' ? selectedCarCategory.title : selectedCarCategory.titleEn}</span>
                         </div>
                         <div className="summary-divider">+</div>
@@ -560,7 +494,7 @@ function Booking() {
                 <form className="step-details" onSubmit={handleSubmit}>
                   <div className="booking-summary-bar">
                     <div className="summary-item-bar">
-                      {selectedCarCategory && <CarIcon type={selectedCarCategory.id} color={selectedCarCategory.color} />}
+                      {selectedCarCategory && <Car3DViewer type={selectedCarCategory.id} color={selectedCarCategory.color} size={40} isSelected={true} />}
                       <span>{language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</span>
                     </div>
                     <div className="summary-item-bar">
