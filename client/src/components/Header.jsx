@@ -304,8 +304,12 @@ function Header() {
           grid-template-columns: repeat(3, 1fr);
           gap: 4px;
           padding: 12px;
-          max-height: 350px;
+          max-height: 300px;
           overflow-y: auto;
+        }
+        
+        .lang-dropdown-pro {
+          max-height: 70vh;
         }
         
         .lang-option {
