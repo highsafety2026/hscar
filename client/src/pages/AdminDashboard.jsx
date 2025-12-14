@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy } from 'lucide-react'
+import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy, PenTool } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
 function AdminDashboard() {
@@ -664,6 +664,9 @@ function AdminDashboard() {
                         {language === 'ar' ? 'الحالة' : 'Status'}
                       </th>
                       <th style={{ padding: '15px 10px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                        {language === 'ar' ? 'التوقيع' : 'Signature'}
+                      </th>
+                      <th style={{ padding: '15px 10px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'إجراءات' : 'Actions'}
                       </th>
                     </tr>
@@ -783,6 +786,38 @@ function AdminDashboard() {
                             {booking.status === 'pending' ? <Clock size={14} /> : <CheckCircle size={14} />}
                             {booking.status === 'pending' ? (language === 'ar' ? 'قيد الانتظار' : 'Pending') : (language === 'ar' ? 'مؤكد' : 'Confirmed')}
                           </span>
+                        </td>
+                        <td style={{ padding: '12px 10px', textAlign: 'center' }}>
+                          {booking.signature ? (
+                            <img 
+                              src={booking.signature} 
+                              alt={language === 'ar' ? 'توقيع العميل' : 'Customer Signature'}
+                              style={{
+                                maxWidth: '80px',
+                                maxHeight: '40px',
+                                border: '1px solid #e0e0e0',
+                                borderRadius: '6px',
+                                background: 'white',
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => {
+                                const win = window.open('', '_blank')
+                                win.document.write(`<img src="${booking.signature}" style="max-width: 100%; border: 2px solid #C89D2A; border-radius: 10px; padding: 10px; background: white;" />`)
+                              }}
+                              title={language === 'ar' ? 'انقر للتكبير' : 'Click to enlarge'}
+                            />
+                          ) : (
+                            <span style={{ 
+                              display: 'inline-flex', 
+                              alignItems: 'center', 
+                              gap: '4px', 
+                              color: '#999', 
+                              fontSize: '0.8rem' 
+                            }}>
+                              <PenTool size={14} />
+                              {language === 'ar' ? 'لا يوجد' : 'None'}
+                            </span>
+                          )}
                         </td>
                         <td style={{ padding: '15px', textAlign: 'center' }}>
                           <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
