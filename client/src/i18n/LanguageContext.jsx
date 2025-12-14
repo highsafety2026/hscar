@@ -11,6 +11,16 @@ export const LANGUAGES = [
   { code: 'fa', name: 'فارسی', flag: '🇮🇷', dir: 'rtl' },
   { code: 'hi', name: 'हिंदी', flag: '🇮🇳', dir: 'ltr' },
   { code: 'tr', name: 'Türkçe', flag: '🇹🇷', dir: 'ltr' },
+  { code: 'es', name: 'Español', flag: '🇪🇸', dir: 'ltr' },
+  { code: 'fr', name: 'Français', flag: '🇫🇷', dir: 'ltr' },
+  { code: 'de', name: 'Deutsch', flag: '🇩🇪', dir: 'ltr' },
+  { code: 'pt', name: 'Português', flag: '🇧🇷', dir: 'ltr' },
+  { code: 'zh', name: '中文', flag: '🇨🇳', dir: 'ltr' },
+  { code: 'ja', name: '日本語', flag: '🇯🇵', dir: 'ltr' },
+  { code: 'ko', name: '한국어', flag: '🇰🇷', dir: 'ltr' },
+  { code: 'it', name: 'Italiano', flag: '🇮🇹', dir: 'ltr' },
+  { code: 'bn', name: 'বাংলা', flag: '🇧🇩', dir: 'ltr' },
+  { code: 'tl', name: 'Filipino', flag: '🇵🇭', dir: 'ltr' },
 ];
 
 export function LanguageProvider({ children }) {
