@@ -22,13 +22,15 @@ function Payment() {
     { value: 'sedan', label: language === 'ar' ? 'السيارات الصالون' : 'Sedan', emoji: '🚗', desc: language === 'ar' ? 'سيارات عادية' : 'Regular Cars' },
     { value: 'suv', label: language === 'ar' ? 'سيارات الدفع الرباعي' : '4WD / SUV', emoji: '🚙', desc: language === 'ar' ? 'سيارات كبيرة' : 'Large Vehicles' },
     { value: 'classic', label: language === 'ar' ? 'السيارات الكلاسيكية' : 'Classic', emoji: '🚕', desc: language === 'ar' ? 'سيارات كلاسيكية' : 'Classic Cars' },
-    { value: 'vip', label: language === 'ar' ? 'السيارات الفاخرة VIP' : 'VIP / Luxury', emoji: '🏎️', desc: language === 'ar' ? 'سيارات فاخرة' : 'Premium Cars' }
+    { value: 'luxury', label: language === 'ar' ? 'السيارات الفاخرة' : 'Luxury', emoji: '👑', desc: language === 'ar' ? 'سيارات فاخرة' : 'Luxury Cars' },
+    { value: 'vip', label: language === 'ar' ? 'VIP' : 'VIP', emoji: '🏎️', desc: language === 'ar' ? 'خدمة مميزة' : 'Premium Service' }
   ]
 
   const pricing = {
     sedan: { full: 500, mechanical: 250, misc: 200, basic: 300 },
     suv: { full: 600, mechanical: 300, misc: 200, basic: 400 },
     classic: { full: 600, mechanical: 350, misc: 200, basic: 400 },
+    luxury: { full: 700, mechanical: 350, misc: 200, basic: 500 },
     vip: { full: 1000, mechanical: 500, misc: 300, basic: 700 }
   }
 
