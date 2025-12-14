@@ -1,14 +1,16 @@
 import { useState, useRef, useEffect } from 'react'
-import { X, Send, Bot, User, Sparkles } from 'lucide-react'
+import { X, Send, Bot, User, Sparkles, Camera, Image, Loader2 } from 'lucide-react'
 
 function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'مرحباً! أنا المساعد الذكي لمركز الأمان العالي للفحص الفني. يمكنني مساعدتك في:\n\n📋 حجز موعد للفحص\n💰 الاستفسار عن الأسعار والخدمات\n📍 معلومات الموقع وساعات العمل\n❓ الإجابة على أي استفسارات\n\nكيف يمكنني خدمتك؟' }
+    { role: 'assistant', content: 'مرحباً! أنا المساعد الذكي لمركز الأمان العالي للفحص الفني. يمكنني مساعدتك في:\n\n📋 حجز موعد للفحص\n💰 الاستفسار عن الأسعار والخدمات\n📍 معلومات الموقع وساعات العمل\n🔍 البحث عن معلومات السيارة برقم الشاصي (VIN)\n📸 تحليل صورة ملصق السيارة لاستخراج البيانات\n❓ الإجابة على أي استفسارات\n\nكيف يمكنني خدمتك؟' }
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isAnalyzingImage, setIsAnalyzingImage] = useState(false)
   const messagesEndRef = useRef(null)
+  const fileInputRef = useRef(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -48,6 +50,96 @@ function AIChatBot() {
       }])
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'يرجى رفع ملف صورة فقط (JPG, PNG, etc.)' 
+      }])
+      return
+    }
+
+    setMessages(prev => [...prev, { 
+      role: 'user', 
+      content: `📸 جاري تحليل صورة: ${file.name}`,
+      isImage: true
+    }])
+    setIsAnalyzingImage(true)
+
+    const formData = new FormData()
+    formData.append('image', file)
+
+    try {
+      const response = await fetch('/api/chat/analyze-vin-image', {
+        method: 'POST',
+        body: formData
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.data) {
+        const info = data.data
+        const decoded = info.decodedVIN
+        
+        let reply = `📸 **تم تحليل صورة ملصق السيارة بنجاح!**\n\n`
+        
+        if (info.vin) {
+          reply += `🔢 **رقم الشاصي (VIN):** ${info.vin}\n`
+        }
+        if (info.manufacturer) {
+          reply += `🏭 **الشركة المصنعة:** ${info.manufacturer}\n`
+        }
+        if (info.modelYear) {
+          reply += `📅 **سنة الصنع:** ${info.modelYear}\n`
+        }
+        if (info.vehicleType) {
+          reply += `🚗 **نوع المركبة:** ${info.vehicleType}\n`
+        }
+        if (info.model) {
+          reply += `📋 **الموديل:** ${info.model}\n`
+        }
+        if (info.gvwr) {
+          reply += `⚖️ **الوزن الإجمالي:** ${info.gvwr}\n`
+        }
+        if (info.tireInfo) {
+          reply += `🛞 **معلومات الإطارات:** ${info.tireInfo}\n`
+        }
+        
+        if (decoded) {
+          reply += `\n**📊 معلومات إضافية من قاعدة البيانات:**\n`
+          if (decoded.make) reply += `🚙 **الماركة:** ${decoded.make}\n`
+          if (decoded.model) reply += `📋 **الموديل:** ${decoded.model}\n`
+          if (decoded.bodyClass) reply += `🏎️ **نوع الهيكل:** ${decoded.bodyClass}\n`
+          if (decoded.engineCylinders) reply += `⚙️ **المحرك:** ${decoded.engineCylinders} سلندر\n`
+          if (decoded.fuelType) reply += `⛽ **نوع الوقود:** ${decoded.fuelType}\n`
+          if (decoded.driveType) reply += `🔄 **نظام الدفع:** ${decoded.driveType}\n`
+        }
+        
+        reply += `\n\nهل تريد حجز موعد لفحص هذه السيارة؟ 📋`
+        
+        setMessages(prev => [...prev, { role: 'assistant', content: reply }])
+      } else {
+        setMessages(prev => [...prev, { 
+          role: 'assistant', 
+          content: '❌ لم نتمكن من استخراج معلومات السيارة من الصورة. يرجى التأكد من وضوح الصورة ومحاولة مرة أخرى.\n\nللمساعدة، تواصل معنا عبر واتساب: +971 54 220 6000' 
+        }])
+      }
+    } catch (error) {
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'عذراً، حدث خطأ في تحليل الصورة. يرجى المحاولة مرة أخرى.' 
+      }])
+    } finally {
+      setIsAnalyzingImage(false)
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     }
   }
 
@@ -253,9 +345,9 @@ function AIChatBot() {
                   padding: '12px 15px',
                   borderRadius: msg.role === 'user' ? '15px 15px 5px 15px' : '15px 15px 15px 5px',
                   background: msg.role === 'user' 
-                    ? msg.isPdf ? 'linear-gradient(135deg, #28a745, #20c997)' : 'linear-gradient(135deg, #C89D2A, #d4af37)' 
+                    ? msg.isImage ? 'linear-gradient(135deg, #4285F4, #1a73e8)' : 'linear-gradient(135deg, #C89D2A, #d4af37)' 
                     : 'white',
-                  color: msg.role === 'user' ? (msg.isPdf ? 'white' : '#0B1F3A') : '#333',
+                  color: msg.role === 'user' ? (msg.isImage ? 'white' : '#0B1F3A') : '#333',
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                   lineHeight: '1.6',
                   fontSize: '0.9rem',
@@ -268,19 +360,19 @@ function AIChatBot() {
                     width: '30px',
                     height: '30px',
                     borderRadius: '50%',
-                    background: msg.isPdf ? 'linear-gradient(135deg, #28a745, #20c997)' : 'linear-gradient(135deg, #C89D2A, #d4af37)',
+                    background: msg.isImage ? 'linear-gradient(135deg, #4285F4, #1a73e8)' : 'linear-gradient(135deg, #C89D2A, #d4af37)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: msg.isPdf ? 'white' : '#0B1F3A',
+                    color: msg.isImage ? 'white' : '#0B1F3A',
                     flexShrink: 0
                   }}>
-                    {msg.isPdf ? <FileText size={16} /> : <User size={16} />}
+                    {msg.isImage ? <Image size={16} /> : <User size={16} />}
                   </div>
                 )}
               </div>
             ))}
-            {isLoading && (
+            {(isLoading || isAnalyzingImage) && (
               <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
                 <div style={{
                   width: '30px',
@@ -301,14 +393,27 @@ function AIChatBot() {
                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                 }}>
                   <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    <span style={{ animation: 'bounce 1s infinite', animationDelay: '0s' }}>●</span>
-                    <span style={{ animation: 'bounce 1s infinite', animationDelay: '0.2s' }}>●</span>
-                    <span style={{ animation: 'bounce 1s infinite', animationDelay: '0.4s' }}>●</span>
+                    {isAnalyzingImage ? (
+                      <span style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4285F4' }}>
+                        <Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} />
+                        جاري تحليل الصورة...
+                      </span>
+                    ) : (
+                      <>
+                        <span style={{ animation: 'bounce 1s infinite', animationDelay: '0s' }}>●</span>
+                        <span style={{ animation: 'bounce 1s infinite', animationDelay: '0.2s' }}>●</span>
+                        <span style={{ animation: 'bounce 1s infinite', animationDelay: '0.4s' }}>●</span>
+                      </>
+                    )}
                   </div>
                   <style>{`
                     @keyframes bounce {
                       0%, 60%, 100% { transform: translateY(0); }
                       30% { transform: translateY(-5px); }
+                    }
+                    @keyframes spin {
+                      from { transform: rotate(0deg); }
+                      to { transform: rotate(360deg); }
                     }
                   `}</style>
                 </div>
@@ -324,15 +429,45 @@ function AIChatBot() {
           }}>
             <div style={{
               display: 'flex',
-              gap: '10px'
+              gap: '8px',
+              alignItems: 'center'
             }}>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                onChange={handleImageUpload}
+                style={{ display: 'none' }}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLoading || isAnalyzingImage}
+                title="رفع صورة ملصق السيارة"
+                style={{
+                  background: 'linear-gradient(135deg, #4285F4, #1a73e8)',
+                  color: 'white',
+                  border: 'none',
+                  width: '45px',
+                  height: '45px',
+                  borderRadius: '50%',
+                  cursor: isLoading || isAnalyzingImage ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  opacity: isLoading || isAnalyzingImage ? 0.5 : 1,
+                  transition: 'all 0.3s',
+                  flexShrink: 0
+                }}
+              >
+                <Camera size={18} />
+              </button>
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
-                placeholder="اكتب سؤالك أو اطلب حجز موعد..."
-                disabled={isLoading}
+                placeholder="اكتب رقم الشاصي أو سؤالك..."
+                disabled={isLoading || isAnalyzingImage}
                 style={{
                   flex: 1,
                   padding: '12px 15px',
@@ -348,7 +483,7 @@ function AIChatBot() {
               />
               <button
                 onClick={() => sendMessage()}
-                disabled={isLoading || !input.trim()}
+                disabled={isLoading || isAnalyzingImage || !input.trim()}
                 style={{
                   background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
                   color: 'white',
@@ -356,16 +491,26 @@ function AIChatBot() {
                   width: '45px',
                   height: '45px',
                   borderRadius: '50%',
-                  cursor: isLoading || !input.trim() ? 'not-allowed' : 'pointer',
+                  cursor: isLoading || isAnalyzingImage || !input.trim() ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  opacity: isLoading || !input.trim() ? 0.5 : 1,
-                  transition: 'all 0.3s'
+                  opacity: isLoading || isAnalyzingImage || !input.trim() ? 0.5 : 1,
+                  transition: 'all 0.3s',
+                  flexShrink: 0
                 }}
               >
                 <Send size={18} />
               </button>
+            </div>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: '8px',
+              fontSize: '0.7rem',
+              color: '#888'
+            }}>
+              📸 ارفع صورة ملصق السيارة أو اكتب رقم الشاصي (17 حرف)
             </div>
           </div>
         </div>
