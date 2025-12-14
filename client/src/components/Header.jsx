@@ -81,8 +81,15 @@ function Header() {
       <header className="header">
         <div className="container">
           <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'white', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="/images/logo.png" alt="High Safety Logo" style={{ width: '45px', height: '45px', borderRadius: '50%' }} />
-            <h1 style={{ fontSize: '1.1rem' }}>{language === 'ar' ? 'الأمان العالي الدولي' : 'High Safety Intl'}</h1>
+            <img src="/images/logo.png" alt="High Safety Logo" style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px solid rgba(200,157,42,0.5)', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }} />
+            <h1 style={{ 
+              fontSize: '1.2rem', 
+              fontWeight: '700', 
+              color: '#ffffff',
+              textShadow: '1px 1px 3px rgba(0,0,0,0.3)',
+              letterSpacing: '0.5px',
+              margin: 0
+            }}>{language === 'ar' ? 'الأمان العالي الدولي' : 'High Safety Intl'}</h1>
           </Link>
           
           <button 
