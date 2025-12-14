@@ -40,6 +40,7 @@ A full-stack Progressive Web App (PWA) for a car inspection center with a modern
 ### Colors
 - Primary: #0B1F3A (Dark blue)
 - Secondary: #C89D2A (Gold)
+- Header: Neon Light Blue gradient (#00D4FF → #00A8CC → #0095B6)
 - Accent colors: Blue (#4285F4), Green (#34A853), Red (#EA4335)
 
 ### Components
