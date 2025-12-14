@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { Menu, X, Smartphone, CreditCard, Globe, ChevronDown, Check } from 'lucide-react'
+import { Menu, X, Smartphone, CreditCard, Globe, ChevronDown, Check, Languages } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
 function Header() {
@@ -13,6 +13,7 @@ function Header() {
   const [showLangDropdown, setShowLangDropdown] = useState(false)
   const [showAndroidModal, setShowAndroidModal] = useState(false)
   const langDropdownRef = useRef(null)
+  const isRTL = language === 'ar' || language === 'ur' || language === 'fa'
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -145,111 +146,260 @@ function Header() {
                 {t.nav.downloadApp}
               </button>
             )}
-            <div className="language-switcher" ref={langDropdownRef}>
+            
+            <div className="language-switcher-pro" ref={langDropdownRef}>
               <button 
-                className="language-switcher-btn"
+                className="lang-switcher-btn-pro"
                 onClick={() => setShowLangDropdown(!showLangDropdown)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(200,157,42,0.5)',
-                  padding: '8px 14px',
-                  borderRadius: '25px',
-                  color: 'white',
-                  cursor: 'pointer',
-                  fontFamily: 'inherit',
-                  fontSize: '0.9rem',
-                  transition: 'all 0.3s ease'
-                }}
               >
-                <Globe size={16} style={{ color: '#C89D2A' }} />
-                <span style={{ fontSize: '1rem' }}>{currentLanguage?.flag}</span>
-                <span style={{ fontWeight: '500' }}>{currentLanguage?.name}</span>
+                <div className="lang-btn-icon">
+                  <Languages size={18} />
+                </div>
+                <div className="lang-btn-content">
+                  <span className="lang-flag">{currentLanguage?.flag}</span>
+                  <span className="lang-code">{currentLanguage?.code?.toUpperCase()}</span>
+                </div>
                 <ChevronDown 
-                  size={14} 
-                  style={{ 
-                    color: '#C89D2A',
-                    transform: showLangDropdown ? 'rotate(180deg)' : 'rotate(0)',
-                    transition: 'transform 0.3s ease'
-                  }} 
+                  size={16} 
+                  className={`lang-chevron ${showLangDropdown ? 'rotated' : ''}`}
                 />
               </button>
               
               {showLangDropdown && (
-                <div 
-                  className="language-dropdown"
-                  style={{
-                    position: 'absolute',
-                    top: '100%',
-                    left: language === 'ar' ? 'auto' : '0',
-                    right: language === 'ar' ? '0' : 'auto',
-                    marginTop: '8px',
-                    background: 'white',
-                    borderRadius: '12px',
-                    boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-                    overflow: 'hidden',
-                    zIndex: 1000,
-                    minWidth: '180px',
-                    animation: 'fadeInDown 0.2s ease'
-                  }}
-                >
-                  <div style={{
-                    padding: '12px 16px',
-                    background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
-                    color: 'white',
-                    fontSize: '0.85rem',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-                    <Globe size={14} style={{ color: '#C89D2A' }} />
-                    {t.languageSwitcher?.title || 'Select Language'}
+                <div className="lang-dropdown-pro" style={{ [isRTL ? 'left' : 'right']: 0 }}>
+                  <div className="lang-dropdown-header">
+                    <Globe size={16} />
+                    <span>{t.languageSwitcher?.title || 'Select Language'}</span>
                   </div>
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => {
-                        setLanguage(lang.code);
-                        setShowLangDropdown(false);
-                        setMenuOpen(false);
-                      }}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        width: '100%',
-                        padding: '14px 16px',
-                        border: 'none',
-                        background: language === lang.code ? 'rgba(200,157,42,0.1)' : 'white',
-                        cursor: 'pointer',
-                        fontFamily: 'inherit',
-                        fontSize: '0.95rem',
-                        color: '#0B1F3A',
-                        textAlign: language === 'ar' ? 'right' : 'left',
-                        transition: 'background 0.2s ease',
-                        borderBottom: '1px solid #f0f0f0'
-                      }}
-                      onMouseEnter={(e) => e.target.style.background = 'rgba(200,157,42,0.1)'}
-                      onMouseLeave={(e) => e.target.style.background = language === lang.code ? 'rgba(200,157,42,0.1)' : 'white'}
-                    >
-                      <span style={{ fontSize: '1.3rem' }}>{lang.flag}</span>
-                      <span style={{ flex: 1, fontWeight: language === lang.code ? '600' : '400' }}>
-                        {lang.name}
-                      </span>
-                      {language === lang.code && (
-                        <Check size={16} style={{ color: '#C89D2A' }} />
-                      )}
-                    </button>
-                  ))}
+                  <div className="lang-dropdown-grid">
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        className={`lang-option ${language === lang.code ? 'active' : ''}`}
+                        onClick={() => {
+                          setLanguage(lang.code);
+                          setShowLangDropdown(false);
+                          setMenuOpen(false);
+                        }}
+                      >
+                        <span className="lang-option-flag">{lang.flag}</span>
+                        <span className="lang-option-name">{lang.name}</span>
+                        {language === lang.code && (
+                          <Check size={14} className="lang-check" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </nav>
         </div>
       </header>
+
+      <style>{`
+        .language-switcher-pro {
+          position: relative;
+        }
+        
+        .lang-switcher-btn-pro {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: linear-gradient(135deg, rgba(200,157,42,0.15), rgba(200,157,42,0.05));
+          border: 2px solid rgba(200,157,42,0.4);
+          padding: 8px 14px;
+          border-radius: 30px;
+          color: white;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.3s ease;
+        }
+        .lang-switcher-btn-pro:hover {
+          background: linear-gradient(135deg, rgba(200,157,42,0.25), rgba(200,157,42,0.15));
+          border-color: #C89D2A;
+          transform: translateY(-2px);
+          box-shadow: 0 5px 20px rgba(200,157,42,0.3);
+        }
+        
+        .lang-btn-icon {
+          width: 32px;
+          height: 32px;
+          background: linear-gradient(135deg, #C89D2A, #d4af37);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #0B1F3A;
+        }
+        
+        .lang-btn-content {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .lang-flag {
+          font-size: 1.3rem;
+        }
+        .lang-code {
+          font-weight: 700;
+          font-size: 0.85rem;
+          letter-spacing: 0.5px;
+        }
+        
+        .lang-chevron {
+          color: #C89D2A;
+          transition: transform 0.3s ease;
+        }
+        .lang-chevron.rotated {
+          transform: rotate(180deg);
+        }
+        
+        .lang-dropdown-pro {
+          position: absolute;
+          top: calc(100% + 12px);
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.25), 0 0 0 1px rgba(200,157,42,0.1);
+          overflow: hidden;
+          z-index: 1000;
+          min-width: 320px;
+          animation: dropdownSlide 0.25s ease;
+        }
+        
+        @keyframes dropdownSlide {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .lang-dropdown-header {
+          padding: 16px 20px;
+          background: linear-gradient(135deg, #0B1F3A, #1a365d);
+          color: white;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+        .lang-dropdown-header svg {
+          color: #C89D2A;
+        }
+        
+        .lang-dropdown-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 4px;
+          padding: 12px;
+          max-height: 350px;
+          overflow-y: auto;
+        }
+        
+        .lang-option {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          padding: 14px 8px;
+          border: none;
+          background: #f8f9fa;
+          border-radius: 12px;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.2s ease;
+          position: relative;
+        }
+        .lang-option:hover {
+          background: rgba(200,157,42,0.15);
+          transform: scale(1.02);
+        }
+        .lang-option.active {
+          background: linear-gradient(135deg, rgba(200,157,42,0.2), rgba(200,157,42,0.1));
+          border: 2px solid #C89D2A;
+        }
+        
+        .lang-option-flag {
+          font-size: 1.8rem;
+        }
+        .lang-option-name {
+          font-size: 0.75rem;
+          color: #0B1F3A;
+          font-weight: 500;
+          text-align: center;
+          line-height: 1.2;
+        }
+        .lang-option.active .lang-option-name {
+          font-weight: 700;
+          color: #C89D2A;
+        }
+        
+        .lang-check {
+          position: absolute;
+          top: 6px;
+          right: 6px;
+          color: #C89D2A;
+          background: white;
+          border-radius: 50%;
+          padding: 2px;
+        }
+        
+        @media (max-width: 768px) {
+          .lang-dropdown-pro {
+            position: fixed;
+            top: auto;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-radius: 24px 24px 0 0;
+            min-width: 100%;
+            max-height: 70vh;
+            animation: slideUp 0.3s ease;
+          }
+          
+          @keyframes slideUp {
+            from {
+              opacity: 0;
+              transform: translateY(100%);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          
+          .lang-dropdown-grid {
+            grid-template-columns: repeat(4, 1fr);
+            max-height: 60vh;
+          }
+          
+          .lang-switcher-btn-pro {
+            padding: 6px 10px;
+          }
+          .lang-btn-icon {
+            width: 28px;
+            height: 28px;
+          }
+          .lang-btn-icon svg {
+            width: 14px;
+            height: 14px;
+          }
+          .lang-code {
+            display: none;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .lang-dropdown-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+      `}</style>
 
       {showAndroidModal && (
         <div style={{
