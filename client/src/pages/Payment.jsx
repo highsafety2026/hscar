@@ -1,6 +1,11 @@
 import { useState } from 'react'
 import { CreditCard, User, Phone, Mail, Shield, CheckCircle, Car, Truck, Crown, Star, Lock, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import sedanImg from '../assets/cars/sedan.png'
+import suvImg from '../assets/cars/suv.png'
+import classicImg from '../assets/cars/classic.png'
+import luxuryImg from '../assets/cars/luxury.png'
+import vipImg from '../assets/cars/vip.png'
 
 function Payment() {
   const { language, t } = useLanguage()
@@ -18,92 +23,12 @@ function Payment() {
 
   const isRtl = language === 'ar' || language === 'ur' || language === 'fa'
 
-  const CarIcon = ({ type, color }) => {
-    const icons = {
-      sedan: (
-        <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '70px', height: '35px' }}>
-          <path d="M15 35 L25 35 L30 25 L45 18 L70 18 L80 25 L85 35 L15 35" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M35 18 L40 10 L60 10 L65 18" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="25" cy="38" r="7" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="75" cy="38" r="7" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="25" cy="38" r="3" fill="#666"/>
-          <circle cx="75" cy="38" r="3" fill="#666"/>
-          <rect x="38" y="12" width="12" height="6" rx="1" fill="#87CEEB" opacity="0.7"/>
-          <rect x="52" y="12" width="10" height="6" rx="1" fill="#87CEEB" opacity="0.7"/>
-        </svg>
-      ),
-      suv: (
-        <svg viewBox="0 0 100 55" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '70px', height: '39px' }}>
-          <path d="M12 40 L20 40 L25 28 L35 15 L75 15 L85 28 L90 40 L12 40" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M38 15 L38 8 L72 8 L72 15" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="25" cy="44" r="9" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="77" cy="44" r="9" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="25" cy="44" r="4" fill="#666"/>
-          <circle cx="77" cy="44" r="4" fill="#666"/>
-          <rect x="40" y="10" width="10" height="5" rx="1" fill="#87CEEB" opacity="0.7"/>
-          <rect x="52" y="10" width="18" height="5" rx="1" fill="#87CEEB" opacity="0.7"/>
-        </svg>
-      ),
-      classic: (
-        <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '70px', height: '35px' }}>
-          <path d="M10 35 L18 35 L22 28 L30 18 L70 18 L78 28 L82 35 L90 35 L90 38 L10 38 L10 35" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M32 18 L35 8 L65 8 L68 18" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="22" cy="40" r="8" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="78" cy="40" r="8" fill="#333" stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="22" cy="40" r="4" fill="#C89D2A"/>
-          <circle cx="78" cy="40" r="4" fill="#C89D2A"/>
-          <rect x="38" y="10" width="10" height="8" rx="2" fill="#87CEEB" opacity="0.7"/>
-          <rect x="52" y="10" width="13" height="8" rx="2" fill="#87CEEB" opacity="0.7"/>
-          <circle cx="12" cy="32" r="3" fill="#FFD700"/>
-          <circle cx="88" cy="32" r="3" fill="#FF4444"/>
-        </svg>
-      ),
-      luxury: (
-        <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '70px', height: '35px' }}>
-          <path d="M8 35 L18 35 L22 25 L35 15 L75 15 L88 25 L92 35 L8 35" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M38 15 L42 6 L68 6 L72 15" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="22" cy="38" r="7" fill="#222" stroke="#C89D2A" strokeWidth="2"/>
-          <circle cx="78" cy="38" r="7" fill="#222" stroke="#C89D2A" strokeWidth="2"/>
-          <circle cx="22" cy="38" r="3" fill="#C89D2A"/>
-          <circle cx="78" cy="38" r="3" fill="#C89D2A"/>
-          <rect x="44" y="8" width="8" height="7" rx="1" fill="#1a1a2e" opacity="0.8"/>
-          <rect x="54" y="8" width="15" height="7" rx="1" fill="#1a1a2e" opacity="0.8"/>
-          <path d="M50 2 L53 6 L50 5 L47 6 Z" fill="#C89D2A"/>
-        </svg>
-      ),
-      vip: (
-        <svg viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '70px', height: '35px' }}>
-          <path d="M5 32 L15 32 L20 22 L40 12 L80 12 L92 22 L95 32 L5 32" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <path d="M42 12 L45 5 L75 5 L78 12" fill={color} stroke="#0B1F3A" strokeWidth="2"/>
-          <circle cx="20" cy="36" r="8" fill="#111" stroke="#C89D2A" strokeWidth="3"/>
-          <circle cx="80" cy="36" r="8" fill="#111" stroke="#C89D2A" strokeWidth="3"/>
-          <circle cx="20" cy="36" r="3" fill="#C89D2A"/>
-          <circle cx="80" cy="36" r="3" fill="#C89D2A"/>
-          <rect x="48" y="7" width="6" height="5" rx="1" fill="#111" opacity="0.9"/>
-          <rect x="56" y="7" width="18" height="5" rx="1" fill="#111" opacity="0.9"/>
-          <path d="M50 0 L54 5 L50 3 L46 5 Z" fill="#C89D2A"/>
-          <path d="M7 28 L12 28" stroke="#C89D2A" strokeWidth="2"/>
-          <path d="M88 28 L93 28" stroke="#FF4444" strokeWidth="2"/>
-        </svg>
-      )
-    }
-    return icons[type] || icons.sedan
-  }
-
-  const categoryColors = {
-    sedan: '#4285F4',
-    suv: '#34A853',
-    classic: '#FF6B35',
-    luxury: '#9C27B0',
-    vip: '#C89D2A'
-  }
-
   const carCategories = [
-    { value: 'sedan', label: language === 'ar' ? 'السيارات الصالون' : 'Sedan', desc: language === 'ar' ? 'سيارات عادية' : 'Regular Cars' },
-    { value: 'suv', label: language === 'ar' ? 'سيارات الدفع الرباعي' : '4WD / SUV', desc: language === 'ar' ? 'سيارات كبيرة' : 'Large Vehicles' },
-    { value: 'classic', label: language === 'ar' ? 'السيارات الكلاسيكية' : 'Classic', desc: language === 'ar' ? 'سيارات كلاسيكية' : 'Classic Cars' },
-    { value: 'luxury', label: language === 'ar' ? 'السيارات الفاخرة' : 'Luxury', desc: language === 'ar' ? 'سيارات فاخرة' : 'Luxury Cars' },
-    { value: 'vip', label: language === 'ar' ? 'VIP' : 'VIP', desc: language === 'ar' ? 'خدمة مميزة' : 'Premium Service' }
+    { value: 'sedan', label: language === 'ar' ? 'السيارات الصالون' : 'Sedan', desc: language === 'ar' ? 'سيارات عادية' : 'Regular Cars', image: sedanImg },
+    { value: 'suv', label: language === 'ar' ? 'سيارات الدفع الرباعي' : '4WD / SUV', desc: language === 'ar' ? 'سيارات كبيرة' : 'Large Vehicles', image: suvImg },
+    { value: 'classic', label: language === 'ar' ? 'السيارات الكلاسيكية' : 'Classic', desc: language === 'ar' ? 'سيارات كلاسيكية' : 'Classic Cars', image: classicImg, hasPlus: true },
+    { value: 'luxury', label: language === 'ar' ? 'السيارات الفاخرة' : 'Luxury', desc: language === 'ar' ? 'سيارات فاخرة' : 'Luxury Cars', image: luxuryImg },
+    { value: 'vip', label: language === 'ar' ? 'VIP' : 'VIP', desc: language === 'ar' ? 'خدمة مميزة' : 'Premium Service', image: vipImg }
   ]
 
   const pricing = {
@@ -261,12 +186,23 @@ function Payment() {
                     onClick={() => handleCategorySelect(cat.value)}
                   >
                     <div className="category-icon">
-                      <CarIcon type={cat.value} color={categoryColors[cat.value]} />
+                      <img 
+                        src={cat.image} 
+                        alt={cat.label}
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'contain'
+                        }}
+                      />
                     </div>
-                    <h3>{cat.label}</h3>
+                    <h3>
+                      {cat.label}
+                      {cat.hasPlus && <span style={{ color: '#C89D2A', marginRight: '5px', marginLeft: '5px' }}>+</span>}
+                    </h3>
                     <p>{cat.desc}</p>
                     <div className="category-price-range">
-                      +{pricing[cat.value].misc} - +{pricing[cat.value].full} {t.common.aed}
+                      {pricing[cat.value].misc} - {pricing[cat.value].full}{cat.hasPlus && '+'} {t.common.aed}
                     </div>
                   </div>
                 ))}
@@ -296,8 +232,8 @@ function Payment() {
                     <div className="service-icon">{service.icon}</div>
                     <h3>{service.label}</h3>
                     <div className="service-price">
-                      <span className="price-prefix">+</span>
                       <span className="price-value">{service.price}</span>
+                      {formData.carCategory === 'classic' && <span className="price-prefix" style={{ color: '#C89D2A', fontWeight: 'bold' }}>+</span>}
                       <span className="price-currency">{t.common.aed}</span>
                     </div>
                   </div>
