@@ -17,9 +17,12 @@
   --accent-green: #34A853;
   --accent-red: #EA4335;
   --accent-orange: #FF6B35;
-  --text-primary: #1a1a2e;
-  --text-secondary: #4a5568;
-  --text-muted: #718096;
+  --text-primary: #0B1F3A;
+  --text-secondary: #2d3748;
+  --text-muted: #5a6578;
+  --text-heading: #0B1F3A;
+  --text-body: #374151;
+  --text-light: #6b7280;
   --bg-primary: #ffffff;
   --bg-secondary: #f7f9fc;
   --bg-tertiary: #edf2f7;
@@ -56,10 +59,25 @@ html {
 body {
   font-family: var(--font-arabic);
   background: var(--bg-secondary);
-  color: var(--text-primary);
+  color: var(--text-body);
   line-height: 1.7;
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+p {
+  color: var(--text-body);
+  line-height: 1.8;
+}
+
+span {
+  color: inherit;
+}
+
+label {
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 [dir="ltr"] body,
@@ -71,7 +89,27 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.3;
+  color: var(--text-heading);
+  margin-bottom: 0.5em;
+}
+
+h1 {
+  font-size: 2.5rem;
   color: var(--primary);
+}
+
+h2 {
+  font-size: 2rem;
+  color: var(--primary);
+}
+
+h3 {
+  font-size: 1.5rem;
+  color: var(--text-heading);
+}
+
+h4, h5, h6 {
+  color: var(--text-secondary);
 }
 
 a {
