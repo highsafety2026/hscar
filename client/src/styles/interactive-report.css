@@ -34,12 +34,12 @@ body {
    HEADER STYLES
    ============================================ */
 .header {
-  background: linear-gradient(135deg, #00D4FF 0%, #00A8CC 50%, #0095B6 100%);
+  background: linear-gradient(135deg, #0B1F3A 0%, #1a3a5c 100%);
   padding: 12px 0;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 4px 25px rgba(0, 212, 255, 0.4), 0 2px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
 }
 
 .header .container {
@@ -78,65 +78,83 @@ body {
 
 @media (max-width: 900px) {
   .mobile-menu-btn {
-    display: block !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.1) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 10px !important;
+    color: white !important;
   }
   
   .header .nav {
-    display: none;
-    position: fixed;
-    top: 70px;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 100%);
-    flex-direction: column;
-    padding: 30px 20px;
-    gap: 15px;
-    overflow-y: auto;
-    z-index: 9999;
+    display: none !important;
+    position: fixed !important;
+    top: 74px !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: linear-gradient(180deg, #0B1F3A 0%, #1a3a5c 100%) !important;
+    flex-direction: column !important;
+    padding: 20px !important;
+    gap: 12px !important;
+    overflow-y: auto !important;
+    z-index: 9999 !important;
+    -webkit-overflow-scrolling: touch;
   }
   
   .header .nav.nav-open {
-    display: flex;
+    display: flex !important;
+  }
+  
+  .header .nav > a,
+  .header .nav > button,
+  .header .nav > div {
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   
   .header .nav a {
-    width: 100%;
-    text-align: center;
-    padding: 15px 20px;
-    font-size: 1.1rem;
-    background: rgba(0, 212, 255, 0.1);
-    border-radius: 12px;
-    border: 1px solid rgba(0, 212, 255, 0.2);
+    width: 100% !important;
+    text-align: center !important;
+    padding: 16px 20px !important;
+    font-size: 1rem !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+    text-decoration: none !important;
+    display: block !important;
   }
   
-  .header .nav a:hover {
-    background: rgba(0, 212, 255, 0.2);
-    border-color: rgba(0, 212, 255, 0.4);
+  .header .nav a:hover,
+  .header .nav a:active {
+    background: rgba(200, 157, 42, 0.2) !important;
+    border-color: rgba(200, 157, 42, 0.4) !important;
   }
   
   .header .nav button {
-    width: 100%;
-    justify-content: center;
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 16px 20px !important;
+    font-size: 1rem !important;
+    border-radius: 12px !important;
   }
   
   .header .nav .language-switcher-pro {
-    width: 100%;
-    margin-top: 10px;
+    width: 100% !important;
+    margin-top: 10px !important;
   }
   
   .header .nav .lang-switcher-btn-pro {
-    width: 100%;
-    justify-content: center;
-    padding: 15px 20px;
-    font-size: 1.1rem;
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
-    border: 2px solid rgba(255, 215, 0, 0.4);
-  }
-  
-  .header .nav .lang-switcher-btn-pro:hover {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(255, 215, 0, 0.15));
-    border-color: #FFD700;
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 16px 20px !important;
+    font-size: 1rem !important;
+    background: linear-gradient(135deg, rgba(200, 157, 42, 0.15), rgba(200, 157, 42, 0.05)) !important;
+    border: 2px solid rgba(200, 157, 42, 0.4) !important;
+    border-radius: 12px !important;
   }
 }
 
