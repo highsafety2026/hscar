@@ -47,33 +47,68 @@ function ReportLookup() {
   }
 
   return (
-    <div className="form-page">
-      <div className="container">
-        <div className="form-container" style={{ maxWidth: '500px' }}>
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(180deg, #0B1F3A 0%, #0B1F3A 40%, #C89D2A 100%)',
+      padding: '20px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '420px',
+        marginTop: '40px'
+      }}>
+        <div style={{
+          background: 'white',
+          borderRadius: '24px',
+          padding: '40px 30px',
+          boxShadow: '0 10px 40px rgba(0,0,0,0.2)'
+        }}>
           <div style={{ textAlign: 'center', marginBottom: '30px' }}>
             <div style={{
               width: '80px',
               height: '80px',
-              background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
-              borderRadius: '50%',
+              margin: '0 auto 20px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 15px'
+              justifyContent: 'center'
             }}>
-              <FileText size={40} color="#C89D2A" />
+              <FileText size={60} color="#0B1F3A" strokeWidth={1.5} />
             </div>
-            <h2 className="section-title" style={{ marginBottom: '10px' }}>{t.report.title}</h2>
-            <p style={{ color: '#666', fontSize: '1rem' }}>{t.report.subtitle}</p>
+            
+            <h1 style={{
+              fontSize: '1.8rem',
+              fontWeight: '700',
+              color: '#0B1F3A',
+              margin: '0 0 10px 0',
+              lineHeight: '1.3'
+            }}>
+              {language === 'ar' ? 'تحميل تقرير' : 'Download'}
+              <br />
+              {language === 'ar' ? 'الفحص' : 'Inspection Report'}
+            </h1>
+            
+            <div style={{
+              width: '50px',
+              height: '4px',
+              background: '#C89D2A',
+              margin: '15px auto 0',
+              borderRadius: '2px'
+            }}></div>
           </div>
-          
+
           {message && (
-            <div className={`${messageType}-message`} style={{
-              padding: '15px',
-              borderRadius: '10px',
+            <div style={{
+              padding: '12px 16px',
+              borderRadius: '12px',
               marginBottom: '20px',
               textAlign: 'center',
-              fontWeight: '600'
+              fontWeight: '600',
+              background: messageType === 'success' ? '#d4edda' : '#f8d7da',
+              color: messageType === 'success' ? '#155724' : '#721c24',
+              border: `1px solid ${messageType === 'success' ? '#c3e6cb' : '#f5c6cb'}`
             }}>
               {message}
             </div>
@@ -81,60 +116,88 @@ function ReportLookup() {
 
           {!report ? (
             <form onSubmit={findReport}>
-              <div className="form-group">
+              <div style={{ marginBottom: '20px' }}>
                 <label style={{ 
                   display: 'block', 
-                  marginBottom: '10px',
+                  marginBottom: '12px',
                   fontSize: '1.1rem',
                   fontWeight: '600',
-                  color: '#0B1F3A'
+                  color: '#0B1F3A',
+                  textAlign: 'center'
                 }}>
-                  {t.report.codePlaceholder}
+                  {language === 'ar' ? 'كود التقرير' : 'Report Code'}
                 </label>
                 <input
                   type="text"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                   required
-                  placeholder={language === 'ar' ? 'مثال: ABC123' : 'Example: ABC123'}
+                  placeholder={language === 'ar' ? 'أدخل كود التقرير' : 'Enter report code'}
                   style={{
+                    width: '100%',
+                    padding: '16px 20px',
+                    fontSize: '1.1rem',
+                    border: '2px solid #e0e0e0',
+                    borderRadius: '12px',
                     textAlign: 'center',
-                    fontSize: '1.3rem',
-                    letterSpacing: '3px',
-                    fontWeight: '700',
+                    letterSpacing: '2px',
+                    fontWeight: '600',
                     textTransform: 'uppercase',
-                    padding: '15px'
+                    background: '#f8f9fa',
+                    color: '#0B1F3A',
+                    outline: 'none',
+                    transition: 'border-color 0.3s, box-shadow 0.3s',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#C89D2A'
+                    e.target.style.boxShadow = '0 0 0 3px rgba(200,157,42,0.1)'
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#e0e0e0'
+                    e.target.style.boxShadow = 'none'
                   }}
                 />
-                <p style={{ 
-                  fontSize: '0.85rem', 
-                  color: '#888', 
-                  marginTop: '10px',
-                  textAlign: 'center'
-                }}>
-                  {language === 'ar' ? 'الكود موجود في إيصال الفحص' : 'Code is found on your inspection receipt'}
-                </p>
               </div>
+              
               <button 
                 type="submit" 
-                className="btn btn-primary" 
+                disabled={loading || !code.trim()}
                 style={{ 
                   width: '100%',
-                  padding: '15px',
+                  padding: '16px',
                   fontSize: '1.1rem',
+                  fontWeight: '700',
+                  background: '#EA4335',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: loading || !code.trim() ? 'not-allowed' : 'pointer',
+                  opacity: loading || !code.trim() ? 0.7 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '10px'
-                }} 
-                disabled={loading || !code.trim()}
+                  gap: '10px',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  boxShadow: '0 4px 15px rgba(234,67,53,0.3)'
+                }}
+                onMouseOver={(e) => {
+                  if (!loading && code.trim()) {
+                    e.currentTarget.style.transform = 'translateY(-2px)'
+                    e.currentTarget.style.boxShadow = '0 6px 20px rgba(234,67,53,0.4)'
+                  }
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(234,67,53,0.3)'
+                }}
               >
                 {loading ? (
-                  t.report.searching
+                  <span>{language === 'ar' ? 'جاري البحث...' : 'Searching...'}</span>
                 ) : (
                   <>
                     <Search size={20} />
-                    {t.report.search}
+                    <span>{language === 'ar' ? 'البحث عن التقرير' : 'Search for Report'}</span>
                   </>
                 )}
               </button>
@@ -145,9 +208,10 @@ function ReportLookup() {
                 background: '#f8f9fa',
                 padding: '20px',
                 borderRadius: '12px',
-                marginBottom: '20px'
+                marginBottom: '20px',
+                border: '1px solid #e0e0e0'
               }}>
-                <p style={{ margin: '0 0 5px 0', color: '#666' }}>
+                <p style={{ margin: '0 0 5px 0', color: '#666', fontSize: '0.9rem' }}>
                   {language === 'ar' ? 'اسم العميل:' : 'Customer Name:'}
                 </p>
                 <p style={{ 
@@ -162,7 +226,6 @@ function ReportLookup() {
                 <a
                   href={`/uploads/${report.filename}`}
                   download
-                  className="btn btn-primary"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
@@ -170,12 +233,19 @@ function ReportLookup() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '10px',
-                    padding: '15px 30px',
+                    padding: '16px',
                     fontSize: '1.1rem',
+                    fontWeight: '700',
+                    background: '#0B1F3A',
+                    color: 'white',
                     textDecoration: 'none',
-                    borderRadius: '10px',
-                    marginBottom: '15px'
+                    borderRadius: '12px',
+                    marginBottom: '15px',
+                    boxShadow: '0 4px 15px rgba(11,31,58,0.3)',
+                    transition: 'transform 0.2s'
                   }}
+                  onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                  onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
                   <Download size={22} />
                   {t.report.downloadPdf}
@@ -197,15 +267,15 @@ function ReportLookup() {
                   </div>
                   <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-                    gap: '10px'
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+                    gap: '8px'
                   }}>
                     {report.images.map((img, index) => (
                       <div
                         key={index}
                         onClick={() => setSelectedImage(`/uploads/${img}`)}
                         style={{
-                          borderRadius: '10px',
+                          borderRadius: '8px',
                           overflow: 'hidden',
                           cursor: 'pointer',
                           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
@@ -219,7 +289,7 @@ function ReportLookup() {
                           alt={`${language === 'ar' ? 'صورة فحص' : 'Inspection image'} ${index + 1}`}
                           style={{
                             width: '100%',
-                            height: '80px',
+                            height: '70px',
                             objectFit: 'cover'
                           }}
                         />
@@ -257,67 +327,82 @@ function ReportLookup() {
               
               <button 
                 onClick={resetForm} 
-                className="btn btn-secondary" 
                 style={{ 
                   width: '100%',
-                  padding: '12px'
+                  padding: '14px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  background: 'transparent',
+                  color: '#0B1F3A',
+                  border: '2px solid #0B1F3A',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.background = '#0B1F3A'
+                  e.currentTarget.style.color = 'white'
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.background = 'transparent'
+                  e.currentTarget.style.color = '#0B1F3A'
                 }}
               >
                 {language === 'ar' ? 'بحث جديد' : 'New Search'}
               </button>
             </div>
           )}
-
-          {selectedImage && (
-            <div
-              onClick={() => setSelectedImage(null)}
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(0,0,0,0.9)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                zIndex: 9999,
-                cursor: 'pointer'
-              }}
-            >
-              <button
-                onClick={() => setSelectedImage(null)}
-                style={{
-                  position: 'absolute',
-                  top: '20px',
-                  right: '20px',
-                  background: 'white',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '45px',
-                  height: '45px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer'
-                }}
-              >
-                <X size={24} color="#0B1F3A" />
-              </button>
-              <img
-                src={selectedImage}
-                alt={language === 'ar' ? 'صورة مكبرة' : 'Enlarged image'}
-                style={{
-                  maxWidth: '90%',
-                  maxHeight: '90%',
-                  borderRadius: '10px'
-                }}
-                onClick={(e) => e.stopPropagation()}
-              />
-            </div>
-          )}
         </div>
       </div>
+
+      {selectedImage && (
+        <div
+          onClick={() => setSelectedImage(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            cursor: 'pointer'
+          }}
+        >
+          <button
+            onClick={() => setSelectedImage(null)}
+            style={{
+              position: 'absolute',
+              top: '20px',
+              right: '20px',
+              background: 'white',
+              border: 'none',
+              borderRadius: '50%',
+              width: '45px',
+              height: '45px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
+          >
+            <X size={24} color="#0B1F3A" />
+          </button>
+          <img
+            src={selectedImage}
+            alt={language === 'ar' ? 'صورة مكبرة' : 'Enlarged image'}
+            style={{
+              maxWidth: '90%',
+              maxHeight: '90%',
+              borderRadius: '10px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }
