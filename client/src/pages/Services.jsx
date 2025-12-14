@@ -345,7 +345,7 @@ function Services() {
                       <span className="price-service-name">{service.name}</span>
                     </div>
                     <div className="price-value" style={{ background: category.bgGradient }}>
-                      <span>+{category.prices[service.id]}</span>
+                      <span>{category.id === 'classic' ? '+' : ''}{category.prices[service.id]}</span>
                       <small>{language === 'ar' ? 'درهم' : 'AED'}</small>
                     </div>
                   </div>
