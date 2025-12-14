@@ -407,7 +407,10 @@ function Booking() {
                               </div>
                             </div>
                             <div className="service-price">
-                              <span className="price-value">{getServicePrice(s.id)}</span>
+                              <span className="price-value">
+                                {getServicePrice(s.id)}
+                                {selectedCarCategory?.id === 'classic' && <span style={{ color: '#C89D2A', fontWeight: 'bold' }}>+</span>}
+                              </span>
                               <span className="price-currency">{language === 'ar' ? 'درهم' : 'AED'}</span>
                             </div>
                             {selectedService?.id === s.id && (
@@ -437,7 +440,10 @@ function Booking() {
                         </div>
                         <div className="summary-divider">=</div>
                         <div className="summary-total">
-                          <span className="total-amount">{getTotalPrice()}</span>
+                          <span className="total-amount">
+                            {getTotalPrice()}
+                            {selectedCarCategory?.id === 'classic' && <span style={{ color: '#C89D2A' }}>+</span>}
+                          </span>
                           <span className="total-currency">{language === 'ar' ? 'درهم' : 'AED'}</span>
                         </div>
                       </div>
