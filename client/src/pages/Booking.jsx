@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Star, Sparkles } from 'lucide-react'
+import { Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Star, Sparkles, CreditCard, Banknote } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 import sedanImg from '../assets/cars/sedan.png'
 import suvImg from '../assets/cars/suv.png'
@@ -86,6 +86,7 @@ function Booking() {
   const [formData, setFormData] = useState({
     name: '', phone: '', carBrand: '', carModel: '', carYear: '', contactMethod: ''
   })
+  const [paymentMethod, setPaymentMethod] = useState(null)
   const [success, setSuccess] = useState(false)
   const [bookingId, setBookingId] = useState('')
   const [loading, setLoading] = useState(false)
@@ -211,33 +212,60 @@ function Booking() {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (!selectedDate || !selectedTime || !selectedService || !selectedCarCategory || !formData.contactMethod) {
+    if (e) e.preventDefault()
+    if (!selectedDate || !selectedTime || !selectedService || !selectedCarCategory || !formData.contactMethod || !paymentMethod) {
       alert(language === 'ar' ? 'الرجاء إكمال جميع البيانات' : 'Please complete all fields')
       return
     }
     setLoading(true)
     try {
+      const bookingData = {
+        ...formData,
+        serviceType: selectedService.id,
+        carCategory: selectedCarCategory.id,
+        totalPrice: getTotalPrice(),
+        preferredDate: selectedDate.toISOString().split('T')[0],
+        preferredTime: selectedTime,
+        signature: signature,
+        paymentMethod: paymentMethod
+      }
+
       const res = await fetch('/api/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          serviceType: selectedService.id,
-          carCategory: selectedCarCategory.id,
-          totalPrice: getTotalPrice(),
-          preferredDate: selectedDate.toISOString().split('T')[0],
-          preferredTime: selectedTime,
-          signature: signature
-        })
+        body: JSON.stringify(bookingData)
       })
       const data = await res.json()
+      
       if (data.success) {
-        setSuccess(true)
-        setBookingId(data.bookingId || '')
+        if (paymentMethod === 'electronic') {
+          const checkoutRes = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              amount: getTotalPrice() * 100,
+              bookingId: data.bookingId,
+              customerName: formData.name,
+              customerPhone: formData.phone,
+              serviceType: selectedService.id,
+              carCategory: selectedCarCategory.id
+            })
+          })
+          const checkoutData = await checkoutRes.json()
+          if (checkoutData.url) {
+            window.location.href = checkoutData.url
+          } else {
+            setSuccess(true)
+            setBookingId(data.bookingId || '')
+          }
+        } else {
+          setSuccess(true)
+          setBookingId(data.bookingId || '')
+        }
       }
     } catch (error) {
       console.error('Error:', error)
+      alert(language === 'ar' ? 'حدث خطأ، يرجى المحاولة مرة أخرى' : 'An error occurred, please try again')
     }
     setLoading(false)
   }
@@ -249,12 +277,13 @@ function Booking() {
     if (step === 1) return selectedDate
     if (step === 2) return selectedTime
     if (step === 3) return formData.name && formData.phone && formData.carBrand && formData.carModel && formData.carYear && formData.contactMethod
+    if (step === 4) return paymentMethod !== null
     return false
   }
 
   const stepLabels = language === 'ar' 
-    ? ['الخدمة', 'التاريخ', 'الوقت', 'البيانات']
-    : ['Service', 'Date', 'Time', 'Details']
+    ? ['الخدمة', 'التاريخ', 'الوقت', 'البيانات', 'الدفع']
+    : ['Service', 'Date', 'Time', 'Details', 'Payment']
 
   const resetBooking = () => {
     setSuccess(false)
@@ -264,6 +293,7 @@ function Booking() {
     setSelectedDate(null)
     setSelectedTime(null)
     setSignature(null)
+    setPaymentMethod(null)
     setFormData({ name: '', phone: '', carBrand: '', carModel: '', carYear: '', contactMethod: '' })
   }
 
@@ -645,13 +675,103 @@ function Booking() {
                       </div>
                     </div>
                   </div>
-
-                  <button type="submit" className="submit-booking-btn" disabled={loading || !canProceed()}>
-                    {loading 
-                      ? (language === 'ar' ? 'جاري الحجز...' : 'Booking...') 
-                      : (language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking')}
-                  </button>
                 </form>
+              )}
+
+              {step === 4 && (
+                <div className="step-payment">
+                  <div className="booking-summary-bar">
+                    <div className="summary-item-bar">
+                      {selectedCarCategory && <img src={selectedCarCategory.image} alt={selectedCarCategory.titleEn} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
+                      <span>{language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</span>
+                    </div>
+                    <div className="summary-item-bar">
+                      {selectedService?.icon}
+                      <span>{language === 'ar' ? selectedService?.title : selectedService?.titleEn}</span>
+                    </div>
+                    <div className="summary-item-bar">
+                      <Calendar size={16} />
+                      <span>{formatDate(selectedDate)}</span>
+                    </div>
+                    <div className="summary-item-bar">
+                      <Clock size={16} />
+                      <span>{selectedTime}</span>
+                    </div>
+                    <div className="summary-price-bar">
+                      {getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}
+                    </div>
+                  </div>
+
+                  <div className="payment-card">
+                    <h3 className="section-title">
+                      <span className="title-number"><CreditCard size={18} /></span>
+                      {language === 'ar' ? 'اختر طريقة الدفع' : 'Select Payment Method'}
+                    </h3>
+                    
+                    <div className="payment-options">
+                      <div 
+                        className={`payment-option ${paymentMethod === 'electronic' ? 'selected' : ''}`}
+                        onClick={() => setPaymentMethod('electronic')}
+                      >
+                        <div className="payment-icon electronic">
+                          <CreditCard size={32} />
+                        </div>
+                        <div className="payment-info">
+                          <strong>{language === 'ar' ? 'الدفع الإلكتروني' : 'Electronic Payment'}</strong>
+                          <small>{language === 'ar' ? 'بطاقة ائتمان / Apple Pay' : 'Credit Card / Apple Pay'}</small>
+                        </div>
+                        <div className="payment-badge secure">
+                          {language === 'ar' ? 'آمن 100%' : '100% Secure'}
+                        </div>
+                        {paymentMethod === 'electronic' && (
+                          <div className="selected-check" style={{ background: 'linear-gradient(135deg, #4285F4, #1a73e8)' }}>
+                            <Check size={16} />
+                          </div>
+                        )}
+                      </div>
+
+                      <div 
+                        className={`payment-option ${paymentMethod === 'cash' ? 'selected' : ''}`}
+                        onClick={() => setPaymentMethod('cash')}
+                      >
+                        <div className="payment-icon cash">
+                          <Banknote size={32} />
+                        </div>
+                        <div className="payment-info">
+                          <strong>{language === 'ar' ? 'الدفع كاش عند الوصول' : 'Cash on Arrival'}</strong>
+                          <small>{language === 'ar' ? 'ادفع نقداً في المركز' : 'Pay at the center'}</small>
+                        </div>
+                        <div className="payment-badge cash-badge">
+                          {language === 'ar' ? 'نقدي' : 'Cash'}
+                        </div>
+                        {paymentMethod === 'cash' && (
+                          <div className="selected-check" style={{ background: 'linear-gradient(135deg, #34A853, #1e8e3e)' }}>
+                            <Check size={16} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="payment-summary">
+                      <div className="payment-total">
+                        <span>{language === 'ar' ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
+                        <span className="amount">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                      </div>
+                    </div>
+
+                    <button 
+                      className="submit-booking-btn" 
+                      onClick={handleSubmit}
+                      disabled={loading || !paymentMethod}
+                    >
+                      {loading 
+                        ? (language === 'ar' ? 'جاري المعالجة...' : 'Processing...') 
+                        : paymentMethod === 'electronic'
+                          ? (language === 'ar' ? 'المتابعة للدفع' : 'Proceed to Payment')
+                          : (language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking')}
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -662,7 +782,7 @@ function Booking() {
                   {language === 'ar' ? 'السابق' : 'Back'}
                 </button>
               )}
-              {step < 3 && (
+              {step < 4 && (
                 <button className="nav-next-btn" onClick={() => setStep(step + 1)} disabled={!canProceed()}>
                   {language === 'ar' ? 'التالي' : 'Next'}
                   {isRTL ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
@@ -1454,6 +1574,103 @@ function Booking() {
         .new-booking-btn:hover {
           transform: translateY(-2px);
           box-shadow: 0 8px 25px rgba(200,157,42,0.4);
+        }
+        .step-payment {
+          padding: 0;
+        }
+        .payment-card {
+          background: white;
+          border-radius: 16px;
+          padding: 30px;
+          border: 1px solid #e2e8f0;
+          margin-top: 20px;
+        }
+        .payment-options {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          margin-bottom: 25px;
+        }
+        .payment-option {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          padding: 25px;
+          background: white;
+          border: 2px solid #e2e8f0;
+          border-radius: 16px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .payment-option:hover {
+          border-color: #cbd5e1;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        }
+        .payment-option.selected {
+          border-color: #0B1F3A;
+          background: linear-gradient(135deg, #f8fafc, #fff);
+          box-shadow: 0 8px 25px rgba(11,31,58,0.15);
+        }
+        .payment-icon {
+          width: 60px;
+          height: 60px;
+          border-radius: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+        }
+        .payment-icon.electronic {
+          background: linear-gradient(135deg, #4285F4, #1a73e8);
+        }
+        .payment-icon.cash {
+          background: linear-gradient(135deg, #34A853, #1e8e3e);
+        }
+        .payment-info {
+          flex: 1;
+        }
+        .payment-info strong {
+          display: block;
+          font-size: 1.15rem;
+          color: #0B1F3A;
+          margin-bottom: 5px;
+        }
+        .payment-info small {
+          color: #64748b;
+          font-size: 0.9rem;
+        }
+        .payment-badge {
+          padding: 8px 16px;
+          border-radius: 20px;
+          font-size: 0.85rem;
+          font-weight: 600;
+        }
+        .payment-badge.secure {
+          background: linear-gradient(135deg, rgba(66,133,244,0.1), rgba(26,115,232,0.1));
+          color: #4285F4;
+        }
+        .payment-badge.cash-badge {
+          background: linear-gradient(135deg, rgba(52,168,83,0.1), rgba(30,142,62,0.1));
+          color: #34A853;
+        }
+        .payment-summary {
+          background: linear-gradient(135deg, #0B1F3A, #1a365d);
+          border-radius: 14px;
+          padding: 20px;
+          margin-bottom: 20px;
+        }
+        .payment-total {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          color: white;
+        }
+        .payment-total .amount {
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: #C89D2A;
         }
         @media (max-width: 768px) {
           .car-categories-grid {

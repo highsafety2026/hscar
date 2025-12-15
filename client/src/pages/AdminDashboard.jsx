@@ -664,6 +664,9 @@ function AdminDashboard() {
                         {language === 'ar' ? 'الحالة' : 'Status'}
                       </th>
                       <th style={{ padding: '15px 10px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
+                        {language === 'ar' ? 'الدفع' : 'Payment'}
+                      </th>
+                      <th style={{ padding: '15px 10px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
                         {language === 'ar' ? 'التوقيع' : 'Signature'}
                       </th>
                       <th style={{ padding: '15px 10px', textAlign: 'center', fontWeight: '600', color: '#666', fontSize: '0.85rem' }}>
@@ -785,6 +788,33 @@ function AdminDashboard() {
                           }}>
                             {booking.status === 'pending' ? <Clock size={14} /> : <CheckCircle size={14} />}
                             {booking.status === 'pending' ? (language === 'ar' ? 'قيد الانتظار' : 'Pending') : (language === 'ar' ? 'مؤكد' : 'Confirmed')}
+                          </span>
+                        </td>
+                        <td style={{ padding: '12px 10px', textAlign: 'center' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '5px',
+                            padding: '6px 12px',
+                            borderRadius: '20px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            background: booking.paymentMethod === 'electronic' 
+                              ? 'rgba(52, 168, 83, 0.15)' 
+                              : booking.paymentMethod === 'cash' 
+                                ? 'rgba(255, 152, 0, 0.15)' 
+                                : 'rgba(158, 158, 158, 0.15)',
+                            color: booking.paymentMethod === 'electronic' 
+                              ? '#34A853' 
+                              : booking.paymentMethod === 'cash' 
+                                ? '#FF9800' 
+                                : '#9E9E9E'
+                          }}>
+                            {booking.paymentMethod === 'electronic' 
+                              ? (language === 'ar' ? '💳 مدفوع إلكتروني' : '💳 Paid Online')
+                              : booking.paymentMethod === 'cash' 
+                                ? (language === 'ar' ? '💵 كاش عند الوصول' : '💵 Cash on Arrival')
+                                : (language === 'ar' ? 'في الانتظار' : 'Pending')}
                           </span>
                         </td>
                         <td style={{ padding: '12px 10px', textAlign: 'center' }}>

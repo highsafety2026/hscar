@@ -584,6 +584,68 @@ app.delete('/api/ratings/:id', authMiddleware, (req, res) => {
   res.json({ success: true });
 });
 
+const SERVICE_PRICES = {
+  full: 35000,
+  mechanical: 25000,
+  misc: 15000,
+  basic: 10000
+};
+
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    const { bookingId, customerName, customerPhone, serviceType, carCategory } = req.body;
+    
+    const amount = SERVICE_PRICES[serviceType];
+    if (!amount) {
+      return res.status(400).json({ error: 'Invalid service type' });
+    }
+    
+    const credentials = await getStripeCredentials();
+    if (!credentials) {
+      return res.status(500).json({ error: 'Stripe not configured' });
+    }
+
+    const stripe = require('stripe')(credentials.secretKey);
+    const domain = process.env.REPLIT_DOMAINS?.split(',')[0] || 'localhost:5000';
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'aed',
+          product_data: {
+            name: `فحص سيارة - ${serviceType}`,
+            description: `حجز موعد فحص - ${carCategory}`,
+          },
+          unit_amount: amount,
+        },
+        quantity: 1,
+      }],
+      mode: 'payment',
+      success_url: `https://${domain}/booking?success=true&bookingId=${bookingId}`,
+      cancel_url: `https://${domain}/booking?canceled=true`,
+      metadata: {
+        bookingId,
+        customerName,
+        customerPhone,
+        serviceType,
+        carCategory
+      }
+    });
+
+    await pool.query(
+      `INSERT INTO payments (customer_name, customer_phone, amount, currency, service_type, booking_id, stripe_checkout_session_id, status)
+       VALUES ($1, $2, $3, 'aed', $4, $5, $6, 'pending')`,
+      [customerName, customerPhone, amount / 100, serviceType, bookingId, session.id]
+    );
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Stripe checkout error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
+
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body;
   const passwordHash = crypto.createHash('sha256').update(password).digest('hex');
