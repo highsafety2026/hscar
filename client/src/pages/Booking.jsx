@@ -219,11 +219,17 @@ function Booking() {
     }
     setLoading(true)
     try {
+      const finalPrice = paymentMethod === 'electronic' 
+        ? Math.round(getTotalPrice() * 0.95) 
+        : getTotalPrice()
+      
       const bookingData = {
         ...formData,
         serviceType: selectedService.id,
         carCategory: selectedCarCategory.id,
-        totalPrice: getTotalPrice(),
+        totalPrice: finalPrice,
+        originalPrice: getTotalPrice(),
+        discount: paymentMethod === 'electronic' ? 5 : 0,
         preferredDate: selectedDate.toISOString().split('T')[0],
         preferredTime: selectedTime,
         signature: signature,
@@ -243,7 +249,7 @@ function Booking() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              amount: getTotalPrice() * 100,
+              amount: finalPrice * 100,
               bookingId: data.bookingId,
               customerName: formData.name,
               customerPhone: formData.phone,
@@ -742,9 +748,14 @@ function Booking() {
                         <div className="payment-info">
                           <strong>{language === 'ar' ? 'الدفع الإلكتروني' : 'Electronic Payment'}</strong>
                           <small>{language === 'ar' ? 'بطاقة ائتمان / Apple Pay' : 'Credit Card / Apple Pay'}</small>
-                        </div>
-                        <div className="payment-badge secure">
-                          {language === 'ar' ? 'آمن 100%' : '100% Secure'}
+                          <div className="discount-info">
+                            <span className="discount-badge">-5%</span>
+                            <span className="discount-text">
+                              {language === 'ar' 
+                                ? `السعر: ${Math.round(getTotalPrice() * 0.95)} درهم بدلاً من ${getTotalPrice()} درهم`
+                                : `Price: ${Math.round(getTotalPrice() * 0.95)} AED instead of ${getTotalPrice()} AED`}
+                            </span>
+                          </div>
                         </div>
                         {paymentMethod === 'electronic' && (
                           <div className="selected-check" style={{ background: 'linear-gradient(135deg, #4285F4, #1a73e8)' }}>
@@ -778,7 +789,14 @@ function Booking() {
                     <div className="payment-summary">
                       <div className="payment-total">
                         <span>{language === 'ar' ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
-                        <span className="amount">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                        {paymentMethod === 'electronic' ? (
+                          <div className="amount-with-discount">
+                            <span className="original-amount">{getTotalPrice()}</span>
+                            <span className="discounted-amount">{Math.round(getTotalPrice() * 0.95)} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                          </div>
+                        ) : (
+                          <span className="amount">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                        )}
                       </div>
                     </div>
 
@@ -1550,6 +1568,8 @@ function Booking() {
         }
         .booking-code-section {
           margin-bottom: 25px;
+          max-width: 100%;
+          overflow: hidden;
         }
         .code-label {
           color: #64748b;
@@ -1558,20 +1578,26 @@ function Booking() {
         }
         .booking-code-box {
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 15px;
+          gap: 12px;
           background: linear-gradient(135deg, #0B1F3A, #1a365d);
-          padding: 20px;
+          padding: 20px 15px;
           border-radius: 14px;
           margin-bottom: 12px;
+          max-width: 100%;
+          overflow: hidden;
         }
         .booking-code-value {
           font-family: monospace;
-          font-size: 1.5rem;
+          font-size: 1.1rem;
           font-weight: 700;
           color: #C89D2A;
-          letter-spacing: 3px;
+          letter-spacing: 1px;
+          word-break: break-all;
+          text-align: center;
+          max-width: 100%;
         }
         .copy-code-btn {
           display: flex;
@@ -1677,14 +1703,15 @@ function Booking() {
         .payment-option {
           position: relative;
           display: flex;
-          align-items: center;
-          gap: 20px;
-          padding: 25px;
+          align-items: flex-start;
+          gap: 15px;
+          padding: 20px;
           background: white;
           border: 2px solid #e2e8f0;
           border-radius: 16px;
           cursor: pointer;
           transition: all 0.3s ease;
+          flex-wrap: wrap;
         }
         .payment-option:hover {
           border-color: #cbd5e1;
@@ -1713,22 +1740,45 @@ function Booking() {
         }
         .payment-info {
           flex: 1;
+          min-width: 0;
         }
         .payment-info strong {
           display: block;
-          font-size: 1.15rem;
+          font-size: 1rem;
           color: #0B1F3A;
           margin-bottom: 5px;
         }
         .payment-info small {
           color: #64748b;
-          font-size: 0.9rem;
+          font-size: 0.85rem;
+          display: block;
+        }
+        .discount-info {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-top: 8px;
+          flex-wrap: wrap;
+        }
+        .discount-badge {
+          background: linear-gradient(135deg, #34A853, #1e8e3e);
+          color: white;
+          padding: 4px 10px;
+          border-radius: 12px;
+          font-size: 0.75rem;
+          font-weight: 700;
+        }
+        .discount-text {
+          color: #34A853;
+          font-size: 0.8rem;
+          font-weight: 600;
         }
         .payment-badge {
-          padding: 8px 16px;
-          border-radius: 20px;
-          font-size: 0.85rem;
+          padding: 6px 12px;
+          border-radius: 16px;
+          font-size: 0.75rem;
           font-weight: 600;
+          flex-shrink: 0;
         }
         .payment-badge.secure {
           background: linear-gradient(135deg, rgba(66,133,244,0.1), rgba(26,115,232,0.1));
@@ -1736,6 +1786,21 @@ function Booking() {
         }
         .payment-badge.cash-badge {
           background: linear-gradient(135deg, rgba(52,168,83,0.1), rgba(30,142,62,0.1));
+          color: #34A853;
+        }
+        .amount-with-discount {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .original-amount {
+          text-decoration: line-through;
+          color: rgba(255,255,255,0.5);
+          font-size: 1rem;
+        }
+        .discounted-amount {
+          font-size: 1.8rem;
+          font-weight: 700;
           color: #34A853;
         }
         .payment-summary {
