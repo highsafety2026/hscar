@@ -1,16 +1,21 @@
 /* Professional Design System */
-/* Color Scheme: Blue (#0B1F3A), White, Gold (#C89D2A), Gray, Red (#EA4335) */
+/* Color Scheme: Luxury Dark Garage Theme */
 
 :root {
-  --primary: #0B1F3A;
-  --secondary: #C89D2A;
-  --accent-blue: #4285F4;
+  --primary: #0a0a14;
+  --primary-light: #12121f;
+  --secondary: #D4A853;
+  --secondary-glow: #FF8C00;
+  --accent-blue: #1a3a5c;
   --accent-green: #34A853;
   --accent-red: #EA4335;
-  --text-dark: #0B1F3A;
-  --text-light: #5a6578;
-  --text-body: #374151;
-  --bg-light: #f8fafb;
+  --text-dark: #ffffff;
+  --text-light: #a0a0b0;
+  --text-body: #c0c0d0;
+  --bg-light: #0a0a14;
+  --bg-card: rgba(20, 20, 35, 0.8);
+  --border-glow: rgba(212, 168, 83, 0.3);
+  --glow-orange: #FF8C00;
 }
 
 * {
@@ -21,7 +26,8 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
-  background: var(--bg-light);
+  background: var(--primary);
+  color: var(--text-body);
 }
 
 .container {
@@ -31,15 +37,16 @@ body {
 }
 
 /* ============================================
-   HEADER STYLES
+   HEADER STYLES - Luxury Dark Theme
    ============================================ */
 .header {
-  background: linear-gradient(135deg, #0B1F3A 0%, #1a3a5c 100%);
-  padding: 12px 0;
+  background: linear-gradient(180deg, #0a0a14 0%, #0d0d1a 100%);
+  padding: 15px 0;
   position: sticky;
   top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid rgba(212, 168, 83, 0.15);
 }
 
 .header .container {
@@ -47,29 +54,33 @@ body {
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px;
 }
 
 .header .nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .header .nav a {
-  color: white;
+  color: #ffffff;
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
   transition: all 0.3s ease;
   white-space: nowrap;
 }
 
 .header .nav a:hover {
-  background: rgba(255,255,255,0.1);
+  background: rgba(212, 168, 83, 0.15);
+  border-color: var(--secondary);
+  color: var(--secondary);
 }
 
 .mobile-menu-btn {
@@ -197,16 +208,16 @@ body {
 }
 
 /* ============================================
-   HOME PAGE - HERO SECTION
+   HOME PAGE - HERO SECTION - Luxury Dark Theme
    ============================================ */
 .home-page {
-  background: var(--bg-light);
+  background: var(--primary);
 }
 
 .hero-modern {
-  background: linear-gradient(135deg, var(--primary) 0%, #1a3a5c 50%, var(--primary) 100%);
+  background: linear-gradient(135deg, #0a0a14 0%, #101020 50%, #0a0a14 100%);
   color: white;
-  padding: 80px 20px;
+  padding: 100px 20px;
   position: relative;
   overflow: hidden;
 }
@@ -218,7 +229,9 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  background: 
+    radial-gradient(ellipse at 30% 20%, rgba(212, 168, 83, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(255, 140, 0, 0.05) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
@@ -231,86 +244,86 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 40px;
+  gap: 50px;
   position: relative;
   z-index: 1;
 }
 
 .hero-modern .hero-content {
   flex: 1;
-  max-width: 600px;
+  max-width: 650px;
 }
 
 .hero-badge {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, var(--secondary), #d4af37);
-  color: white;
-  padding: 8px 20px;
-  border-radius: 25px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(200, 157, 42, 0.3);
+  gap: 10px;
+  background: rgba(212, 168, 83, 0.15);
+  border: 1px solid rgba(212, 168, 83, 0.4);
+  color: var(--secondary);
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 25px;
+  backdrop-filter: blur(10px);
 }
 
 .hero-modern h1 {
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: 800;
-  margin: 0 0 10px 0;
+  margin: 0 0 15px 0;
   line-height: 1.2;
-  color: white;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+  color: var(--secondary);
+  text-shadow: 0 0 40px rgba(212, 168, 83, 0.3);
   letter-spacing: 1px;
 }
 
 .hero-modern h2 {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 600;
-  margin: 0 0 15px 0;
-  color: var(--secondary);
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+  margin: 0 0 20px 0;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 .hero-subtitle {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.95);
-  line-height: 1.7;
-  margin-bottom: 25px;
-  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.8;
+  margin-bottom: 30px;
 }
 
 .hero-actions {
   display: flex;
-  gap: 15px;
+  gap: 20px;
   flex-wrap: wrap;
 }
 
 .btn-hero-primary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, var(--secondary), #d4af37);
-  color: var(--primary);
-  padding: 14px 28px;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--secondary), #e8b84a);
+  color: #0a0a14;
+  padding: 16px 32px;
   border-radius: 30px;
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(200, 157, 42, 0.4);
+  box-shadow: 0 4px 25px rgba(212, 168, 83, 0.4), 0 0 40px rgba(212, 168, 83, 0.2);
 }
 
 .btn-hero-primary:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 30px rgba(200, 157, 42, 0.5);
+  box-shadow: 0 8px 40px rgba(212, 168, 83, 0.6), 0 0 60px rgba(212, 168, 83, 0.3);
 }
 
 .btn-hero-secondary {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: rgba(255,255,255,0.15);
   color: white;
   padding: 14px 28px;
@@ -339,45 +352,52 @@ body {
 }
 
 /* ============================================
-   STATS BAR
+   STATS BAR - Luxury Dark Theme
    ============================================ */
 .stats-bar {
-  background: white;
-  padding: 30px 0;
-  box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+  background: linear-gradient(180deg, #0d0d1a 0%, #0a0a14 100%);
+  padding: 40px 0;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
   position: relative;
   z-index: 10;
+  border-top: 1px solid rgba(212, 168, 83, 0.1);
+  border-bottom: 1px solid rgba(212, 168, 83, 0.1);
 }
 
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 25px;
 }
 
 .stat-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 15px;
-  padding: 15px;
-  border-radius: 12px;
+  gap: 18px;
+  padding: 20px;
+  border-radius: 16px;
+  background: rgba(20, 20, 35, 0.6);
+  border: 1px solid rgba(212, 168, 83, 0.15);
   transition: all 0.3s ease;
 }
 
 .stat-item:hover {
-  background: var(--bg-light);
+  background: rgba(212, 168, 83, 0.1);
+  border-color: rgba(212, 168, 83, 0.3);
+  transform: translateY(-3px);
 }
 
 .stat-icon {
-  width: 50px;
-  height: 50px;
+  width: 55px;
+  height: 55px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary), #1a3a5c);
-  color: white;
-  border-radius: 12px;
+  background: linear-gradient(135deg, var(--secondary), #e8b84a);
+  color: #0a0a14;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(212, 168, 83, 0.3);
 }
 
 .stat-info {
@@ -386,49 +406,50 @@ body {
 }
 
 .stat-number {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 800;
-  color: var(--primary);
+  color: #ffffff;
 }
 
 .stat-label {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: var(--text-light);
 }
 
 /* ============================================
-   SERVICES SECTION
+   SERVICES SECTION - Luxury Dark Theme
    ============================================ */
 .services-section {
-  padding: 60px 20px;
-  background: var(--bg-light);
+  padding: 80px 20px;
+  background: linear-gradient(180deg, #0a0a14 0%, #0d0d1a 100%);
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 40px;
+  margin-bottom: 50px;
 }
 
 .section-badge {
   display: inline-block;
-  background: linear-gradient(135deg, var(--secondary), #d4af37);
-  color: white;
-  padding: 8px 20px;
-  border-radius: 25px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-bottom: 15px;
+  background: rgba(212, 168, 83, 0.15);
+  border: 1px solid rgba(212, 168, 83, 0.4);
+  color: var(--secondary);
+  padding: 10px 24px;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 20px;
 }
 
 .section-header h2 {
-  font-size: 2rem;
-  color: var(--primary);
-  margin: 0 0 10px 0;
+  font-size: 2.2rem;
+  color: #ffffff;
+  margin: 0 0 15px 0;
 }
 
 .section-header p {
   color: var(--text-light);
-  font-size: 1rem;
+  font-size: 1.05rem;
   margin: 0;
 }
 
@@ -443,8 +464,8 @@ body {
 .services-grid {
   display: flex;
   overflow-x: auto;
-  gap: 20px;
-  padding-bottom: 15px;
+  gap: 25px;
+  padding-bottom: 20px;
   scroll-snap-type: x mandatory;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -456,22 +477,24 @@ body {
 }
 
 .services-grid .service-card {
-  flex: 0 0 300px;
+  flex: 0 0 320px;
   scroll-snap-align: start;
 }
 
 .service-card {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 5px 30px rgba(0,0,0,0.08);
+  background: rgba(20, 20, 35, 0.8);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
   transition: all 0.3s ease;
-  border-top: 4px solid var(--card-color, var(--secondary));
+  border: 1px solid rgba(212, 168, 83, 0.15);
+  border-top: 3px solid var(--card-color, var(--secondary));
 }
 
 .service-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(212, 168, 83, 0.1);
+  border-color: rgba(212, 168, 83, 0.3);
 }
 
 .service-icon {
@@ -487,7 +510,7 @@ body {
 
 .service-content h3 {
   font-size: 1.2rem;
-  color: var(--primary);
+  color: #ffffff;
   margin: 0 0 5px 0;
 }
 
@@ -525,7 +548,7 @@ body {
 
 .service-footer {
   padding-top: 15px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid rgba(212, 168, 83, 0.2);
 }
 
 .service-btn {
@@ -562,11 +585,11 @@ body {
 }
 
 /* ============================================
-   WHY US SECTION
+   WHY US SECTION - Luxury Dark Theme
    ============================================ */
 .why-us-section {
   padding: 60px 20px;
-  background: linear-gradient(135deg, var(--primary) 0%, #1a3a5c 100%);
+  background: linear-gradient(180deg, #0d0d1a 0%, #0a0a14 100%);
 }
 
 .why-us-grid {
@@ -576,17 +599,18 @@ body {
 }
 
 .why-us-card {
-  background: rgba(255,255,255,0.1);
+  background: rgba(20, 20, 35, 0.8);
   backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 30px;
   text-align: center;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(212, 168, 83, 0.15);
   transition: all 0.3s ease;
 }
 
 .why-us-card:hover {
-  background: rgba(255,255,255,0.15);
+  background: rgba(212, 168, 83, 0.1);
+  border-color: rgba(212, 168, 83, 0.3);
   transform: translateY(-5px);
 }
 
@@ -615,11 +639,11 @@ body {
 }
 
 /* ============================================
-   GALLERY SECTION
+   GALLERY SECTION - Luxury Dark Theme
    ============================================ */
 .gallery-section {
   padding: 60px 20px;
-  background: var(--bg-light);
+  background: linear-gradient(180deg, #0a0a14 0%, #0d0d1a 100%);
 }
 
 .gallery-grid {
@@ -633,7 +657,8 @@ body {
   border-radius: 16px;
   overflow: hidden;
   aspect-ratio: 16/10;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  border: 1px solid rgba(212, 168, 83, 0.15);
 }
 
 .gallery-item img {
@@ -669,7 +694,7 @@ body {
 }
 
 /* ============================================
-   FACILITIES GRID
+   FACILITIES GRID - Luxury Dark Theme
    ============================================ */
 .facilities-grid {
   display: grid;
@@ -679,16 +704,18 @@ body {
 }
 
 .facility-card {
-  background: white;
+  background: rgba(20, 20, 35, 0.8);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  border: 1px solid rgba(212, 168, 83, 0.15);
   transition: all 0.3s ease;
 }
 
 .facility-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  border-color: rgba(212, 168, 83, 0.3);
 }
 
 .facility-card img {
@@ -712,7 +739,7 @@ body {
 .facility-info h4 {
   margin: 0 0 5px 0;
   font-size: 1rem;
-  color: var(--primary);
+  color: #ffffff;
 }
 
 .facility-info p {
@@ -722,12 +749,14 @@ body {
 }
 
 /* ============================================
-   CTA SECTION
+   CTA SECTION - Luxury Dark Theme
    ============================================ */
 .cta-section,
 .cta-section-home {
   padding: 60px 20px;
-  background: linear-gradient(135deg, var(--secondary), #d4af37);
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.15) 0%, rgba(20, 20, 35, 0.95) 50%, rgba(212, 168, 83, 0.1) 100%);
+  border-top: 1px solid rgba(212, 168, 83, 0.3);
+  border-bottom: 1px solid rgba(212, 168, 83, 0.3);
   text-align: center;
 }
 
@@ -739,14 +768,14 @@ body {
 .cta-section h2,
 .cta-section-home h2 {
   font-size: 2rem;
-  color: var(--primary);
+  color: var(--secondary);
   margin: 0 0 15px 0;
+  text-shadow: 0 0 30px rgba(212, 168, 83, 0.3);
 }
 
 .cta-section p,
 .cta-section-home p {
-  color: var(--primary);
-  opacity: 0.8;
+  color: var(--text-light);
   margin-bottom: 25px;
 }
 
@@ -794,11 +823,11 @@ body {
 }
 
 /* ============================================
-   LOCATION SECTION
+   LOCATION SECTION - Luxury Dark Theme
    ============================================ */
 .location-section {
   padding: 60px 20px;
-  background: white;
+  background: linear-gradient(180deg, #0d0d1a 0%, #0a0a14 100%);
 }
 
 .location-grid {
@@ -810,12 +839,13 @@ body {
 }
 
 .location-card {
-  background: var(--bg-light);
+  background: rgba(20, 20, 35, 0.8);
   border-radius: 16px;
   padding: 30px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border: 1px solid rgba(212, 168, 83, 0.15);
 }
 
 .location-card .location-info {
@@ -831,16 +861,17 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary), #1a3a5c);
-  color: white;
+  background: linear-gradient(135deg, var(--secondary), #e8b84a);
+  color: #0a0a14;
   border-radius: 12px;
   flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(212, 168, 83, 0.3);
 }
 
 .location-card h4 {
   margin: 0 0 8px 0;
   font-size: 1.1rem;
-  color: var(--primary);
+  color: #ffffff;
 }
 
 .location-card p {
@@ -892,7 +923,7 @@ body {
 
 .location-info h3 {
   font-size: 1.5rem;
-  color: var(--primary);
+  color: #ffffff;
   margin: 0 0 20px 0;
 }
 
@@ -913,12 +944,13 @@ body {
 }
 
 /* ============================================
-   FOOTER
+   FOOTER - Luxury Dark Theme
    ============================================ */
 .footer {
-  background: var(--primary);
+  background: linear-gradient(180deg, #0a0a14 0%, #050508 100%);
   color: white;
   padding: 40px 20px 20px;
+  border-top: 1px solid rgba(212, 168, 83, 0.2);
 }
 
 .footer-content {
@@ -932,11 +964,12 @@ body {
   color: var(--secondary);
   margin: 0 0 15px 0;
   font-size: 1rem;
+  text-shadow: 0 0 20px rgba(212, 168, 83, 0.2);
 }
 
 .footer-section p,
 .footer-section a {
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.7);
   font-size: 0.9rem;
   margin-bottom: 10px;
   display: block;
@@ -950,8 +983,8 @@ body {
 .footer-bottom {
   text-align: center;
   padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.6);
+  border-top: 1px solid rgba(212, 168, 83, 0.15);
+  color: rgba(255,255,255,0.5);
   font-size: 0.85rem;
 }
 
