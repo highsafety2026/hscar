@@ -202,7 +202,7 @@ function Home() {
               <div className="engineer-features">
                 <div className="engineer-feature">
                   <CheckCircle size={20} color="#34A853" />
-                  <span>{language === 'ar' ? 'شهادات معتمدة دولياً' : 'Internationally certified'}</span>
+                  <span>{language === 'ar' ? 'شهادات معتمدة' : 'Certified credentials'}</span>
                 </div>
                 <div className="engineer-feature">
                   <CheckCircle size={20} color="#34A853" />
@@ -273,7 +273,7 @@ function Home() {
                 <Coffee size={24} />
                 <div>
                   <h4>{language === 'ar' ? 'منطقة المشروبات' : 'Beverages Area'}</h4>
-                  <p>{language === 'ar' ? 'قهوة ومشروبات مجانية' : 'Free coffee and drinks'}</p>
+                  <p>{language === 'ar' ? 'قهوة ومشروبات ساخنة وباردة' : 'Hot and cold beverages'}</p>
                 </div>
               </div>
             </div>
