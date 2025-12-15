@@ -430,12 +430,13 @@ function Services() {
         .section-main-title {
           font-size: 2rem;
           font-weight: 800;
-          color: #0B1F3A;
+          color: #D4A853;
           margin: 0 0 10px;
+          text-shadow: 0 0 30px rgba(212, 168, 83, 0.3);
         }
         .section-subtitle {
           font-size: 1.1rem;
-          color: #666;
+          color: #a0a0b0;
           margin: 0;
         }
 
