@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { Menu, X, Smartphone, CreditCard, Globe, ChevronDown, Check, Languages } from 'lucide-react'
+import { Link, useLocation } from 'react-router-dom'
+import { Menu, X, Smartphone, Globe, ChevronDown, Check, Languages, Home, Settings, Calendar, FileText } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 
 function Header() {
@@ -13,6 +13,7 @@ function Header() {
   const [showLangDropdown, setShowLangDropdown] = useState(false)
   const [showAndroidModal, setShowAndroidModal] = useState(false)
   const langDropdownRef = useRef(null)
+  const location = useLocation()
   const isRTL = language === 'ar' || language === 'ur' || language === 'fa'
 
   useEffect(() => {
@@ -76,426 +77,303 @@ function Header() {
     }
   }
 
+  const navItems = [
+    { path: '/', label: t.nav.home, icon: <Home size={18} /> },
+    { path: '/services', label: t.nav.services, icon: <Settings size={18} /> },
+    { path: '/booking', label: t.nav.booking, icon: <Calendar size={18} /> },
+    { path: '/report', label: t.nav.report, icon: <FileText size={18} /> },
+  ]
+
   return (
     <>
-      <header className="header">
-        <div className="container">
-          <Link to="/" className="logo" style={{ textDecoration: 'none', color: 'white', display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img src="/images/logo.png" alt="High Safety Logo" style={{ width: '50px', height: '50px', borderRadius: '50%', border: '2px solid rgba(200,157,42,0.5)', boxShadow: '0 4px 15px rgba(0,0,0,0.2)' }} />
-            <h1 style={{ 
-              fontSize: '1.2rem', 
-              fontWeight: '700', 
-              color: '#ffffff',
-              textShadow: '1px 1px 3px rgba(0,0,0,0.3)',
-              letterSpacing: '0.5px',
-              margin: 0
-            }}>{language === 'ar' ? 'الأمان العالي الدولي' : 'High Safety Intl'}</h1>
-          </Link>
-          
-          <button 
-            className="mobile-menu-btn"
-            onClick={() => setMenuOpen(!menuOpen)}
-            style={{
-              display: 'none',
-              background: 'transparent',
-              border: 'none',
-              color: 'white',
-              cursor: 'pointer',
-              padding: '8px'
-            }}
-          >
-            {menuOpen ? <X size={28} /> : <Menu size={28} />}
-          </button>
-
-          <nav className={`nav ${menuOpen ? 'nav-open' : ''}`}>
-            <Link to="/" onClick={() => setMenuOpen(false)}>{t.nav.home}</Link>
-            <Link to="/services" onClick={() => setMenuOpen(false)}>{t.nav.services}</Link>
-            <Link to="/booking" onClick={() => setMenuOpen(false)}>{t.nav.booking}</Link>
-            <Link to="/report" onClick={() => setMenuOpen(false)}>{t.nav.report}</Link>
-            <Link 
-              to="/payment" 
-              onClick={() => setMenuOpen(false)}
-              style={{
-                background: 'linear-gradient(135deg, #34A853, #2e8b47)',
-                color: 'white',
-                padding: '8px 16px',
-                borderRadius: '20px',
-                fontWeight: '700',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '0.9rem',
-                textDecoration: 'none'
-              }}
-            >
-              <CreditCard size={16} />
-              {t.nav.payment}
+      <header className="header-pro">
+        <div className="header-top">
+          <div className="container">
+            <Link to="/" className="logo-pro">
+              <div className="logo-image-container">
+                <img src="/images/logo.png" alt="High Safety Logo" />
+              </div>
+              <div className="logo-text-container">
+                <h1>{language === 'ar' ? 'الأمان العالي الدولي' : 'High Safety International'}</h1>
+                <span className="logo-subtitle">{language === 'ar' ? 'للفحص الفني للسيارات' : 'Technical Car Inspection'}</span>
+              </div>
             </Link>
-            {!isInstalled && (
-              <button 
-                onClick={handleInstall}
-                style={{
-                  background: 'linear-gradient(135deg, #C89D2A, #d4af37)',
-                  color: '#0B1F3A',
-                  border: 'none',
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  fontFamily: 'inherit',
-                  fontSize: '0.9rem'
-                }}
-              >
-                <Smartphone size={16} />
-                {t.nav.downloadApp}
-              </button>
-            )}
             
-            <div className="language-switcher-pro" ref={langDropdownRef}>
-              <button 
-                className="lang-switcher-btn-pro"
-                onClick={() => setShowLangDropdown(!showLangDropdown)}
-              >
-                <div className="lang-btn-icon">
-                  <Languages size={18} />
-                </div>
-                <div className="lang-btn-content">
+            <div className="header-actions">
+              <div className="language-switcher-pro" ref={langDropdownRef}>
+                <button 
+                  className="lang-switcher-btn-pro"
+                  onClick={() => setShowLangDropdown(!showLangDropdown)}
+                >
                   <span className="lang-flag">{currentLanguage?.flag}</span>
                   <span className="lang-code">{currentLanguage?.code?.toUpperCase()}</span>
-                </div>
-                <ChevronDown 
-                  size={16} 
-                  className={`lang-chevron ${showLangDropdown ? 'rotated' : ''}`}
-                />
-              </button>
-              
-              {showLangDropdown && (
-                <>
-                  <div 
-                    className="lang-dropdown-overlay" 
-                    onClick={() => setShowLangDropdown(false)}
-                    style={{ display: window.innerWidth <= 768 ? 'block' : 'none' }}
+                  <ChevronDown 
+                    size={14} 
+                    className={`lang-chevron ${showLangDropdown ? 'rotated' : ''}`}
                   />
-                  <div className="lang-dropdown-pro" style={{ [isRTL ? 'left' : 'right']: 0 }}>
-                    <div className="lang-dropdown-header">
-                      <Globe size={18} />
-                      <span>{t.languageSwitcher?.title || 'اختر اللغة - Select Language'}</span>
+                </button>
+                
+                {showLangDropdown && (
+                  <>
+                    <div 
+                      className="lang-dropdown-overlay" 
+                      onClick={() => setShowLangDropdown(false)}
+                    />
+                    <div className="lang-dropdown-pro">
+                      <div className="lang-dropdown-header">
+                        <Globe size={16} />
+                        <span>{language === 'ar' ? 'اختر اللغة' : 'Select Language'}</span>
+                      </div>
+                      <div className="lang-dropdown-grid">
+                        {languages.map((lang) => (
+                          <button
+                            key={lang.code}
+                            className={`lang-option ${language === lang.code ? 'active' : ''}`}
+                            onClick={() => {
+                              setLanguage(lang.code);
+                              setShowLangDropdown(false);
+                              setMenuOpen(false);
+                            }}
+                          >
+                            <span className="lang-option-flag">{lang.flag}</span>
+                            <span className="lang-option-name">{lang.name}</span>
+                            {language === lang.code && (
+                              <Check size={14} className="lang-check" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                    <div className="lang-dropdown-grid">
-                      {languages.map((lang) => (
-                        <button
-                          key={lang.code}
-                          className={`lang-option ${language === lang.code ? 'active' : ''}`}
-                          onClick={() => {
-                            setLanguage(lang.code);
-                            setShowLangDropdown(false);
-                            setMenuOpen(false);
-                          }}
-                        >
-                          <span className="lang-option-flag">{lang.flag}</span>
-                          <span className="lang-option-name">{lang.name}</span>
-                          {language === lang.code && (
-                            <Check size={16} className="lang-check" />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
+                  </>
+                )}
+              </div>
+              
+              {!isInstalled && (
+                <button className="install-btn-pro" onClick={handleInstall}>
+                  <Smartphone size={16} />
+                  <span>{language === 'ar' ? 'تحميل' : 'Install'}</span>
+                </button>
               )}
+              
+              <button 
+                className="mobile-menu-btn-pro"
+                onClick={() => setMenuOpen(!menuOpen)}
+              >
+                {menuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
             </div>
-          </nav>
+          </div>
         </div>
+        
+        <nav className={`nav-pro ${menuOpen ? 'nav-open' : ''}`}>
+          <div className="container">
+            <div className="nav-items">
+              {navItems.map((item) => (
+                <Link 
+                  key={item.path}
+                  to={item.path} 
+                  className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.icon}
+                  <span>{item.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </nav>
       </header>
 
       <style>{`
-        .language-switcher-pro {
-          position: relative;
+        .header-pro {
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          background: linear-gradient(180deg, #0a0a14 0%, #0d0d1a 100%);
+          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header-top {
+          padding: 15px 0;
+          border-bottom: 1px solid rgba(212, 168, 83, 0.15);
+        }
+        
+        .header-top .container {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 20px;
+        }
+        
+        .logo-pro {
+          display: flex;
+          align-items: center;
+          gap: 15px;
+          text-decoration: none;
+          color: white;
+        }
+        
+        .logo-image-container {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          overflow: hidden;
+          border: 3px solid #D4A853;
+          box-shadow: 0 4px 20px rgba(212, 168, 83, 0.4);
+          flex-shrink: 0;
+        }
+        
+        .logo-image-container img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .logo-text-container {
+          display: flex;
+          flex-direction: column;
+        }
+        
+        .logo-text-container h1 {
+          font-size: 1.4rem;
+          font-weight: 800;
+          color: #D4A853;
+          margin: 0;
+          text-shadow: 0 0 30px rgba(212, 168, 83, 0.3);
+          letter-spacing: 0.5px;
+        }
+        
+        .logo-subtitle {
+          font-size: 0.85rem;
+          color: rgba(255, 255, 255, 0.7);
+          margin-top: 2px;
+        }
+        
+        .header-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
         }
         
         .lang-switcher-btn-pro {
           display: flex;
           align-items: center;
-          gap: 10px;
-          background: linear-gradient(135deg, rgba(200,157,42,0.2), rgba(200,157,42,0.08));
-          border: 2px solid rgba(200,157,42,0.5);
-          padding: 10px 18px;
-          border-radius: 35px;
+          gap: 8px;
+          background: rgba(212, 168, 83, 0.15);
+          border: 1px solid rgba(212, 168, 83, 0.3);
+          padding: 8px 14px;
+          border-radius: 25px;
           color: white;
           cursor: pointer;
           font-family: inherit;
-          transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+          transition: all 0.3s ease;
         }
+        
         .lang-switcher-btn-pro:hover {
-          background: linear-gradient(135deg, rgba(200,157,42,0.35), rgba(200,157,42,0.2));
-          border-color: #C89D2A;
-          transform: translateY(-3px);
-          box-shadow: 0 8px 30px rgba(200,157,42,0.4);
-        }
-        .lang-switcher-btn-pro:active {
-          transform: translateY(-1px);
+          background: rgba(212, 168, 83, 0.25);
+          border-color: #D4A853;
         }
         
-        .lang-btn-icon {
-          width: 36px;
-          height: 36px;
-          background: linear-gradient(135deg, #C89D2A, #d4af37, #e8c252);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #0B1F3A;
-          box-shadow: 0 3px 12px rgba(200,157,42,0.4);
-        }
-        
-        .lang-btn-content {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
         .lang-flag {
-          font-size: 1.5rem;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+          font-size: 1.2rem;
         }
+        
         .lang-code {
-          font-weight: 800;
-          font-size: 0.95rem;
-          letter-spacing: 1px;
-          text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+          font-weight: 700;
+          font-size: 0.85rem;
         }
         
         .lang-chevron {
-          color: #C89D2A;
-          transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+          color: #D4A853;
+          transition: transform 0.3s ease;
         }
+        
         .lang-chevron.rotated {
           transform: rotate(180deg);
         }
         
-        .lang-dropdown-pro {
-          position: absolute;
-          top: calc(100% + 12px);
-          background: white;
-          border-radius: 20px;
-          box-shadow: 0 25px 80px rgba(0,0,0,0.35), 0 0 0 1px rgba(200,157,42,0.2);
-          overflow: hidden;
-          z-index: 1000;
-          min-width: 380px;
-          animation: dropdownSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        @keyframes dropdownSlide {
-          from {
-            opacity: 0;
-            transform: translateY(-15px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
-        .lang-dropdown-header {
-          padding: 18px 24px;
-          background: linear-gradient(135deg, #0B1F3A 0%, #1a3a5c 50%, #0B1F3A 100%);
-          color: white;
+        .install-btn-pro {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 6px;
+          background: linear-gradient(135deg, #D4A853, #e8c252);
+          color: #0a0a14;
+          border: none;
+          padding: 8px 16px;
+          border-radius: 25px;
           font-weight: 700;
-          font-size: 1rem;
-          border-bottom: 3px solid #C89D2A;
-        }
-        .lang-dropdown-header svg {
-          color: #C89D2A;
-        }
-        
-        .lang-dropdown-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 8px;
-          padding: 16px;
-          max-height: 350px;
-          overflow-y: auto;
-          background: linear-gradient(180deg, #f8fafb 0%, #ffffff 100%);
-        }
-        
-        .lang-dropdown-grid::-webkit-scrollbar {
-          width: 6px;
-        }
-        .lang-dropdown-grid::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 3px;
-        }
-        .lang-dropdown-grid::-webkit-scrollbar-thumb {
-          background: #C89D2A;
-          border-radius: 3px;
-        }
-        
-        .lang-option {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          padding: 16px 10px;
-          border: 2px solid transparent;
-          background: white;
-          border-radius: 14px;
           cursor: pointer;
           font-family: inherit;
-          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-          position: relative;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-        .lang-option:hover {
-          background: linear-gradient(135deg, rgba(200,157,42,0.12), rgba(200,157,42,0.06));
-          border-color: rgba(200,157,42,0.4);
-          transform: translateY(-3px);
-          box-shadow: 0 8px 20px rgba(200,157,42,0.2);
-        }
-        .lang-option.active {
-          background: linear-gradient(135deg, rgba(200,157,42,0.2), rgba(200,157,42,0.1));
-          border: 2px solid #C89D2A;
-          box-shadow: 0 4px 15px rgba(200,157,42,0.3);
+          font-size: 0.85rem;
+          transition: all 0.3s ease;
         }
         
-        .lang-option-flag {
-          font-size: 2rem;
-          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-        }
-        .lang-option-name {
-          font-size: 0.75rem;
-          color: #0B1F3A;
-          font-weight: 600;
-          text-align: center;
-          line-height: 1.3;
-        }
-        .lang-option.active .lang-option-name {
-          font-weight: 800;
-          color: #C89D2A;
+        .install-btn-pro:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 20px rgba(212, 168, 83, 0.4);
         }
         
-        .lang-check {
-          position: absolute;
-          top: 8px;
-          right: 8px;
+        .mobile-menu-btn-pro {
+          display: none;
+          background: transparent;
+          border: none;
           color: white;
-          background: linear-gradient(135deg, #C89D2A, #d4af37);
-          border-radius: 50%;
-          padding: 3px;
-          box-shadow: 0 2px 8px rgba(200,157,42,0.4);
+          cursor: pointer;
+          padding: 8px;
         }
         
-        @media (max-width: 768px) {
-          .lang-dropdown-pro {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            right: auto;
-            bottom: auto;
-            transform: translate(-50%, -50%);
-            border-radius: 16px;
-            width: 80vw;
-            max-width: 300px;
-            max-height: 65vh;
-            animation: modalPop 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 10002;
-            overflow: hidden;
-          }
-          
-          @keyframes modalPop {
-            from {
-              opacity: 0;
-              transform: translate(-50%, -50%) scale(0.8);
-            }
-            to {
-              opacity: 1;
-              transform: translate(-50%, -50%) scale(1);
-            }
-          }
-          
-          .lang-dropdown-header {
-            padding: 10px 14px;
-            font-size: 0.85rem;
-            text-align: center;
-            justify-content: center;
-          }
-          
-          .lang-dropdown-grid {
-            grid-template-columns: repeat(3, 1fr);
-            max-height: 50vh;
-            padding: 8px;
-            gap: 4px;
-            overflow-y: auto;
-          }
-          
-          .lang-option {
-            padding: 8px 4px;
-            border-radius: 8px;
-            gap: 2px;
-          }
-          
-          .lang-option-flag {
-            font-size: 1.3rem;
-          }
-          
-          .lang-option-name {
-            font-size: 0.6rem;
-          }
-          
-          .lang-switcher-btn-pro {
-            padding: 8px 12px;
-            border-radius: 20px;
-            gap: 6px;
-          }
-          .lang-btn-icon {
-            width: 28px;
-            height: 28px;
-          }
-          .lang-btn-icon svg {
-            width: 14px;
-            height: 14px;
-          }
-          .lang-flag {
-            font-size: 1.2rem;
-          }
-          .lang-code {
-            font-size: 0.75rem;
-            font-weight: 700;
-          }
-          .lang-chevron {
-            width: 12px;
-            height: 12px;
-          }
+        .nav-pro {
+          background: rgba(20, 20, 35, 0.95);
+          border-bottom: 1px solid rgba(212, 168, 83, 0.1);
         }
         
-        @media (max-width: 480px) {
-          .lang-dropdown-pro {
-            width: 85vw;
-            max-width: 280px;
-          }
-          
-          .lang-dropdown-grid {
-            grid-template-columns: repeat(3, 1fr);
-            padding: 6px;
-            gap: 3px;
-          }
-          
-          .lang-option {
-            padding: 6px 3px;
-          }
-          
-          .lang-option-flag {
-            font-size: 1.2rem;
-          }
-          
-          .lang-option-name {
-            font-size: 0.55rem;
-          }
+        .nav-pro .container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 0 20px;
+        }
+        
+        .nav-items {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          padding: 12px 0;
+        }
+        
+        .nav-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: rgba(255, 255, 255, 0.8);
+          text-decoration: none;
+          font-size: 0.95rem;
+          font-weight: 600;
+          padding: 12px 24px;
+          border-radius: 30px;
+          transition: all 0.3s ease;
+          border: 1px solid transparent;
+        }
+        
+        .nav-item:hover {
+          color: #D4A853;
+          background: rgba(212, 168, 83, 0.1);
+          border-color: rgba(212, 168, 83, 0.3);
+        }
+        
+        .nav-item.active {
+          color: #D4A853;
+          background: rgba(212, 168, 83, 0.15);
+          border-color: rgba(212, 168, 83, 0.4);
+        }
+        
+        .nav-item svg {
+          flex-shrink: 0;
+        }
+        
+        .language-switcher-pro {
+          position: relative;
         }
         
         .lang-dropdown-overlay {
@@ -506,12 +384,184 @@ function Header() {
           bottom: 0;
           background: rgba(0,0,0,0.5);
           z-index: 10001;
-          animation: fadeIn 0.3s ease;
         }
         
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        .lang-dropdown-pro {
+          position: absolute;
+          top: calc(100% + 10px);
+          ${isRTL ? 'left: 0;' : 'right: 0;'}
+          background: white;
+          border-radius: 16px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+          overflow: hidden;
+          z-index: 10002;
+          min-width: 280px;
+          animation: dropdownSlide 0.25s ease;
+        }
+        
+        @keyframes dropdownSlide {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .lang-dropdown-header {
+          padding: 14px 18px;
+          background: linear-gradient(135deg, #0a0a14, #1a1a2e);
+          color: white;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-weight: 700;
+          font-size: 0.9rem;
+          border-bottom: 2px solid #D4A853;
+        }
+        
+        .lang-dropdown-header svg {
+          color: #D4A853;
+        }
+        
+        .lang-dropdown-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 6px;
+          padding: 12px;
+          background: #f8f9fb;
+        }
+        
+        .lang-option {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          padding: 12px 8px;
+          border: 2px solid transparent;
+          background: white;
+          border-radius: 10px;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.2s ease;
+          position: relative;
+        }
+        
+        .lang-option:hover {
+          border-color: rgba(212, 168, 83, 0.3);
+          background: rgba(212, 168, 83, 0.05);
+        }
+        
+        .lang-option.active {
+          border-color: #D4A853;
+          background: rgba(212, 168, 83, 0.1);
+        }
+        
+        .lang-option-flag {
+          font-size: 1.5rem;
+        }
+        
+        .lang-option-name {
+          font-size: 0.7rem;
+          color: #333;
+          font-weight: 600;
+          text-align: center;
+        }
+        
+        .lang-option.active .lang-option-name {
+          color: #D4A853;
+          font-weight: 700;
+        }
+        
+        .lang-check {
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          color: white;
+          background: #D4A853;
+          border-radius: 50%;
+          padding: 2px;
+        }
+        
+        @media (max-width: 900px) {
+          .mobile-menu-btn-pro {
+            display: block;
+          }
+          
+          .install-btn-pro span {
+            display: none;
+          }
+          
+          .install-btn-pro {
+            padding: 10px;
+            border-radius: 50%;
+          }
+          
+          .nav-pro {
+            display: none;
+          }
+          
+          .nav-pro.nav-open {
+            display: block;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #0d0d1a;
+            border-bottom: 2px solid rgba(212, 168, 83, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          }
+          
+          .nav-items {
+            flex-direction: column;
+            padding: 15px;
+            gap: 8px;
+          }
+          
+          .nav-item {
+            justify-content: center;
+            padding: 14px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+          }
+          
+          .logo-text-container h1 {
+            font-size: 1rem;
+          }
+          
+          .logo-subtitle {
+            font-size: 0.7rem;
+          }
+          
+          .logo-image-container {
+            width: 45px;
+            height: 45px;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .logo-text-container h1 {
+            font-size: 0.9rem;
+          }
+          
+          .logo-subtitle {
+            display: none;
+          }
+          
+          .logo-image-container {
+            width: 40px;
+            height: 40px;
+          }
+          
+          .lang-switcher-btn-pro {
+            padding: 6px 10px;
+          }
+          
+          .lang-code {
+            display: none;
+          }
         }
       `}</style>
 
@@ -559,29 +609,29 @@ function Header() {
             <div style={{
               width: '70px',
               height: '70px',
-              background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+              background: 'linear-gradient(135deg, #0a0a14, #1a1a2e)',
               borderRadius: '15px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 20px'
             }}>
-              <Smartphone size={35} color="#C89D2A" />
+              <Smartphone size={35} color="#D4A853" />
             </div>
-            <h3 style={{ color: '#0B1F3A', marginBottom: '20px', fontSize: '1.2rem' }}>
+            <h3 style={{ color: '#0a0a14', marginBottom: '20px', fontSize: '1.2rem' }}>
               {language === 'ar' ? 'تثبيت التطبيق' : 'Install App'}
             </h3>
             <div style={{ textAlign: language === 'ar' ? 'right' : 'left', color: '#333', lineHeight: '2.2', fontSize: '0.95rem' }}>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ background: '#C89D2A', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>1</span>
+                <span style={{ background: '#D4A853', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>1</span>
                 {language === 'ar' ? 'افتح الموقع في Chrome' : 'Open in Chrome browser'}
               </p>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ background: '#C89D2A', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>2</span>
+                <span style={{ background: '#D4A853', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>2</span>
                 {language === 'ar' ? 'اضغط على ⋮ (القائمة)' : 'Tap ⋮ (menu)'}
               </p>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ background: '#C89D2A', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>3</span>
+                <span style={{ background: '#D4A853', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>3</span>
                 {language === 'ar' ? 'اختر "إضافة إلى الشاشة الرئيسية"' : 'Select "Add to Home Screen"'}
               </p>
             </div>
@@ -589,7 +639,7 @@ function Header() {
               onClick={() => setShowAndroidModal(false)}
               style={{
                 marginTop: '25px',
-                background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+                background: 'linear-gradient(135deg, #0a0a14, #1a1a2e)',
                 color: 'white',
                 border: 'none',
                 padding: '14px 40px',
@@ -650,62 +700,30 @@ function Header() {
             <div style={{
               width: '70px',
               height: '70px',
-              background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+              background: 'linear-gradient(135deg, #0a0a14, #1a1a2e)',
               borderRadius: '15px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 20px'
             }}>
-              <Smartphone size={35} color="#C89D2A" />
+              <Smartphone size={35} color="#D4A853" />
             </div>
-            <h3 style={{ color: '#0B1F3A', marginBottom: '20px', fontSize: '1.2rem' }}>
+            <h3 style={{ color: '#0a0a14', marginBottom: '20px', fontSize: '1.2rem' }}>
               {language === 'ar' ? 'تثبيت التطبيق على iPhone' : 'Install App on iPhone'}
             </h3>
             <div style={{ textAlign: language === 'ar' ? 'right' : 'left', color: '#333', lineHeight: '2.2', fontSize: '0.95rem' }}>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ 
-                  background: '#C89D2A', 
-                  color: 'white', 
-                  width: '25px', 
-                  height: '25px', 
-                  borderRadius: '50%', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  fontSize: '0.8rem',
-                  flexShrink: 0
-                }}>1</span>
-                {language === 'ar' ? 'اضغط على أيقونة المشاركة ⬆️' : 'Tap the Share icon ⬆️'}
+                <span style={{ background: '#D4A853', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>1</span>
+                {language === 'ar' ? 'اضغط على زر المشاركة' : 'Tap the Share button'}
+                <span style={{ fontSize: '1.2rem' }}>⬆️</span>
               </p>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ 
-                  background: '#C89D2A', 
-                  color: 'white', 
-                  width: '25px', 
-                  height: '25px', 
-                  borderRadius: '50%', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  fontSize: '0.8rem',
-                  flexShrink: 0
-                }}>2</span>
+                <span style={{ background: '#D4A853', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>2</span>
                 {language === 'ar' ? 'اختر "إضافة إلى الشاشة الرئيسية"' : 'Select "Add to Home Screen"'}
               </p>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ 
-                  background: '#C89D2A', 
-                  color: 'white', 
-                  width: '25px', 
-                  height: '25px', 
-                  borderRadius: '50%', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center',
-                  fontSize: '0.8rem',
-                  flexShrink: 0
-                }}>3</span>
+                <span style={{ background: '#D4A853', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>3</span>
                 {language === 'ar' ? 'اضغط "إضافة"' : 'Tap "Add"'}
               </p>
             </div>
@@ -713,7 +731,7 @@ function Header() {
               onClick={() => setShowIOSModal(false)}
               style={{
                 marginTop: '25px',
-                background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
+                background: 'linear-gradient(135deg, #0a0a14, #1a1a2e)',
                 color: 'white',
                 border: 'none',
                 padding: '14px 40px',
