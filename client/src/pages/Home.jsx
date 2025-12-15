@@ -142,8 +142,12 @@ function Home() {
             <span className="section-badge">{t.services.title}</span>
             <h2>{language === 'ar' ? 'اختر نوع الفحص المناسب' : 'Choose the Right Inspection'}</h2>
             <p>{language === 'ar' ? 'نوفر لكم باقات متنوعة تناسب جميع احتياجاتكم' : 'We offer various packages to suit all your needs'}</p>
+            <div className="services-count-badge">
+              <span>{language === 'ar' ? `${services.length} أنواع فحص متاحة` : `${services.length} inspection types available`}</span>
+              <span className="scroll-hint">{language === 'ar' ? '← اسحب لعرض المزيد →' : '← Scroll to see more →'}</span>
+            </div>
           </div>
-          <div className="services-grid">
+          <div className="services-grid" id="servicesGrid">
             {services.map((service, index) => (
               <div 
                 key={index} 
