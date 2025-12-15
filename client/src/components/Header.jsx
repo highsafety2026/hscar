@@ -398,10 +398,10 @@ function Header() {
             right: auto;
             bottom: auto;
             transform: translate(-50%, -50%);
-            border-radius: 24px;
-            min-width: 90vw;
-            max-width: 400px;
-            max-height: 85vh;
+            border-radius: 16px;
+            width: 80vw;
+            max-width: 300px;
+            max-height: 65vh;
             animation: modalPop 0.35s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 10002;
             overflow: hidden;
@@ -419,76 +419,82 @@ function Header() {
           }
           
           .lang-dropdown-header {
-            padding: 20px;
-            font-size: 1.1rem;
+            padding: 10px 14px;
+            font-size: 0.85rem;
             text-align: center;
             justify-content: center;
           }
           
           .lang-dropdown-grid {
             grid-template-columns: repeat(3, 1fr);
-            max-height: 60vh;
-            padding: 20px;
-            gap: 12px;
+            max-height: 50vh;
+            padding: 8px;
+            gap: 4px;
             overflow-y: auto;
           }
           
           .lang-option {
-            padding: 18px 12px;
-            border-radius: 16px;
+            padding: 8px 4px;
+            border-radius: 8px;
+            gap: 2px;
           }
           
           .lang-option-flag {
-            font-size: 2.2rem;
+            font-size: 1.3rem;
           }
           
           .lang-option-name {
-            font-size: 0.85rem;
+            font-size: 0.6rem;
           }
           
           .lang-switcher-btn-pro {
-            padding: 10px 16px;
-            border-radius: 25px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            gap: 6px;
           }
           .lang-btn-icon {
-            width: 34px;
-            height: 34px;
+            width: 28px;
+            height: 28px;
           }
           .lang-btn-icon svg {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
           }
           .lang-flag {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
           }
           .lang-code {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             font-weight: 700;
+          }
+          .lang-chevron {
+            width: 12px;
+            height: 12px;
           }
         }
         
         @media (max-width: 480px) {
           .lang-dropdown-pro {
-            min-width: 95vw;
-            max-width: 95vw;
+            width: 85vw;
+            max-width: 280px;
           }
           
           .lang-dropdown-grid {
             grid-template-columns: repeat(3, 1fr);
-            padding: 16px;
-            gap: 10px;
+            padding: 6px;
+            gap: 3px;
           }
           
           .lang-option {
-            padding: 14px 8px;
+            padding: 6px 3px;
           }
           
           .lang-option-flag {
-            font-size: 1.9rem;
+            font-size: 1.2rem;
           }
           
           .lang-option-name {
-            font-size: 0.8rem;
+            font-size: 0.55rem;
           }
         }
         
