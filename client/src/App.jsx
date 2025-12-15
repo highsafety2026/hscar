@@ -11,6 +11,7 @@ import Booking from './pages/Booking'
 import ReportLookup from './pages/ReportLookup'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
+import Shell from './pages/Shell'
 import Payment from './pages/Payment'
 import PaymentSuccess from './pages/PaymentSuccess'
 import PaymentCancel from './pages/PaymentCancel'
@@ -32,6 +33,7 @@ function App() {
               <Route path="/payment/cancel" element={<PaymentCancel />} />
               <Route path="/admin" element={<AdminLogin />} />
               <Route path="/admin/dashboard" element={<AdminDashboard />} />
+              <Route path="/admin/shell" element={<Shell />} />
             </Routes>
           </main>
           <Footer />

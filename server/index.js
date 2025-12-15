@@ -668,6 +668,25 @@ app.post('/api/admin/logout', authMiddleware, (req, res) => {
   res.json({ success: true });
 });
 
+app.post('/api/admin/shell', authMiddleware, (req, res) => {
+  const { command } = req.body;
+  if (!command) {
+    return res.status(400).json({ error: 'الأمر مطلوب' });
+  }
+  
+  const { execSync } = require('child_process');
+  try {
+    const output = execSync(command, { 
+      encoding: 'utf-8', 
+      timeout: 30000,
+      maxBuffer: 1024 * 1024
+    });
+    res.json({ output: output || 'تم التنفيذ بنجاح' });
+  } catch (error) {
+    res.json({ output: error.message || 'حدث خطأ أثناء التنفيذ' });
+  }
+});
+
 app.post('/api/chat/analyze-pdf', upload.single('pdf'), async (req, res) => {
   try {
     if (!req.file) {
