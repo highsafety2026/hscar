@@ -78,10 +78,20 @@ function Home() {
     <div className="home-page">
       <section className="hero-modern">
         <div className="hero-video-bg">
-          <video autoPlay loop playsInline className="hero-video">
+          <video autoPlay loop playsInline muted className="hero-video" id="heroVideo">
             <source src="/videos/hero-bg.mp4" type="video/mp4" />
           </video>
           <div className="hero-video-overlay"></div>
+          <button 
+            className="video-sound-btn" 
+            onClick={() => {
+              const video = document.getElementById('heroVideo');
+              video.muted = !video.muted;
+            }}
+            title={language === 'ar' ? 'تشغيل/إيقاف الصوت' : 'Toggle Sound'}
+          >
+            🔊
+          </button>
         </div>
         <div className="container">
           <div className="hero-content">
