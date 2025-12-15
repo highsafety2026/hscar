@@ -593,11 +593,10 @@ const SERVICE_PRICES = {
 
 app.post('/api/create-checkout-session', async (req, res) => {
   try {
-    const { bookingId, customerName, customerPhone, serviceType, carCategory } = req.body;
+    const { bookingId, customerName, customerPhone, serviceType, carCategory, amount } = req.body;
     
-    const amount = SERVICE_PRICES[serviceType];
-    if (!amount) {
-      return res.status(400).json({ error: 'Invalid service type' });
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Invalid amount' });
     }
     
     const credentials = await getStripeCredentials();
@@ -615,7 +614,7 @@ app.post('/api/create-checkout-session', async (req, res) => {
           currency: 'aed',
           product_data: {
             name: `فحص سيارة - ${serviceType}`,
-            description: `حجز موعد فحص - ${carCategory}`,
+            description: `حجز موعد فحص - ${carCategory} (خصم 5% للدفع الإلكتروني)`,
           },
           unit_amount: amount,
         },
