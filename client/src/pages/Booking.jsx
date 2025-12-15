@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Star, Sparkles, CreditCard, Banknote } from 'lucide-react'
+import { Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Star, Sparkles, CreditCard, Banknote, Copy, MessageSquare } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 import sedanImg from '../assets/cars/sedan.png'
 import suvImg from '../assets/cars/suv.png'
@@ -318,7 +318,30 @@ function Booking() {
                 <div className="success-icon"><Check size={50} /></div>
               </div>
               <h2>{language === 'ar' ? 'تم الحجز بنجاح!' : 'Booking Confirmed!'}</h2>
-              <p className="booking-code">{bookingId}</p>
+              
+              <div className="booking-code-section">
+                <p className="code-label">{language === 'ar' ? 'رقم الحجز الخاص بك' : 'Your Booking Code'}</p>
+                <div className="booking-code-box">
+                  <span className="booking-code-value">{bookingId}</span>
+                  <button 
+                    className="copy-code-btn"
+                    onClick={() => {
+                      navigator.clipboard.writeText(bookingId)
+                      alert(language === 'ar' ? 'تم نسخ الكود!' : 'Code copied!')
+                    }}
+                  >
+                    <Copy size={18} />
+                    {language === 'ar' ? 'نسخ' : 'Copy'}
+                  </button>
+                </div>
+                <p className="code-instruction">
+                  <MessageSquare size={16} />
+                  {language === 'ar' 
+                    ? 'انسخ الكود واستخدمه مع شات الذكاء الاصطناعي للتحقق من حالة حجزك'
+                    : 'Copy this code and use it with the AI chat to check your booking status'}
+                </p>
+              </div>
+
               <div className="success-details">
                 <div className="detail-row">
                   <span className="detail-label">{language === 'ar' ? 'فئة السيارة' : 'Car Category'}</span>
@@ -1150,8 +1173,13 @@ function Booking() {
         }
         .calendar-header h3 {
           color: #0B1F3A;
-          font-size: 1.2rem;
+          font-size: 1.1rem;
           margin: 0;
+          font-weight: 700;
+          background: linear-gradient(135deg, #C89D2A, #d4af37);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
         .nav-btn {
           width: 40px;
@@ -1242,23 +1270,27 @@ function Booking() {
         }
         .time-slots-grid {
           display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          gap: 10px;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
+          max-width: 100%;
+          overflow: hidden;
         }
         .time-slot {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
-          padding: 14px 10px;
+          gap: 4px;
+          padding: 12px 6px;
           border-radius: 10px;
           border: 2px solid #e2e8f0;
           background: white;
           color: #0B1F3A;
-          font-size: 0.9rem;
+          font-size: 0.8rem;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.2s ease;
+          min-width: 0;
+          white-space: nowrap;
         }
         .time-slot:hover:not(.booked) {
           border-color: #C89D2A;
@@ -1395,6 +1427,9 @@ function Booking() {
           flex-direction: column;
           align-items: center;
           gap: 12px;
+          width: 100%;
+          max-width: 100%;
+          overflow: hidden;
         }
         .signature-area canvas {
           border: 2px dashed #C89D2A;
@@ -1402,6 +1437,9 @@ function Booking() {
           background: white;
           cursor: crosshair;
           touch-action: none;
+          max-width: 100%;
+          width: 100%;
+          height: auto;
         }
         .clear-btn {
           padding: 10px 25px;
@@ -1510,16 +1548,61 @@ function Booking() {
           font-size: 1.8rem;
           margin: 0 0 10px;
         }
-        .booking-code {
-          display: inline-block;
-          background: #f1f5f9;
-          padding: 10px 25px;
-          border-radius: 10px;
-          font-family: monospace;
-          font-size: 1.2rem;
-          color: #0B1F3A;
-          letter-spacing: 2px;
+        .booking-code-section {
           margin-bottom: 25px;
+        }
+        .code-label {
+          color: #64748b;
+          font-size: 0.9rem;
+          margin-bottom: 10px;
+        }
+        .booking-code-box {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 15px;
+          background: linear-gradient(135deg, #0B1F3A, #1a365d);
+          padding: 20px;
+          border-radius: 14px;
+          margin-bottom: 12px;
+        }
+        .booking-code-value {
+          font-family: monospace;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #C89D2A;
+          letter-spacing: 3px;
+        }
+        .copy-code-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 10px 18px;
+          background: linear-gradient(135deg, #C89D2A, #d4af37);
+          border: none;
+          border-radius: 8px;
+          color: white;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-family: inherit;
+        }
+        .copy-code-btn:hover {
+          transform: scale(1.05);
+          box-shadow: 0 4px 15px rgba(200,157,42,0.4);
+        }
+        .code-instruction {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          color: #34A853;
+          font-size: 0.85rem;
+          background: rgba(52,168,83,0.1);
+          padding: 12px 20px;
+          border-radius: 10px;
+          margin: 0;
         }
         .success-details {
           background: #f8fafc;
@@ -1681,6 +1764,16 @@ function Booking() {
           }
           .time-slots-grid {
             grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+          }
+          .time-slot {
+            padding: 10px 4px;
+            font-size: 0.75rem;
+            gap: 2px;
+          }
+          .time-slot svg {
+            width: 12px;
+            height: 12px;
           }
           .form-row, .form-row.three-cols {
             grid-template-columns: 1fr;
