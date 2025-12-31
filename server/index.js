@@ -26,9 +26,9 @@ let stripeInitialized = false;
 let stripeSync = null;
 
 async function getStripeCredentials() {
-  if (process.env.STRIPE_SECRET_KEY) {
+  if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_PUBLISHABLE_KEY) {
     return {
-      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_live_51SctoOHuBpZxKcikD6zpLOEegmjHMqZ7wYv9eyuxHnCF1EqUhLroV2AbgccvRNxUBNaeYNaZZJ9PIy3541DVNfSZ00Dzv6KFfc',
+      publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
       secretKey: process.env.STRIPE_SECRET_KEY,
     };
   }
