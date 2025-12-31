@@ -1,0 +1,37 @@
+name: Security Audit
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Weekly on Sunday
+  workflow_dispatch:
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run npm audit
+      run: npm audit --audit-level=moderate
+    
+    - name: Check for vulnerable packages
+      run: |
+        npm audit --json > audit-report.json
+        echo "📊 Security audit completed"
+    
+    - name: Upload audit report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: security-audit-report
+        path: audit-report.json

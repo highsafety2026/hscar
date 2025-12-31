@@ -149,7 +149,7 @@ function Car3DViewer({ type = 'sedan', color = '#4285F4', size = 100, isSelected
       }
       animate()
     } catch (e) {
-      console.log('WebGL not supported, using fallback')
+      // WebGL not supported, using fallback
       setWebglSupported(false)
       return
     }

@@ -1,16 +1,32 @@
 {
   "name": "high-safety-car-inspection",
   "version": "1.0.0",
-  "description": "High Safety International Car Inspection Center",
+  "description": "High Safety International Car Inspection Center - Complete platform for booking and managing car inspections",
+  "author": "High Safety Team",
+  "license": "MIT",
+  "keywords": [
+    "car-inspection",
+    "booking-system",
+    "react",
+    "nodejs",
+    "stripe",
+    "multilingual"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/high-safety.git"
+  },
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node server/index.js",
     "client": "cd client && npm run dev -- --port 5000",
     "build": "cd client && npm run build",
-    "start": "node server/index.js"
+    "start": "node server/index.js",
+    "setup": "node server/database-setup.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "better-sqlite3": "^12.5.0",
     "concurrently": "^8.2.0",
     "cors": "^2.8.5",
     "express": "^4.22.1",
@@ -26,8 +42,8 @@
     "three": "^0.182.0",
     "uuid": "^9.0.0"
   },
-  "main": "index.js",
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  }
 }

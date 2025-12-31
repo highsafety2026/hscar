@@ -1,56 +1,75 @@
-*.gem
-*.rbc
-/.config
-/coverage/
-/InstalledFiles
-/pkg/
-/spec/reports/
-/spec/examples.txt
-/test/tmp/
-/test/version_tmp/
-/tmp/
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+client/node_modules/
 
-# Used by dotenv library to load environment variables.
-# .env
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Ignore Byebug command history file.
-.byebug_history
-
-## Specific to RubyMotion:
-.dat*
-.repl_history
+# Build outputs
+dist/
 build/
-*.bridgesupport
-build-iPhoneOS/
-build-iPhoneSimulator/
+client/dist/
+client/build/
+*.tsbuildinfo
 
-## Specific to RubyMotion (use of CocoaPods):
-#
-# We recommend against adding the Pods directory to your .gitignore. However
-# you should judge for yourself, the pros and cons are mentioned at:
-# https://guides.cocoapods.org/using/using-cocoapods.html#should-i-check-the-pods-directory-into-source-control
-#
-# vendor/Pods/
+# Database
+*.db
+*.sqlite
+*.sqlite3
+database.json
+database.json.backup
+highsafety.db
 
-## Documentation cache and generated files:
-/.yardoc/
-/_yardoc/
-/doc/
-/rdoc/
+# Uploads
+uploads/
+attached_assets/generated_images/
+attached_assets/generated_videos/
 
-## Environment normalization:
-/.bundle/
-/vendor/bundle
-/lib/bundler/man/
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# for a library or gem, you might want to ignore these files since the code is
-# intended to run in multiple environments; otherwise, check them in:
-# Gemfile.lock
-# .ruby-version
-# .ruby-gemset
+# OS files
+.DS_Store
+Thumbs.db
+*.log
 
-# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
-.rvmrc
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 
-# Used by RuboCop. Remote config files pulled in from inherit_from directive.
-# .rubocop-https?--*
+# Testing
+coverage/
+.nyc_output
+
+# Temporary files
+*.tmp
+.cache/
+.temp/
+
+# Replit specific
+.replit
+.config/
+.upm/
+replit.nix
+
+# Sensitive data
+*.key
+*.pem
+*.cert
+
+# Replit
+.replit
+.upm

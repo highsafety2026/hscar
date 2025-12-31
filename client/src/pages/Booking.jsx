@@ -709,108 +709,177 @@ function Booking() {
 
               {step === 4 && (
                 <div className="step-payment">
-                  <div className="booking-summary-bar">
-                    <div className="summary-item-bar">
-                      {selectedCarCategory && <img src={selectedCarCategory.image} alt={selectedCarCategory.titleEn} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />}
-                      <span>{language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</span>
+                  <div className="booking-summary-card">
+                    <div className="summary-header">
+                      <Shield size={22} />
+                      <h4>{language === 'ar' ? 'ملخص الحجز' : 'Booking Summary'}</h4>
                     </div>
-                    <div className="summary-item-bar">
-                      {selectedService?.icon}
-                      <span>{language === 'ar' ? selectedService?.title : selectedService?.titleEn}</span>
-                    </div>
-                    <div className="summary-item-bar">
-                      <Calendar size={16} />
-                      <span>{formatDate(selectedDate)}</span>
-                    </div>
-                    <div className="summary-item-bar">
-                      <Clock size={16} />
-                      <span>{selectedTime}</span>
-                    </div>
-                    <div className="summary-price-bar">
-                      {getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}
+                    <div className="summary-details">
+                      <div className="summary-row">
+                        <div className="summary-label">
+                          {selectedCarCategory && <img src={selectedCarCategory.image} alt={selectedCarCategory.titleEn} style={{ width: '32px', height: '32px', objectFit: 'contain' }} />}
+                          {language === 'ar' ? 'فئة السيارة' : 'Car Category'}
+                        </div>
+                        <div className="summary-value">{language === 'ar' ? selectedCarCategory?.title : selectedCarCategory?.titleEn}</div>
+                      </div>
+                      <div className="summary-row">
+                        <div className="summary-label">
+                          {selectedService?.icon}
+                          {language === 'ar' ? 'نوع الفحص' : 'Service Type'}
+                        </div>
+                        <div className="summary-value">{language === 'ar' ? selectedService?.title : selectedService?.titleEn}</div>
+                      </div>
+                      <div className="summary-row">
+                        <div className="summary-label">
+                          <Calendar size={18} />
+                          {language === 'ar' ? 'التاريخ' : 'Date'}
+                        </div>
+                        <div className="summary-value">{formatDate(selectedDate)}</div>
+                      </div>
+                      <div className="summary-row">
+                        <div className="summary-label">
+                          <Clock size={18} />
+                          {language === 'ar' ? 'الوقت' : 'Time'}
+                        </div>
+                        <div className="summary-value">{selectedTime}</div>
+                      </div>
+                      <div className="summary-divider"></div>
+                      <div className="summary-row highlight">
+                        <div className="summary-label-big">{language === 'ar' ? 'السعر الأساسي' : 'Base Price'}</div>
+                        <div className="summary-value-big">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</div>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="payment-card">
-                    <h3 className="section-title">
-                      <span className="title-number"><CreditCard size={18} /></span>
-                      {language === 'ar' ? 'اختر طريقة الدفع' : 'Select Payment Method'}
-                    </h3>
+                  <div className="payment-methods-card">
+                    <div className="payment-header">
+                      <div className="payment-header-icon">
+                        <CreditCard size={24} />
+                      </div>
+                      <div>
+                        <h3>{language === 'ar' ? 'اختر طريقة الدفع' : 'Choose Payment Method'}</h3>
+                        <p className="payment-subtitle">{language === 'ar' ? 'اختر الطريقة المناسبة لك' : 'Select your preferred payment option'}</p>
+                      </div>
+                    </div>
                     
-                    <div className="payment-options">
+                    <div className="payment-options-grid">
                       <div 
-                        className={`payment-option ${paymentMethod === 'electronic' ? 'selected' : ''}`}
+                        className={`payment-option-enhanced ${paymentMethod === 'electronic' ? 'selected active-electronic' : ''}`}
                         onClick={() => setPaymentMethod('electronic')}
                       >
-                        <div className="payment-icon electronic">
-                          <CreditCard size={32} />
+                        <div className="payment-option-header">
+                          <div className="payment-icon-modern electronic">
+                            <CreditCard size={36} />
+                          </div>
+                          {paymentMethod === 'electronic' && (
+                            <div className="selected-badge electronic-badge">
+                              <Check size={18} strokeWidth={3} />
+                            </div>
+                          )}
                         </div>
-                        <div className="payment-info">
-                          <strong>{language === 'ar' ? 'الدفع الإلكتروني' : 'Electronic Payment'}</strong>
-                          <small>{language === 'ar' ? 'بطاقة ائتمان / Apple Pay' : 'Credit Card / Apple Pay'}</small>
-                          <div className="discount-info">
-                            <span className="discount-badge">-5%</span>
-                            <span className="discount-text">
+                        
+                        <div className="payment-option-content">
+                          <h4>{language === 'ar' ? 'الدفع الإلكتروني' : 'Electronic Payment'}</h4>
+                          <p className="payment-desc">{language === 'ar' ? 'بطاقة ائتمان / Apple Pay / Google Pay' : 'Credit Card / Apple Pay / Google Pay'}</p>
+                          
+                          <div className="payment-features">
+                            <div className="feature-item">
+                              <Check size={14} />
+                              <span>{language === 'ar' ? 'دفع آمن ومشفر' : 'Secure & Encrypted'}</span>
+                            </div>
+                            <div className="feature-item">
+                              <Check size={14} />
+                              <span>{language === 'ar' ? 'تأكيد فوري' : 'Instant Confirmation'}</span>
+                            </div>
+                          </div>
+
+                          <div className="discount-highlight">
+                            <Sparkles size={16} />
+                            <span className="discount-percentage">خصم 5%</span>
+                            <span className="discount-amount">
                               {language === 'ar' 
-                                ? `السعر: ${Math.round(getTotalPrice() * 0.95)} درهم بدلاً من ${getTotalPrice()} درهم`
-                                : `Price: ${Math.round(getTotalPrice() * 0.95)} AED instead of ${getTotalPrice()} AED`}
+                                ? `${Math.round(getTotalPrice() * 0.95)} درهم`
+                                : `${Math.round(getTotalPrice() * 0.95)} AED`}
                             </span>
                           </div>
                         </div>
-                        {paymentMethod === 'electronic' && (
-                          <div className="selected-check" style={{ background: 'linear-gradient(135deg, #4285F4, #1a73e8)' }}>
-                            <Check size={16} />
-                          </div>
-                        )}
                       </div>
 
                       <div 
-                        className={`payment-option ${paymentMethod === 'cash' ? 'selected' : ''}`}
+                        className={`payment-option-enhanced ${paymentMethod === 'cash' ? 'selected active-cash' : ''}`}
                         onClick={() => setPaymentMethod('cash')}
                       >
-                        <div className="payment-icon cash">
-                          <Banknote size={32} />
-                        </div>
-                        <div className="payment-info">
-                          <strong>{language === 'ar' ? 'الدفع كاش عند الوصول' : 'Cash on Arrival'}</strong>
-                          <small>{language === 'ar' ? 'ادفع نقداً في المركز' : 'Pay at the center'}</small>
-                        </div>
-                        <div className="payment-badge cash-badge">
-                          {language === 'ar' ? 'نقدي' : 'Cash'}
-                        </div>
-                        {paymentMethod === 'cash' && (
-                          <div className="selected-check" style={{ background: 'linear-gradient(135deg, #34A853, #1e8e3e)' }}>
-                            <Check size={16} />
+                        <div className="payment-option-header">
+                          <div className="payment-icon-modern cash">
+                            <Banknote size={36} />
                           </div>
-                        )}
+                          {paymentMethod === 'cash' && (
+                            <div className="selected-badge cash-badge">
+                              <Check size={18} strokeWidth={3} />
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="payment-option-content">
+                          <h4>{language === 'ar' ? 'الدفع كاش' : 'Cash Payment'}</h4>
+                          <p className="payment-desc">{language === 'ar' ? 'ادفع نقداً عند الوصول للمركز' : 'Pay cash when you arrive at the center'}</p>
+                          
+                          <div className="payment-features">
+                            <div className="feature-item">
+                              <Check size={14} />
+                              <span>{language === 'ar' ? 'بدون رسوم إضافية' : 'No Extra Fees'}</span>
+                            </div>
+                            <div className="feature-item">
+                              <Check size={14} />
+                              <span>{language === 'ar' ? 'مرونة في الدفع' : 'Payment Flexibility'}</span>
+                            </div>
+                          </div>
+
+                          <div className="cash-price">
+                            <span className="price-value">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="payment-summary">
-                      <div className="payment-total">
-                        <span>{language === 'ar' ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
-                        {paymentMethod === 'electronic' ? (
-                          <div className="amount-with-discount">
-                            <span className="original-amount">{getTotalPrice()}</span>
-                            <span className="discounted-amount">{Math.round(getTotalPrice() * 0.95)} {language === 'ar' ? 'درهم' : 'AED'}</span>
-                          </div>
+                    <div className="payment-footer">
+                      <div className="total-section">
+                        <div className="total-label">{language === 'ar' ? 'المبلغ النهائي:' : 'Final Amount:'}</div>
+                        <div className="total-amount">
+                          {paymentMethod === 'electronic' ? (
+                            <>
+                              <span className="old-price">{getTotalPrice()}</span>
+                              <span className="new-price">{Math.round(getTotalPrice() * 0.95)} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                            </>
+                          ) : (
+                            <span className="final-price">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <button 
+                        className="submit-payment-btn" 
+                        onClick={handleSubmit}
+                        disabled={loading || !paymentMethod}
+                      >
+                        {loading ? (
+                          <>
+                            <div className="spinner"></div>
+                            {language === 'ar' ? 'جاري المعالجة...' : 'Processing...'}
+                          </>
+                        ) : paymentMethod === 'electronic' ? (
+                          <>
+                            <CreditCard size={20} />
+                            {language === 'ar' ? 'المتابعة للدفع الآمن' : 'Proceed to Secure Payment'}
+                          </>
                         ) : (
-                          <span className="amount">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                          <>
+                            <Check size={20} />
+                            {language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking'}
+                          </>
                         )}
-                      </div>
+                      </button>
                     </div>
-
-                    <button 
-                      className="submit-booking-btn" 
-                      onClick={handleSubmit}
-                      disabled={loading || !paymentMethod}
-                    >
-                      {loading 
-                        ? (language === 'ar' ? 'جاري المعالجة...' : 'Processing...') 
-                        : paymentMethod === 'electronic'
-                          ? (language === 'ar' ? 'المتابعة للدفع' : 'Proceed to Payment')
-                          : (language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking')}
-                    </button>
                   </div>
                 </div>
               )}
@@ -1686,139 +1755,337 @@ function Booking() {
         }
         .step-payment {
           padding: 0;
-        }
-        .payment-card {
-          background: white;
-          border-radius: 16px;
-          padding: 30px;
-          border: 1px solid #e2e8f0;
-          margin-top: 20px;
-        }
-        .payment-options {
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          margin-bottom: 25px;
+          gap: 20px;
         }
-        .payment-option {
-          position: relative;
-          display: flex;
-          align-items: flex-start;
-          gap: 15px;
-          padding: 20px;
-          background: white;
+        .booking-summary-card {
+          background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+          border-radius: 20px;
+          overflow: hidden;
           border: 2px solid #e2e8f0;
-          border-radius: 16px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          flex-wrap: wrap;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-        .payment-option:hover {
-          border-color: #cbd5e1;
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        }
-        .payment-option.selected {
-          border-color: #0B1F3A;
-          background: linear-gradient(135deg, #f8fafc, #fff);
-          box-shadow: 0 8px 25px rgba(11,31,58,0.15);
-        }
-        .payment-icon {
-          width: 60px;
-          height: 60px;
-          border-radius: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        .summary-header {
+          background: linear-gradient(135deg, #0B1F3A, #1a365d);
           color: white;
-        }
-        .payment-icon.electronic {
-          background: linear-gradient(135deg, #4285F4, #1a73e8);
-        }
-        .payment-icon.cash {
-          background: linear-gradient(135deg, #34A853, #1e8e3e);
-        }
-        .payment-info {
-          flex: 1;
-          min-width: 0;
-        }
-        .payment-info strong {
-          display: block;
-          font-size: 1rem;
-          color: #0B1F3A;
-          margin-bottom: 5px;
-        }
-        .payment-info small {
-          color: #64748b;
-          font-size: 0.85rem;
-          display: block;
-        }
-        .discount-info {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-top: 8px;
-          flex-wrap: wrap;
-        }
-        .discount-badge {
-          background: linear-gradient(135deg, #34A853, #1e8e3e);
-          color: white;
-          padding: 4px 10px;
-          border-radius: 12px;
-          font-size: 0.75rem;
-          font-weight: 700;
-        }
-        .discount-text {
-          color: #34A853;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-        .payment-badge {
-          padding: 6px 12px;
-          border-radius: 16px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          flex-shrink: 0;
-        }
-        .payment-badge.secure {
-          background: linear-gradient(135deg, rgba(66,133,244,0.1), rgba(26,115,232,0.1));
-          color: #4285F4;
-        }
-        .payment-badge.cash-badge {
-          background: linear-gradient(135deg, rgba(52,168,83,0.1), rgba(30,142,62,0.1));
-          color: #34A853;
-        }
-        .amount-with-discount {
+          padding: 18px 24px;
           display: flex;
           align-items: center;
           gap: 10px;
         }
-        .original-amount {
-          text-decoration: line-through;
-          color: rgba(255,255,255,0.5);
-          font-size: 1rem;
+        .summary-header h4 {
+          margin: 0;
+          font-size: 1.1rem;
+          font-weight: 600;
         }
-        .discounted-amount {
-          font-size: 1.8rem;
-          font-weight: 700;
-          color: #34A853;
+        .summary-details {
+          padding: 24px;
         }
-        .payment-summary {
-          background: linear-gradient(135deg, #0B1F3A, #1a365d);
-          border-radius: 14px;
-          padding: 20px;
-          margin-bottom: 20px;
-        }
-        .payment-total {
+        .summary-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          color: white;
+          padding: 12px 0;
+          border-bottom: 1px solid #e2e8f0;
         }
-        .payment-total .amount {
-          font-size: 1.8rem;
-          font-weight: 700;
+        .summary-row:last-child {
+          border-bottom: none;
+        }
+        .summary-label {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: #64748b;
+          font-size: 0.9rem;
+        }
+        .summary-value {
+          color: #0B1F3A;
+          font-weight: 600;
+          font-size: 0.95rem;
+        }
+        .summary-divider {
+          height: 2px;
+          background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+          margin: 16px 0;
+        }
+        .summary-row.highlight {
+          padding: 16px 0 0;
+        }
+        .summary-label-big {
+          color: #0B1F3A;
+          font-size: 1rem;
+          font-weight: 600;
+        }
+        .summary-value-big {
           color: #C89D2A;
+          font-size: 1.4rem;
+          font-weight: 700;
+        }
+        .payment-methods-card {
+          background: white;
+          border-radius: 20px;
+          padding: 30px;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        .payment-header {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+          margin-bottom: 28px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid #f1f5f9;
+        }
+        .payment-header-icon {
+          width: 56px;
+          height: 56px;
+          background: linear-gradient(135deg, #C89D2A, #d4af37);
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          box-shadow: 0 4px 15px rgba(200,157,42,0.3);
+        }
+        .payment-header h3 {
+          margin: 0 0 4px;
+          font-size: 1.4rem;
+          color: #0B1F3A;
+        }
+        .payment-subtitle {
+          margin: 0;
+          color: #64748b;
+          font-size: 0.9rem;
+        }
+        .payment-options-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+          margin-bottom: 30px;
+        }
+        .payment-option-enhanced {
+          position: relative;
+          background: linear-gradient(135deg, #ffffff, #f8fafc);
+          border: 3px solid #e2e8f0;
+          border-radius: 20px;
+          padding: 24px;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          overflow: hidden;
+        }
+        .payment-option-enhanced::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(135deg, rgba(200,157,42,0.05), transparent);
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
+        .payment-option-enhanced:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+          border-color: #cbd5e1;
+        }
+        .payment-option-enhanced:hover::before {
+          opacity: 1;
+        }
+        .payment-option-enhanced.selected {
+          border-width: 3px;
+          box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+        }
+        .payment-option-enhanced.active-electronic {
+          border-color: #4285F4;
+          background: linear-gradient(135deg, #ffffff, #f0f7ff);
+        }
+        .payment-option-enhanced.active-cash {
+          border-color: #34A853;
+          background: linear-gradient(135deg, #ffffff, #f0fdf4);
+        }
+        .payment-option-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 20px;
+        }
+        .payment-icon-modern {
+          width: 72px;
+          height: 72px;
+          border-radius: 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+          transition: all 0.3s ease;
+        }
+        .payment-icon-modern.electronic {
+          background: linear-gradient(135deg, #4285F4 0%, #1a73e8 100%);
+        }
+        .payment-icon-modern.cash {
+          background: linear-gradient(135deg, #34A853 0%, #1e8e3e 100%);
+        }
+        .payment-option-enhanced:hover .payment-icon-modern {
+          transform: scale(1.08) rotate(5deg);
+        }
+        .selected-badge {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .electronic-badge {
+          background: linear-gradient(135deg, #4285F4, #1a73e8);
+          box-shadow: 0 4px 12px rgba(66,133,244,0.4);
+        }
+        .cash-badge {
+          background: linear-gradient(135deg, #34A853, #1e8e3e);
+          box-shadow: 0 4px 12px rgba(52,168,83,0.4);
+        }
+        @keyframes scaleIn {
+          0% { transform: scale(0); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+        .payment-option-content h4 {
+          margin: 0 0 8px;
+          font-size: 1.15rem;
+          color: #0B1F3A;
+          font-weight: 700;
+        }
+        .payment-desc {
+          margin: 0 0 16px;
+          color: #64748b;
+          font-size: 0.85rem;
+          line-height: 1.5;
+        }
+        .payment-features {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .feature-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #475569;
+          font-size: 0.85rem;
+        }
+        .feature-item svg {
+          color: #34A853;
+          flex-shrink: 0;
+        }
+        .discount-highlight {
+          background: linear-gradient(135deg, #34A853, #2e7d32);
+          color: white;
+          padding: 14px;
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          font-weight: 700;
+          box-shadow: 0 4px 15px rgba(52,168,83,0.25);
+        }
+        .discount-percentage {
+          font-size: 1rem;
+          letter-spacing: 0.5px;
+        }
+        .discount-amount {
+          font-size: 1.25rem;
+        }
+        .cash-price {
+          background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+          padding: 14px;
+          border-radius: 12px;
+          text-align: center;
+        }
+        .cash-price .price-value {
+          color: #0B1F3A;
+          font-size: 1.25rem;
+          font-weight: 700;
+        }
+        .payment-footer {
+          background: linear-gradient(135deg, #0B1F3A, #1a365d);
+          border-radius: 16px;
+          padding: 24px;
+          margin-top: 20px;
+        }
+        .total-section {
+          margin-bottom: 20px;
+          padding-bottom: 20px;
+          border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+        .total-label {
+          color: rgba(255,255,255,0.8);
+          font-size: 0.95rem;
+          margin-bottom: 10px;
+        }
+        .total-amount {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .old-price {
+          color: rgba(255,255,255,0.4);
+          text-decoration: line-through;
+          font-size: 1.1rem;
+          font-weight: 500;
+        }
+        .new-price {
+          color: #34A853;
+          font-size: 2rem;
+          font-weight: 700;
+          text-shadow: 0 2px 10px rgba(52,168,83,0.3);
+        }
+        .final-price {
+          color: #C89D2A;
+          font-size: 2rem;
+          font-weight: 700;
+          text-shadow: 0 2px 10px rgba(200,157,42,0.3);
+        }
+        .submit-payment-btn {
+          width: 100%;
+          padding: 18px 24px;
+          background: linear-gradient(135deg, #C89D2A, #d4af37);
+          border: none;
+          border-radius: 14px;
+          color: white;
+          font-size: 1.1rem;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(200,157,42,0.3);
+        }
+        .submit-payment-btn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(200,157,42,0.5);
+        }
+        .submit-payment-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+        .spinner {
+          width: 20px;
+          height: 20px;
+          border: 3px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
         @media (max-width: 768px) {
           .car-categories-grid {
@@ -1851,6 +2118,40 @@ function Booking() {
           }
           .booking-hero h1 {
             font-size: 1.8rem;
+          }
+          .payment-options-grid {
+            grid-template-columns: 1fr;
+          }
+          .payment-methods-card {
+            padding: 20px;
+          }
+          .payment-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
+          }
+          .payment-header-icon {
+            width: 48px;
+            height: 48px;
+          }
+          .payment-header h3 {
+            font-size: 1.2rem;
+          }
+          .payment-icon-modern {
+            width: 56px;
+            height: 56px;
+          }
+          .payment-option-content h4 {
+            font-size: 1rem;
+          }
+          .new-price, .final-price {
+            font-size: 1.6rem;
+          }
+          .summary-details {
+            padding: 18px;
+          }
+          .booking-summary-card {
+            margin-bottom: 16px;
           }
         }
       `}</style>

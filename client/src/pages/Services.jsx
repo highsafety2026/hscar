@@ -107,40 +107,35 @@ function Services() {
       title: language === 'ar' ? 'صالون' : 'Sedan',
       subtitle: 'Sedan',
       color: '#4285F4',
-      bgGradient: 'linear-gradient(135deg, #4285F4, #1a73e8)',
-      prices: { full: 500, mechanical: 250, basic: 300, misc: 200 }
+      bgGradient: 'linear-gradient(135deg, #4285F4, #1a73e8)'
     },
     {
       id: 'suv',
       title: language === 'ar' ? 'دفع رباعي / فورويل' : '4WD / SUV',
       subtitle: '4WD / SUV',
       color: '#34A853',
-      bgGradient: 'linear-gradient(135deg, #34A853, #1e8e3e)',
-      prices: { full: 600, mechanical: 300, basic: 400, misc: 200 }
+      bgGradient: 'linear-gradient(135deg, #34A853, #1e8e3e)'
     },
     {
       id: 'classic',
       title: language === 'ar' ? 'كلاسيك' : 'Classic',
       subtitle: 'Classic',
       color: '#FF6B35',
-      bgGradient: 'linear-gradient(135deg, #FF6B35, #e55a2b)',
-      prices: { full: 600, mechanical: 350, basic: 400, misc: 200 }
+      bgGradient: 'linear-gradient(135deg, #FF6B35, #e55a2b)'
     },
     {
       id: 'luxury',
       title: language === 'ar' ? 'فاخرة' : 'Luxury',
       subtitle: 'Luxury',
       color: '#9C27B0',
-      bgGradient: 'linear-gradient(135deg, #9C27B0, #7b1fa2)',
-      prices: { full: 700, mechanical: 350, basic: 500, misc: 200 }
+      bgGradient: 'linear-gradient(135deg, #9C27B0, #7b1fa2)'
     },
     {
       id: 'vip',
       title: language === 'ar' ? 'VIP فاخرة' : 'VIP Luxury',
       subtitle: 'VIP',
       color: '#C89D2A',
-      bgGradient: 'linear-gradient(135deg, #C89D2A, #a88420)',
-      prices: { full: 1000, mechanical: 500, basic: 700, misc: 300 }
+      bgGradient: 'linear-gradient(135deg, #C89D2A, #a88420)'
     }
   ]
 
@@ -150,67 +145,74 @@ function Services() {
       name: language === 'ar' ? 'الفحص الشامل' : 'Full Inspection', 
       nameEn: 'Comprehensive',
       icon: <Shield size={24} />,
+      description: language === 'ar' 
+        ? 'فحص كامل ومتكامل لجميع أنظمة السيارة الميكانيكية والإلكترونية والهيكل' 
+        : 'Complete and comprehensive inspection of all mechanical, electronic and body systems',
       categories: [
         {
-          title: language === 'ar' ? 'الأنظمة الميكانيكية' : 'Mechanical Systems',
+          title: language === 'ar' ? 'الأنظمة الميكانيكية الرئيسية' : 'Main Mechanical Systems',
           items: [
-            { ar: 'الماكينة', en: 'Engine' },
-            { ar: 'القير', en: 'Transmission' },
-            { ar: 'الدبل', en: '4WD' },
-            { ar: 'الديفريشن', en: 'Differential' },
-            { ar: 'نظام التعليق', en: 'Suspension System' },
-            { ar: 'الأجزاء الميكانيكية أعلى وأسفل', en: 'Upper & Lower Mechanical Parts' }
+            { ar: 'فحص المحرك بالكامل وأدائه', en: 'Complete Engine Inspection & Performance' },
+            { ar: 'القير والتروس وجودة النقل', en: 'Transmission, Gears & Shift Quality' },
+            { ar: 'الدبل ونظام الدفع الرباعي', en: '4WD System & Transfer Case' },
+            { ar: 'الديفريشن الأمامي والخلفي', en: 'Front & Rear Differential' },
+            { ar: 'نظام التعليق والمساعدات', en: 'Suspension System & Shock Absorbers' },
+            { ar: 'المقصات والكراسي والبوشات', en: 'Control Arms, Mounts & Bushings' }
           ]
         },
         {
-          title: language === 'ar' ? 'الأنظمة الإلكترونية' : 'Electronic Systems',
+          title: language === 'ar' ? 'الأنظمة الإلكترونية المتقدمة' : 'Advanced Electronic Systems',
           items: [
-            { ar: 'الكمبيوتر', en: 'Computer' },
-            { ar: 'الإيرباقات', en: 'Airbags' },
-            { ar: 'الأجزاء الكهربائية', en: 'Electrical Parts' },
-            { ar: 'جميع الحساسات', en: 'All Sensors' },
-            { ar: 'البطارية', en: 'Battery' }
+            { ar: 'كمبيوتر السيارة وقراءة الأعطال', en: 'ECU Diagnostics & Error Codes' },
+            { ar: 'فحص الإيرباقات والحساسات', en: 'Airbags & Safety Sensors Check' },
+            { ar: 'النظام الكهربائي الكامل', en: 'Complete Electrical System' },
+            { ar: 'جميع الحساسات والوحدات', en: 'All Sensors & Control Units' },
+            { ar: 'البطارية والدينمو والمارش', en: 'Battery, Alternator & Starter' },
+            { ar: 'نظام ABS ومكابح الطوارئ', en: 'ABS System & Emergency Brakes' }
           ]
         },
         {
-          title: language === 'ar' ? 'الهيكل والمظهر' : 'Body & Appearance',
+          title: language === 'ar' ? 'الهيكل والبودي الخارجي' : 'Chassis & External Body',
           items: [
-            { ar: 'الشاصي', en: 'Chassis' },
-            { ar: 'الصبغ', en: 'Paint' },
-            { ar: 'الحوادث', en: 'Accidents' },
-            { ar: 'الغرق', en: 'Flooding' },
-            { ar: 'نسبة الصدأ', en: 'Rust Level' },
-            { ar: 'أجزاء الهيكل الداخلية والخارجية', en: 'Internal & External Body Parts' }
+            { ar: 'فحص الشاصي بجهاز متخصص', en: 'Professional Chassis Inspection' },
+            { ar: 'الصبغ والمعجون بالجهاز', en: 'Paint & Filler Detection' },
+            { ar: 'فحص الحوادث السابقة', en: 'Previous Accident Detection' },
+            { ar: 'فحص الغرق والمياه', en: 'Flood & Water Damage Check' },
+            { ar: 'نسبة الصدأ والتآكل', en: 'Rust & Corrosion Level' },
+            { ar: 'قطع الهيكل والأبواب', en: 'Body Panels & Doors Alignment' }
           ]
         },
         {
-          title: language === 'ar' ? 'الأنظمة الداخلية' : 'Internal Systems',
+          title: language === 'ar' ? 'الداخلية والتجهيزات' : 'Interior & Equipment',
           items: [
-            { ar: 'داخلية السيارة', en: 'Car Interior' },
-            { ar: 'داخل الماكينة', en: 'Engine Interior' },
-            { ar: 'نظام الصوت', en: 'Sound System' },
-            { ar: 'التحويل', en: 'Conversion' },
-            { ar: 'التعديل', en: 'Modification' }
+            { ar: 'فحص داخلية السيارة الكاملة', en: 'Complete Interior Inspection' },
+            { ar: 'الكونسول والأزرار الإلكترونية', en: 'Console & Electronic Controls' },
+            { ar: 'نظام الصوت والملتيميديا', en: 'Audio & Multimedia System' },
+            { ar: 'فحص التحويل والتعديلات', en: 'Conversion & Modifications Check' },
+            { ar: 'الفرش والمقاعد', en: 'Upholstery & Seats Condition' },
+            { ar: 'مثبت السرعة والكاميرات', en: 'Cruise Control & Cameras' }
           ]
         },
         {
-          title: language === 'ar' ? 'السوائل والتبريد' : 'Fluids & Cooling',
+          title: language === 'ar' ? 'السوائل والأنظمة الحيوية' : 'Fluids & Vital Systems',
           items: [
-            { ar: 'التسريبات', en: 'Leaks' },
-            { ar: 'حالة الزيوت', en: 'Oil Condition' },
-            { ar: 'نظام التبريد', en: 'Cooling System' },
-            { ar: 'نظام التكييف', en: 'Air Conditioning System' },
-            { ar: 'نظام البترول', en: 'Fuel System' },
-            { ar: 'التزويد', en: 'Fuel Supply' }
+            { ar: 'كشف التسريبات بالكامل', en: 'Complete Leak Detection' },
+            { ar: 'فحص حالة جميع الزيوت', en: 'All Oils Condition Check' },
+            { ar: 'نظام التبريد والرديتر', en: 'Cooling System & Radiator' },
+            { ar: 'نظام التكييف والفريون', en: 'A/C System & Refrigerant' },
+            { ar: 'نظام الوقود والبخاخات', en: 'Fuel System & Injectors' },
+            { ar: 'نظام العادم والكتمان', en: 'Exhaust System & Muffler' }
           ]
         },
         {
-          title: language === 'ar' ? 'الإضاءة والعجلات' : 'Lighting & Wheels',
+          title: language === 'ar' ? 'الإضاءة والعجلات والإطارات' : 'Lighting, Wheels & Tires',
           items: [
-            { ar: 'الزجاج', en: 'Glass' },
-            { ar: 'الإضاءة', en: 'Lighting' },
-            { ar: 'التواير', en: 'Tires' },
-            { ar: 'الرنقات', en: 'Rims' }
+            { ar: 'جميع الزجاج والمرايا', en: 'All Glass & Mirrors' },
+            { ar: 'الإضاءة الأمامية والخلفية', en: 'Front & Rear Lighting' },
+            { ar: 'فحص التواير وعمقها', en: 'Tires Inspection & Tread Depth' },
+            { ar: 'الرنقات والجنوط', en: 'Rims & Wheels Condition' },
+            { ar: 'نظام المكابح والفحمات', en: 'Brake System & Pads' },
+            { ar: 'الترصيص والاتزان', en: 'Wheel Alignment & Balancing' }
           ]
         }
       ]
@@ -220,30 +222,50 @@ function Services() {
       name: language === 'ar' ? 'ميكانيكا + كمبيوتر' : 'Mechanical + Computer', 
       nameEn: 'Mechanical',
       icon: <Settings size={24} />,
+      description: language === 'ar' 
+        ? 'فحص متخصص للأنظمة الميكانيكية مع الكمبيوتر لضمان سلامة التشغيل' 
+        : 'Specialized mechanical inspection with computer diagnostics',
       categories: [
         {
-          title: language === 'ar' ? 'الفحص الميكانيكي' : 'Mechanical Check',
+          title: language === 'ar' ? 'الفحص الميكانيكي المتقدم' : 'Advanced Mechanical Check',
           items: [
-            { ar: 'التسريبات', en: 'Leaks' },
-            { ar: 'جميع أجزاء السيرفس', en: 'All Service Parts' },
-            { ar: 'حالة الزيوت', en: 'Oil Condition' },
-            { ar: 'التواير', en: 'Tires' }
+            { ar: 'المحرك والأداء العام', en: 'Engine & Overall Performance' },
+            { ar: 'القير وجودة التبديل', en: 'Transmission & Shift Quality' },
+            { ar: 'كشف التسريبات بالكامل', en: 'Complete Leak Detection' },
+            { ar: 'جميع أجزاء السيرفس', en: 'All Service Components' },
+            { ar: 'فحص حالة الزيوت', en: 'Oil Condition Analysis' },
+            { ar: 'التعليق والمساعدات', en: 'Suspension & Absorbers' }
           ]
         },
         {
-          title: language === 'ar' ? 'الأنظمة' : 'Systems',
+          title: language === 'ar' ? 'التشخيص الإلكتروني' : 'Electronic Diagnostics',
           items: [
-            { ar: 'نظام التبريد', en: 'Cooling System' },
-            { ar: 'نظام البترول', en: 'Fuel System' },
-            { ar: 'التكييف', en: 'Air Conditioning' },
-            { ar: 'الكمبيوتر', en: 'Computer' }
+            { ar: 'فحص كمبيوتر السيارة', en: 'ECU Computer Diagnostics' },
+            { ar: 'قراءة أكواد الأعطال', en: 'Error Codes Reading' },
+            { ar: 'فحص الحساسات الرئيسية', en: 'Main Sensors Check' },
+            { ar: 'نظام الحقن الإلكتروني', en: 'Electronic Fuel Injection' },
+            { ar: 'البطارية والشحن', en: 'Battery & Charging System' },
+            { ar: 'الأنظمة الكهربائية', en: 'Electrical Systems' }
           ]
         },
         {
-          title: language === 'ar' ? 'المظهر الخارجي' : 'Exterior',
+          title: language === 'ar' ? 'الأنظمة الحيوية' : 'Vital Systems',
           items: [
-            { ar: 'الإضاءة', en: 'Lighting' },
-            { ar: 'الزجاج', en: 'Glass' }
+            { ar: 'نظام التبريد والرديتر', en: 'Cooling System & Radiator' },
+            { ar: 'نظام الوقود والفلتر', en: 'Fuel System & Filter' },
+            { ar: 'نظام التكييف', en: 'Air Conditioning System' },
+            { ar: 'نظام العادم', en: 'Exhaust System' },
+            { ar: 'المكابح والفحمات', en: 'Brakes & Pads' },
+            { ar: 'التواير وعمقها', en: 'Tires & Tread Depth' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'الفحص الخارجي' : 'External Inspection',
+          items: [
+            { ar: 'الإضاءة الأمامية والخلفية', en: 'Front & Rear Lighting' },
+            { ar: 'الزجاج والمساحات', en: 'Glass & Wipers' },
+            { ar: 'المرايا والأبواب', en: 'Mirrors & Doors' },
+            { ar: 'الرنقات والإطارات', en: 'Rims & Tires' }
           ]
         }
       ]
@@ -253,22 +275,36 @@ function Services() {
       name: language === 'ar' ? 'الأجزاء الأساسية' : 'Basic Parts', 
       nameEn: 'Basic',
       icon: <FileCheck size={24} />,
+      description: language === 'ar' 
+        ? 'فحص الأجزاء الرئيسية والمهمة للسيارة بسعر مناسب' 
+        : 'Essential parts inspection at an affordable price',
       categories: [
         {
-          title: language === 'ar' ? 'الأجزاء الرئيسية' : 'Main Parts',
+          title: language === 'ar' ? 'الأجزاء الميكانيكية الرئيسية' : 'Main Mechanical Parts',
           items: [
-            { ar: 'الماكينة', en: 'Engine' },
-            { ar: 'القير', en: 'Transmission' },
-            { ar: 'الكمبيوتر', en: 'Computer' },
-            { ar: 'الإيرباقات', en: 'Airbags' }
+            { ar: 'فحص المحرك الأساسي', en: 'Basic Engine Check' },
+            { ar: 'فحص القير', en: 'Transmission Inspection' },
+            { ar: 'التعليق الأمامي', en: 'Front Suspension' },
+            { ar: 'المكابح الأساسية', en: 'Basic Brakes Check' },
+            { ar: 'الزيوت والسوائل', en: 'Oils & Fluids Level' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'الفحص الإلكتروني' : 'Electronic Inspection',
+          items: [
+            { ar: 'فحص الكمبيوتر الأساسي', en: 'Basic Computer Check' },
+            { ar: 'فحص الإيرباقات', en: 'Airbags Inspection' },
+            { ar: 'البطارية والكهرباء', en: 'Battery & Electrical' },
+            { ar: 'الإضاءة الرئيسية', en: 'Main Lighting System' }
           ]
         },
         {
           title: language === 'ar' ? 'الهيكل والمظهر' : 'Body & Exterior',
           items: [
-            { ar: 'الشاصي', en: 'Chassis' },
-            { ar: 'الزجاج', en: 'Glass' },
-            { ar: 'الإضاءة', en: 'Lighting' }
+            { ar: 'فحص الشاصي', en: 'Chassis Inspection' },
+            { ar: 'الصبغ الرئيسي', en: 'Main Paint Check' },
+            { ar: 'الزجاج والإطارات', en: 'Glass & Tires' },
+            { ar: 'الداخلية الأساسية', en: 'Basic Interior Check' }
           ]
         }
       ]
@@ -278,23 +314,41 @@ function Services() {
       name: language === 'ar' ? 'فحوصات متنوعة' : 'Miscellaneous Tests', 
       nameEn: 'Various',
       icon: <Eye size={24} />,
+      description: language === 'ar' 
+        ? 'فحوصات متخصصة حسب حاجتك - اختر ما تريد فحصه فقط' 
+        : 'Specialized inspections based on your needs - choose what you want',
       categories: [
         {
-          title: language === 'ar' ? 'فحوصات فردية' : 'Individual Tests',
+          title: language === 'ar' ? 'فحوصات فردية متخصصة' : 'Individual Specialized Tests',
           items: [
-            { ar: 'صبغ فقط', en: 'Paint Only' },
-            { ar: 'ماكينة فقط', en: 'Engine Only' },
-            { ar: 'كمبيوتر فقط', en: 'Computer Only' },
-            { ar: 'شاصي فقط', en: 'Chassis Only' },
-            { ar: 'غرق فقط', en: 'Flooding Only' }
+            { ar: 'فحص الصبغ فقط بالجهاز', en: 'Paint Inspection Only' },
+            { ar: 'فحص المحرك فقط', en: 'Engine Only Check' },
+            { ar: 'فحص الكمبيوتر فقط', en: 'Computer Diagnostics Only' },
+            { ar: 'فحص الشاصي فقط', en: 'Chassis Only Inspection' },
+            { ar: 'فحص الغرق فقط', en: 'Flood Detection Only' },
+            { ar: 'فحص القير فقط', en: 'Transmission Only' },
+            { ar: 'فحص التكييف فقط', en: 'A/C System Only' },
+            { ar: 'فحص الإيرباقات فقط', en: 'Airbags Only' }
           ]
         },
         {
-          title: language === 'ar' ? 'فحوصات مركبة' : 'Combined Tests',
+          title: language === 'ar' ? 'فحوصات مركبة متقدمة' : 'Combined Advanced Tests',
           items: [
             { ar: 'ميكانيكا + شاصي فقط', en: 'Mechanical + Chassis Only' },
             { ar: 'صبغ + شاصي فقط', en: 'Paint + Chassis Only' },
-            { ar: 'صبغ + حوادث فقط', en: 'Paint + Accidents Only' }
+            { ar: 'صبغ + حوادث فقط', en: 'Paint + Accidents Only' },
+            { ar: 'محرك + قير فقط', en: 'Engine + Transmission Only' },
+            { ar: 'كمبيوتر + كهرباء فقط', en: 'Computer + Electrical Only' },
+            { ar: 'شاصي + غرق فقط', en: 'Chassis + Flood Only' }
+          ]
+        },
+        {
+          title: language === 'ar' ? 'فحوصات ما قبل الشراء' : 'Pre-Purchase Inspections',
+          items: [
+            { ar: 'فحص سريع (30 دقيقة)', en: 'Quick Check (30 min)' },
+            { ar: 'تقييم سريع للحالة', en: 'Quick Condition Assessment' },
+            { ar: 'فحص طريق اختباري', en: 'Test Drive Inspection' },
+            { ar: 'استشارة فنية', en: 'Technical Consultation' }
           ]
         }
       ]
@@ -319,7 +373,7 @@ function Services() {
             {language === 'ar' ? 'فئات السيارات' : 'Car Categories'}
           </h2>
           <p className="section-subtitle">
-            {language === 'ar' ? 'اختر فئة سيارتك لمعرفة الأسعار' : 'Select your car category to see prices'}
+            {language === 'ar' ? 'اختر فئة سيارتك لحجز موعد الفحص' : 'Select your car category to book inspection'}
           </p>
         </div>
 
@@ -337,17 +391,11 @@ function Services() {
                 <h3>{category.title}</h3>
                 <span className="category-subtitle">{category.subtitle}</span>
               </div>
-              <div className="category-prices-list">
+              <div className="category-features-list">
                 {serviceTypes.map((service) => (
-                  <div key={service.id} className="price-row">
-                    <div className="price-service-info">
-                      <span className="price-icon" style={{ color: category.color }}>{service.icon}</span>
-                      <span className="price-service-name">{service.name}</span>
-                    </div>
-                    <div className="price-value" style={{ background: category.bgGradient }}>
-                      <span>{category.id === 'classic' ? '+' : ''}{category.prices[service.id]}</span>
-                      <small>{language === 'ar' ? 'درهم' : 'AED'}</small>
-                    </div>
+                  <div key={service.id} className="feature-row">
+                    <span className="feature-icon" style={{ color: category.color }}>{service.icon}</span>
+                    <span className="feature-name">{service.name}</span>
                   </div>
                 ))}
               </div>
@@ -386,6 +434,11 @@ function Services() {
                 </div>
                 <div className="service-number">{idx + 1}</div>
               </div>
+              {service.description && (
+                <div className="service-description">
+                  {service.description}
+                </div>
+              )}
               <div className="service-categories-container">
                 {service.categories.map((category, catIdx) => (
                   <div key={catIdx} className="service-category-group">
@@ -491,50 +544,31 @@ function Services() {
           opacity: 0.9;
         }
 
-        .category-prices-list {
+        .category-features-list {
           padding: 20px 15px;
         }
-        .price-row {
+        .feature-row {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 10px 0;
+          gap: 12px;
+          padding: 12px 0;
           border-bottom: 1px solid #f0f0f0;
         }
-        .price-row:last-child {
+        .feature-row:last-child {
           border-bottom: none;
         }
-        .price-service-info {
+        .feature-icon {
           display: flex;
-          align-items: center;
-          gap: 8px;
+          flex-shrink: 0;
         }
-        .price-icon {
-          display: flex;
+        .feature-icon svg {
+          width: 20px;
+          height: 20px;
         }
-        .price-icon svg {
-          width: 18px;
-          height: 18px;
-        }
-        .price-service-name {
-          font-size: 0.8rem;
-          color: #333;
-          font-weight: 500;
-        }
-        .price-value {
-          display: flex;
-          align-items: baseline;
-          gap: 4px;
-          color: white;
-          padding: 6px 12px;
-          border-radius: 20px;
-          font-weight: 700;
+        .feature-name {
           font-size: 0.9rem;
-        }
-        .price-value small {
-          font-size: 0.65rem;
-          font-weight: 500;
-          opacity: 0.9;
+          color: #333;
+          font-weight: 600;
         }
 
         .category-book-btn {
@@ -616,6 +650,17 @@ function Services() {
           color: #0B1F3A;
           font-weight: 800;
           font-size: 0.9rem;
+        }
+
+        .service-description {
+          padding: 15px 20px;
+          background: linear-gradient(135deg, rgba(200,157,42,0.08), rgba(200,157,42,0.03));
+          border-bottom: 1px solid rgba(200,157,42,0.15);
+          font-size: 0.85rem;
+          line-height: 1.6;
+          color: #444;
+          font-weight: 500;
+          text-align: ${isRTL ? 'right' : 'left'};
         }
 
         .service-categories-container {

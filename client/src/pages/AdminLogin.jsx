@@ -66,10 +66,6 @@ function AdminLogin() {
               {loading ? 'جاري الدخول...' : 'دخول'}
             </button>
           </form>
-          
-          <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '0.85rem', color: '#888' }}>
-            للتجربة: admin / admin123
-          </p>
         </div>
       </div>
     </div>
