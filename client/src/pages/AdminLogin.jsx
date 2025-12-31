@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Lock } from 'lucide-react'
+import { api } from '../api/config'
 
 function AdminLogin() {
   const [credentials, setCredentials] = useState({ username: '', password: '' })
@@ -14,12 +15,7 @@ function AdminLogin() {
     setError('')
     
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials)
-      })
-      const data = await res.json()
+      const data = await api.adminLogin(credentials)
       if (data.success) {
         localStorage.setItem('adminToken', data.token)
         navigate('/admin/dashboard')

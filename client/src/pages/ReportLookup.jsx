@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { FileText, Download, Search, Image, X } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import { api } from '../api/config'
 
 function ReportLookup() {
   const { language, t } = useLanguage()
@@ -18,12 +19,7 @@ function ReportLookup() {
     setReport(null)
     
     try {
-      const res = await fetch('/api/reports/find-by-code', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: code.trim() })
-      })
-      const data = await res.json()
+      const data = await api.findReportByCode(code.trim())
       
       if (data.success) {
         setReport(data.report)

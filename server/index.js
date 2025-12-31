@@ -7,17 +7,20 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const OpenAI = require('openai');
 const pdfParse = require('pdf-parse');
-const { Pool } = require('pg');
 
-const openai = new OpenAI({
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
-});
+// Initialize OpenAI only if API key is provided
+let openai = null;
+if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+  openai = new OpenAI({
+    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+  });
+}
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
-});
+// Use SQLite for local development (no PostgreSQL needed)
+const Database = require('better-sqlite3');
+const dbPath = path.join(__dirname, '..', 'database.db');
+const db = new Database(dbPath);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -149,25 +152,24 @@ function generateReportCode() {
 
 async function initPaymentsTable() {
   try {
-    await pool.query(`
+    db.exec(`
       CREATE TABLE IF NOT EXISTS payments (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        customer_name VARCHAR(255) NOT NULL,
-        customer_phone VARCHAR(50) NOT NULL,
-        customer_email VARCHAR(255),
+        id TEXT PRIMARY KEY,
+        customer_name TEXT NOT NULL,
+        customer_phone TEXT NOT NULL,
+        customer_email TEXT,
         amount INTEGER NOT NULL,
-        currency VARCHAR(10) DEFAULT 'aed',
-        service_type VARCHAR(100),
-        booking_id VARCHAR(100),
-        report_code VARCHAR(20),
-        stripe_payment_intent_id VARCHAR(255),
-        stripe_checkout_session_id VARCHAR(255),
-        status VARCHAR(50) DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        currency TEXT DEFAULT 'aed',
+        service_type TEXT,
+        booking_id TEXT,
+        report_code TEXT,
+        stripe_payment_intent_id TEXT,
+        stripe_checkout_session_id TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    await pool.query(`ALTER TABLE payments ADD COLUMN IF NOT EXISTS report_code VARCHAR(20)`);
     console.log('Payments table ready');
   } catch (error) {
     console.error('Error creating payments table:', error);

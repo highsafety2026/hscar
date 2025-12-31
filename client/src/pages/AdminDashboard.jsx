@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy, PenTool } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import { api } from '../api/config'
 
 function AdminDashboard() {
   const { language } = useLanguage()
@@ -28,22 +29,20 @@ function AdminDashboard() {
 
   const loadData = async () => {
     try {
-      const headers = getAuthHeaders()
-      const [bookingsRes, reportsRes] = await Promise.all([
-        fetch('/api/bookings', { headers }),
-        fetch('/api/reports', { headers })
+      const token = localStorage.getItem('adminToken')
+      const [bookingsData, reportsData] = await Promise.all([
+        api.getBookings(token),
+        api.getReports(token)
       ])
       
-      if (bookingsRes.status === 401 || reportsRes.status === 401) {
-        localStorage.removeItem('adminToken')
-        navigate('/admin')
-        return
-      }
-      
-      setBookings(await bookingsRes.json())
-      setReports(await reportsRes.json())
+      setBookings(bookingsData)
+      setReports(reportsData)
     } catch (error) {
       console.error('Error loading data:', error)
+      if (error.message.includes('401')) {
+        localStorage.removeItem('adminToken')
+        navigate('/admin')
+      }
     }
   }
 
@@ -61,11 +60,7 @@ function AdminDashboard() {
       }
     }
 
-    await fetch('/api/reports', { 
-      method: 'POST', 
-      body: formData,
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-    })
+    await api.uploadReport(formData, localStorage.getItem('adminToken'))
     setUploadData({ customerName: '', code: '', file: null, images: [] })
     loadData()
     setLoading(false)
@@ -73,10 +68,7 @@ function AdminDashboard() {
 
   const deleteReport = async (id) => {
     if (confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذا التقرير؟' : 'Are you sure you want to delete this report?')) {
-      await fetch(`/api/reports/${id}`, { 
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      })
+      await api.deleteReport(id, localStorage.getItem('adminToken'))
       loadData()
     }
   }
@@ -101,10 +93,7 @@ function AdminDashboard() {
   }
 
   const logout = async () => {
-    await fetch('/api/admin/logout', {
-      method: 'POST',
-      headers: getAuthHeaders()
-    })
+    await api.adminLogout(localStorage.getItem('adminToken'))
     localStorage.removeItem('adminToken')
     navigate('/admin')
   }

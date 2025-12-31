@@ -1,0 +1,99 @@
+{
+  "demo": true,
+  "version": "1.0.0",
+  "carInfo": {
+    "brand": "Toyota",
+    "model": "Camry",
+    "year": 2020,
+    "inspectionDate": "2024-12-12"
+  },
+  "defects": [
+    {
+      "id": 1,
+      "location": "Front Bumper",
+      "locationAr": "المصد الأمامي",
+      "type": "Physical Damage",
+      "typeAr": "تلف فيزيائي",
+      "position": {
+        "x": 2,
+        "y": 1.5,
+        "z": 0
+      },
+      "severity": "high",
+      "severityLabel": "Critical",
+      "severityLabelAr": "خطير جداً",
+      "shortDesc": "Scratches and cracks in front bumper",
+      "shortDescAr": "خدش وتشقق في المصد الأمامي",
+      "detailedDesc": "The front bumper shows visible scratches, paint chips, and small cracks. The damage appears to be from minor impact or collision. The structural integrity of the bumper may be compromised.",
+      "detailedDescAr": "يظهر المصد الأمامي خدوش واضحة وتقشر في الطلاء وشقوق صغيرة. يبدو أن الضرر ناتج عن تأثير بسيط أو اصطدام. قد تكون سلامة هيكل المصد مخاطرة.",
+      "recommendations": "Replace front bumper or surface repair and repainting. Check for structural damage underneath.",
+      "recommendationsAr": "استبدال المصد الأمامي أو إصلاح السطح وإعادة الطلاء. فحص التلف الهيكلي تحت السطح.",
+      "estimatedCostMin": 500,
+      "estimatedCostMax": 1500,
+      "currency": "AED",
+      "affectsValuation": true,
+      "photos": []
+    },
+    {
+      "id": 2,
+      "location": "Wheels & Tires",
+      "locationAr": "الإطارات والعجلات",
+      "type": "Wear & Tear",
+      "typeAr": "تآكل وتمزق",
+      "position": {
+        "x": 0,
+        "y": 0.5,
+        "z": 1.5
+      },
+      "severity": "medium",
+      "severityLabel": "Medium",
+      "severityLabelAr": "متوسط",
+      "shortDesc": "Uneven tire wear and low tread depth",
+      "shortDescAr": "تآكل غير متساوٍ على الإطارات",
+      "detailedDesc": "All four tires show uneven wear patterns with tread depth below 4mm. Left side tires are more worn than right side, indicating possible alignment issues. Tire pressure also appears inconsistent.",
+      "detailedDescAr": "جميع الإطارات الأربعة تظهر نمط تآكل غير متساوٍ مع عمق الشعيرات أقل من 4 مم. إطارات الجانب الأيسر أكثر تآكلاً من الجانب الأيمن، مما يشير إلى مشاكل محتملة في التوازن.",
+      "recommendations": "Replace all tires with matching set and perform wheel alignment. Check suspension system for issues.",
+      "recommendationsAr": "استبدال جميع الإطارات بمجموعة متطابقة وإجراء توازن العجلات. فحص نظام التعليق بحثاً عن مشاكل.",
+      "estimatedCostMin": 300,
+      "estimatedCostMax": 800,
+      "currency": "AED",
+      "affectsValuation": true,
+      "photos": []
+    },
+    {
+      "id": 3,
+      "location": "Headlight System",
+      "locationAr": "نظام الإضاءة",
+      "type": "Electrical Issue",
+      "typeAr": "مشكلة كهربائية",
+      "position": {
+        "x": -1.5,
+        "y": 2,
+        "z": 0.5
+      },
+      "severity": "medium",
+      "severityLabel": "Medium",
+      "severityLabelAr": "متوسط",
+      "shortDesc": "Left headlight is dim or malfunctioning",
+      "shortDescAr": "إضاءة الرأس اليسرى خافتة أو معطلة",
+      "detailedDesc": "The left headlight is noticeably dimmer than the right one. Possible causes include burned-out bulb, corroded connections, or electrical wiring issues. The light output is below safety standards for night driving.",
+      "detailedDescAr": "إضاءة الرأس اليسرى أضعف بشكل ملحوظ من اليمنى. قد تكون الأسباب المحتملة هي احتراق المصباح أو تآكل الاتصالات أو مشاكل الأسلاك الكهربائية.",
+      "recommendations": "Replace bulb with original specification. If problem persists, check wiring harness and connections. Consider full headlight assembly replacement if damaged.",
+      "recommendationsAr": "استبدال المصباح بالمواصفات الأصلية. إذا استمرت المشكلة، تحقق من حزمة الأسلاك والاتصالات. فكر في استبدال مجمع المصباح الأمامي بالكامل إذا كان تالفاً.",
+      "estimatedCostMin": 100,
+      "estimatedCostMax": 300,
+      "currency": "AED",
+      "affectsValuation": false,
+      "photos": []
+    }
+  ],
+  "metadata": {
+    "totalDefects": 3,
+    "highSeverity": 1,
+    "mediumSeverity": 2,
+    "lowSeverity": 0,
+    "generatedBy": "Demo System",
+    "generatedDate": "2024-12-12T00:00:00Z",
+    "notes": "This is a demonstration report with sample defects for testing purposes."
+  }
+}

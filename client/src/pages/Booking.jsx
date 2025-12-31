@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Star, Sparkles, CreditCard, Banknote, Copy, MessageSquare } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import { api } from '../api/config'
 import sedanImg from '../assets/cars/sedan.png'
 import suvImg from '../assets/cars/suv.png'
 import classicImg from '../assets/cars/classic.png'
@@ -133,8 +134,7 @@ function Booking() {
   const fetchBookedSlots = async (date) => {
     try {
       const dateStr = date.toISOString().split('T')[0]
-      const res = await fetch(`/api/slots?date=${dateStr}`)
-      const data = await res.json()
+      const data = await api.fetchBookedSlots(dateStr)
       setBookedSlots(data.bookedSlots || [])
     } catch (error) {
       console.error('Error fetching slots:', error)
@@ -236,28 +236,18 @@ function Booking() {
         paymentMethod: paymentMethod
       }
 
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingData)
-      })
-      const data = await res.json()
+      const data = await api.createBooking(bookingData)
       
       if (data.success) {
         if (paymentMethod === 'electronic') {
-          const checkoutRes = await fetch('/api/create-checkout-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount: finalPrice * 100,
-              bookingId: data.bookingId,
-              customerName: formData.name,
-              customerPhone: formData.phone,
-              serviceType: selectedService.id,
-              carCategory: selectedCarCategory.id
-            })
+          const checkoutData = await api.createCheckoutSession({
+            amount: finalPrice * 100,
+            bookingId: data.bookingId,
+            customerName: formData.name,
+            customerPhone: formData.phone,
+            serviceType: selectedService.id,
+            carCategory: selectedCarCategory.id
           })
-          const checkoutData = await checkoutRes.json()
           if (checkoutData.url) {
             window.location.href = checkoutData.url
           } else {
