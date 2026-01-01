@@ -11,6 +11,7 @@ import Home from './pages/Home'
 import Services from './pages/Services'
 import Booking from './pages/Booking'
 import ReportLookup from './pages/ReportLookup'
+import OffersPage from './pages/OffersPage'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
 import Shell from './pages/Shell'
@@ -46,6 +47,7 @@ function App() {
                 <Route path="/services" element={<Services />} />
                 <Route path="/booking" element={<Booking />} />
                 <Route path="/report" element={<ReportLookup />} />
+                <Route path="/offers" element={<OffersPage />} />
                 <Route path="/payment" element={<Payment />} />
                 <Route path="/payment/success" element={<PaymentSuccess />} />
                 <Route path="/payment/cancel" element={<PaymentCancel />} />

@@ -336,36 +336,65 @@ function ReportsTab({ reports, uploadData, setUploadData, handleUpload, deleteRe
 
       {/* Reports List */}
       <div style={{ background: 'white', borderRadius: '15px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-        <h3 style={{ marginBottom: '15px' }}>التقارير المرفوعة ({reports.length})</h3>
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%' }}>
-            <thead>
-              <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
-                <th style={thStyle}>اسم العميل</th>
-                <th style={thStyle}>الكود</th>
-                <th style={thStyle}>التاريخ</th>
-                <th style={thStyle}>الإجراءات</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.map((report) => (
-                <tr key={report.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                  <td style={tdStyle}>{report.customer_name}</td>
-                  <td style={tdStyle}><strong>{report.code}</strong></td>
-                  <td style={tdStyle}>{new Date(report.created_at).toLocaleDateString('ar-SA')}</td>
-                  <td style={tdStyle}>
-                    <a href={report.file_path} target="_blank" style={{...buttonStyle, padding: '5px 15px', fontSize: '14px', textDecoration: 'none', display: 'inline-block', marginLeft: '10px'}}>
-                      عرض
-                    </a>
-                    <button onClick={() => deleteReport(report.id)} style={{...buttonStyle, padding: '5px 15px', fontSize: '14px', background: '#dc3545'}}>
-                      حذف
-                    </button>
-                  </td>
+        <h3 style={{ marginBottom: '15px' }}>📋 التقارير المرفوعة ({reports.length})</h3>
+        {reports.length === 0 ? (
+          <p style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>لا توجد تقارير مرفوعة</p>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
+                  <th style={thStyle}>اسم العميل</th>
+                  <th style={thStyle}>رقم الهاتف</th>
+                  <th style={thStyle}>الكود</th>
+                  <th style={thStyle}>تاريخ الرفع</th>
+                  <th style={thStyle}>الوقت</th>
+                  <th style={thStyle}>الإجراءات</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {reports.map((report) => {
+                  const date = new Date(report.createdAt || report.created_at)
+                  return (
+                    <tr key={report.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                      <td style={tdStyle}>{report.customerName || report.customer_name}</td>
+                      <td style={tdStyle}>{report.phone || '-'}</td>
+                      <td style={tdStyle}>
+                        <span style={{ 
+                          background: 'linear-gradient(135deg, #0B1F3A, #1565C0)',
+                          color: 'white',
+                          padding: '5px 12px',
+                          borderRadius: '8px',
+                          fontWeight: 'bold',
+                          fontSize: '14px'
+                        }}>
+                          {report.code}
+                        </span>
+                      </td>
+                      <td style={tdStyle}>{date.toLocaleDateString('ar-SA')}</td>
+                      <td style={tdStyle}>{date.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' })}</td>
+                      <td style={tdStyle}>
+                        {report.filename && (
+                          <a 
+                            href={`https://hscar-backend.onrender.com/uploads/${report.filename}`} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            style={{...buttonStyle, padding: '5px 15px', fontSize: '14px', textDecoration: 'none', display: 'inline-block', marginLeft: '10px'}}
+                          >
+                            📄 عرض
+                          </a>
+                        )}
+                        <button onClick={() => deleteReport(report.id)} style={{...buttonStyle, padding: '5px 15px', fontSize: '14px', background: '#dc3545'}}>
+                          🗑️ حذف
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   )

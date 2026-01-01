@@ -1,5 +1,5 @@
 // Admin API - مبسطة وخفيفة
-const API_URL = 'https://hscar-backend.onrender.com'
+const API_URL = 'http://localhost:3001'
 
 export const adminApi = {
   async login(username, password) {
@@ -48,13 +48,17 @@ export const adminApi = {
 
   async uploadReport(formData, token) {
     try {
-      const res = await fetch(`${API_URL}/api/upload-report`, {
+      const res = await fetch(`${API_URL}/api/reports`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData,
         signal: AbortSignal.timeout(30000)
       })
-      if (!res.ok) throw new Error('Upload failed')
+      if (!res.ok) {
+        const errorText = await res.text()
+        console.error('Upload failed:', errorText)
+        throw new Error('Upload failed')
+      }
       return await res.json()
     } catch (error) {
       console.error('Upload error:', error)
@@ -146,13 +150,13 @@ export const adminApi = {
 
   async sendNotification(notification, token) {
     try {
-      const res = await fetch(`${API_URL}/api/notifications`, {
+      const res = await fetch(`${API_URL}/api/notifications/broadcast`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify(notification),
+        body: JSON.stringify({ title: notification.title, body: notification.message }),
         signal: AbortSignal.timeout(10000)
       })
       if (!res.ok) throw new Error('Send notification failed')

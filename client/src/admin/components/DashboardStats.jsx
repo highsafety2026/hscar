@@ -29,7 +29,7 @@ export default function DashboardStats({ stats }) {
         />
         <StatCard
           title="إجمالي الدخل"
-          value={`${stats.totalRevenue} ر.س`}
+          value={`${stats.totalRevenue} درهم`}
           icon="💰"
           color="#FF8042"
         />

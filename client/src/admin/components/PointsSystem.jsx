@@ -109,7 +109,7 @@ export default function PointsSystem({ token }) {
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>قيمة الخصم (ر.س)</label>
+            <label style={{ display: 'block', marginBottom: '5px', fontWeight: '600' }}>قيمة الخصم (درهم)</label>
             <input
               type="number"
               value={pointsConfig.discountAmount}

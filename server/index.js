@@ -396,6 +396,106 @@ app.delete('/api/bookings/:id', authMiddleware, (req, res) => {
   res.json({ success: true });
 });
 
+// ============== DASHBOARD STATS API ==============
+
+app.get('/api/admin/dashboard-stats', authMiddleware, (req, res) => {
+  try {
+    const db = loadDB();
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    // Count inspections
+    const todayInspections = db.bookings.filter(b => new Date(b.date) >= today).length;
+    const weekInspections = db.bookings.filter(b => new Date(b.createdAt || b.date) >= weekAgo).length;
+    const monthInspections = db.bookings.filter(b => new Date(b.createdAt || b.date) >= monthAgo).length;
+
+    // Calculate revenue (assuming prices: basic=150, premium=250, luxury=400)
+    const priceMap = { 
+      'فحص أساسي': 150, 
+      'فحص متميز': 250, 
+      'فحص فاخر': 400,
+      'basic': 150,
+      'premium': 250,
+      'luxury': 400
+    };
+    
+    let totalRevenue = 0;
+    const revenueByType = {};
+    
+    db.bookings.forEach(booking => {
+      const price = priceMap[booking.service_type] || priceMap[booking.serviceType] || 150;
+      totalRevenue += price;
+      const type = booking.service_type || booking.serviceType || 'فحص أساسي';
+      revenueByType[type] = (revenueByType[type] || 0) + price;
+    });
+
+    // Find most requested service
+    const serviceCounts = {};
+    db.bookings.forEach(booking => {
+      const type = booking.service_type || booking.serviceType || 'فحص أساسي';
+      serviceCounts[type] = (serviceCounts[type] || 0) + 1;
+    });
+    const mostRequested = Object.keys(serviceCounts).reduce((a, b) => 
+      serviceCounts[a] > serviceCounts[b] ? a : b, 'فحص أساسي');
+
+    // Count new customers (unique phones in last 30 days)
+    const recentPhones = new Set();
+    db.bookings.forEach(booking => {
+      if (new Date(booking.createdAt || booking.date) >= monthAgo) {
+        recentPhones.add(booking.phone);
+      }
+    });
+    const newCustomers = recentPhones.size;
+
+    // Revenue trend (last 7 days)
+    const revenueTrend = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayBookings = db.bookings.filter(b => {
+        const bookingDate = new Date(b.date).toISOString().split('T')[0];
+        return bookingDate === dateStr;
+      });
+      const dayRevenue = dayBookings.reduce((sum, b) => {
+        return sum + (priceMap[b.service_type || b.serviceType] || 150);
+      }, 0);
+      revenueTrend.push({
+        name: date.toLocaleDateString('ar-SA', { weekday: 'short' }),
+        revenue: dayRevenue
+      });
+    }
+
+    // Revenue by type for chart
+    const revenueByTypeArray = Object.keys(revenueByType).map(type => ({
+      name: type,
+      revenue: revenueByType[type]
+    }));
+
+    // Service distribution for pie chart
+    const serviceDistribution = Object.keys(serviceCounts).map(type => ({
+      name: type,
+      value: serviceCounts[type]
+    }));
+
+    res.json({
+      todayInspections,
+      weekInspections,
+      monthInspections,
+      totalRevenue,
+      newCustomers,
+      mostRequested,
+      revenueTrend,
+      revenueByType: revenueByTypeArray,
+      serviceDistribution
+    });
+  } catch (error) {
+    console.error('Dashboard stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard stats' });
+  }
+});
+
 // ============== OFFERS API ==============
 
 // Get all active offers
