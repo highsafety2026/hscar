@@ -22,6 +22,11 @@ const Database = require('better-sqlite3');
 const dbPath = path.join(__dirname, '..', 'database.db');
 const db = new Database(dbPath);
 
+// Initialize database tables
+const initSQL = fs.readFileSync(path.join(__dirname, 'init_database.sql'), 'utf8');
+db.exec(initSQL);
+console.log('Database tables initialized');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -1384,6 +1389,215 @@ app.get('/api/payments', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Error fetching payments:', error);
     res.status(500).json({ error: 'Failed to fetch payments' });
+  }
+});
+
+// ============= NEW USER & LOYALTY SYSTEM ENDPOINTS =============
+
+// User authentication/login
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    
+    // Check if user exists
+    let user = db.prepare('SELECT * FROM users WHERE phone = ?').get(phone);
+    
+    if (!user) {
+      // Create new user
+      const stmt = db.prepare('INSERT INTO users (phone, name, points, created_at) VALUES (?, ?, 0, datetime("now"))');
+      const result = stmt.run(phone, name);
+      user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+    } else {
+      // Update name if changed
+      db.prepare('UPDATE users SET name = ? WHERE phone = ?').run(name, phone);
+      user.name = name;
+    }
+    
+    res.json({ success: true, ...user });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Update user points
+app.post('/api/users/points', async (req, res) => {
+  try {
+    const { phone, points, action } = req.body;
+    
+    db.prepare('UPDATE users SET points = ? WHERE phone = ?').run(points, phone);
+    
+    // Log points transaction
+    db.prepare('INSERT INTO points_transactions (phone, points, action, created_at) VALUES (?, ?, ?, datetime("now"))').run(phone, points, action);
+    
+    res.json({ success: true, points });
+  } catch (error) {
+    console.error('Points update error:', error);
+    res.status(500).json({ error: 'Failed to update points' });
+  }
+});
+
+// Get user appointments
+app.get('/api/appointments', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    const appointments = db.prepare('SELECT * FROM appointments WHERE phone = ? ORDER BY date DESC').all(phone);
+    res.json(appointments);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
+// Create appointment
+app.post('/api/appointments', async (req, res) => {
+  try {
+    const { phone, service, carModel, date, time, status } = req.body;
+    
+    const stmt = db.prepare(`
+      INSERT INTO appointments (phone, service, car_model, date, time, status, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, datetime("now"))
+    `);
+    const result = stmt.run(phone, service, carModel, date, time, status || 'pending');
+    
+    // Award points based on service
+    const pointsMap = { 'basic': 20, 'comprehensive': 50, 'vip': 100 };
+    const points = pointsMap[service] || 20;
+    
+    const user = db.prepare('SELECT points FROM users WHERE phone = ?').get(phone);
+    const newPoints = (user?.points || 0) + points;
+    db.prepare('UPDATE users SET points = ? WHERE phone = ?').run(newPoints, phone);
+    
+    res.json({ success: true, id: result.lastInsertRowid, pointsEarned: points });
+  } catch (error) {
+    console.error('Error creating appointment:', error);
+    res.status(500).json({ error: 'Failed to create appointment' });
+  }
+});
+
+// Cancel appointment
+app.delete('/api/appointments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { phone } = req.body;
+    
+    db.prepare('UPDATE appointments SET status = ? WHERE id = ? AND phone = ?').run('cancelled', id, phone);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error canceling appointment:', error);
+    res.status(500).json({ error: 'Failed to cancel appointment' });
+  }
+});
+
+// Get maintenance reminders
+app.get('/api/maintenance', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    const reminders = db.prepare('SELECT * FROM maintenance_reminders WHERE phone = ? ORDER BY due_date ASC').all(phone);
+    res.json(reminders);
+  } catch (error) {
+    console.error('Error fetching maintenance:', error);
+    res.status(500).json({ error: 'Failed to fetch maintenance' });
+  }
+});
+
+// Add maintenance reminder
+app.post('/api/maintenance', async (req, res) => {
+  try {
+    const { phone, title, description, dueDate } = req.body;
+    
+    const stmt = db.prepare(`
+      INSERT INTO maintenance_reminders (phone, title, description, due_date, created_at) 
+      VALUES (?, ?, ?, ?, datetime("now"))
+    `);
+    const result = stmt.run(phone, title, description, dueDate);
+    
+    res.json({ success: true, id: result.lastInsertRowid });
+  } catch (error) {
+    console.error('Error adding maintenance:', error);
+    res.status(500).json({ error: 'Failed to add maintenance' });
+  }
+});
+
+// Get notifications
+app.get('/api/notifications', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    const notifications = db.prepare('SELECT * FROM notifications WHERE phone = ? ORDER BY created_at DESC LIMIT 20').all(phone);
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+// Register push notification token
+app.post('/api/notifications/register', async (req, res) => {
+  try {
+    const { phone, token, platform } = req.body;
+    
+    db.prepare('UPDATE users SET push_token = ?, platform = ? WHERE phone = ?').run(token, platform, phone);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error registering token:', error);
+    res.status(500).json({ error: 'Failed to register token' });
+  }
+});
+
+// Send notification
+app.post('/api/notifications/send', async (req, res) => {
+  try {
+    const { phone, title, body, data } = req.body;
+    
+    // Save notification to database
+    const stmt = db.prepare(`
+      INSERT INTO notifications (phone, title, message, data, created_at) 
+      VALUES (?, ?, ?, ?, datetime("now"))
+    `);
+    stmt.run(phone, title, body, JSON.stringify(data || {}));
+    
+    // TODO: Send actual push notification using FCM/APNS
+    // This would require Firebase Cloud Messaging setup
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+// Redeem reward
+app.post('/api/rewards/redeem', async (req, res) => {
+  try {
+    const { phone, rewardId, rewardName, points } = req.body;
+    
+    // Check user has enough points
+    const user = db.prepare('SELECT points FROM users WHERE phone = ?').get(phone);
+    if (!user || user.points < points) {
+      return res.status(400).json({ error: 'Insufficient points' });
+    }
+    
+    // Deduct points
+    const newPoints = user.points - points;
+    db.prepare('UPDATE users SET points = ? WHERE phone = ?').run(newPoints, phone);
+    
+    // Log redemption
+    const code = `REWARD-${Date.now()}`;
+    db.prepare(`
+      INSERT INTO rewards_redeemed (phone, reward_id, reward_name, points_used, code, created_at) 
+      VALUES (?, ?, ?, ?, ?, datetime("now"))
+    `).run(phone, rewardId, rewardName, points, code);
+    
+    // Send notification
+    db.prepare(`
+      INSERT INTO notifications (phone, title, message, data, created_at) 
+      VALUES (?, ?, ?, ?, datetime("now"))
+    `).run(phone, '🎉 تم استبدال المكافأة', `كود الاستبدال: ${code}`, JSON.stringify({ type: 'reward', code }));
+    
+    res.json({ success: true, code });
+  } catch (error) {
+    console.error('Error redeeming reward:', error);
+    res.status(500).json({ error: 'Failed to redeem reward' });
   }
 });
 

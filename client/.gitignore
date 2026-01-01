@@ -1,1 +1,39 @@
 .vercel
+
+# Capacitor platforms
+android/
+ios/
+
+# Keep resources folder
+!resources/
+
+# Node modules
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Capacitor
+.capacitor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Keystore files (NEVER commit!)
+*.keystore
+*.jks
