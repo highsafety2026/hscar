@@ -2,57 +2,50 @@ import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 
 class NotificationService {
+  constructor() {
+    this.isInitialized = false;
+  }
+
   async initialize() {
-    if (!Capacitor.isNativePlatform()) {
-      console.log('Push notifications only work on mobile devices');
-      return;
-    }
+    if (this.isInitialized) return { success: true };
+    if (!Capacitor.isNativePlatform()) return { success: false };
 
     try {
-      // Request permission
-      let permStatus = await PushNotifications.checkPermissions();
+      if (!PushNotifications) return { success: false };
 
+      const permStatus = await PushNotifications.checkPermissions().catch(() => ({ receive: 'denied' }));
+      
       if (permStatus.receive === 'prompt') {
-        permStatus = await PushNotifications.requestPermissions();
+        await PushNotifications.requestPermissions().catch(() => {});
       }
 
-      if (permStatus.receive !== 'granted') {
-        throw new Error('User denied permissions!');
+      if (permStatus.receive === 'granted') {
+        await PushNotifications.register().catch(() => {});
+        this.setupListeners();
       }
 
-      // Register with Apple / Google to receive push notifications
-      await PushNotifications.register();
-
-      // Listeners
-      await PushNotifications.addListener('registration', (token) => {
-        console.log('Push registration success, token: ' + token.value);
-        // Send token to your server
-        this.sendTokenToServer(token.value);
-      });
-
-      await PushNotifications.addListener('registrationError', (error) => {
-        console.error('Error on registration: ' + JSON.stringify(error));
-      });
-
-      await PushNotifications.addListener(
-        'pushNotificationReceived',
-        (notification) => {
-          console.log('Push notification received: ', notification);
-          // Show notification to user
-          this.showLocalNotification(notification);
-        }
-      );
-
-      await PushNotifications.addListener(
-        'pushNotificationActionPerformed',
-        (notification) => {
-          console.log('Push notification action performed', notification);
-          // Handle notification tap
-          this.handleNotificationTap(notification);
-        }
-      );
+      this.isInitialized = true;
+      return { success: true };
     } catch (error) {
-      console.error('Error initializing push notifications:', error);
+      return { success: false };
+    }
+  }
+
+  setupListeners() {
+    try {
+      PushNotifications.addListener('registration', (token) => {
+        this.sendTokenToServer(token.value).catch(() => {});
+      }).catch(() => {});
+
+      PushNotifications.addListener('pushNotificationReceived', (notification) => {
+        this.showLocalNotification(notification);
+      }).catch(() => {});
+
+      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+        this.handleNotificationTap(notification);
+      }).catch(() => {});
+    } catch (error) {
+      // Silent fail
     }
   }
 

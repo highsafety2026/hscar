@@ -1,5 +1,10 @@
 // API Configuration
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+// Use production URL if available, otherwise use local IP for mobile testing
+const API_URL = import.meta.env.VITE_API_URL || (
+  typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? window.location.origin
+    : 'http://localhost:3001'
+)
 
 export const api = {
   // Booking APIs

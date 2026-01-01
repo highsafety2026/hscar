@@ -25,43 +25,46 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (name, phone) => {
     try {
-      // Send to backend
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, phone })
-      });
+      // Create user data locally first
+      const userWithPoints = {
+        name,
+        phone,
+        points: 10, // Initial login bonus
+        loginDate: new Date().toISOString()
+      };
 
-      if (response.ok) {
-        const userData = await response.json();
-        const userWithPoints = {
-          ...userData,
-          name,
-          phone,
-          points: userData.points || 0,
-          loginDate: new Date().toISOString()
-        };
-
-        // Add 10 points for login
-        userWithPoints.points += 10;
-
-        localStorage.setItem('hs_user', JSON.stringify(userWithPoints));
-        setUser(userWithPoints);
-
-        // Update points on server
-        await fetch('/api/users/points', {
+      // Try to send to backend, but don't fail if it's not available
+      try {
+        const response = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            phone, 
-            points: userWithPoints.points,
-            action: 'login'
-          })
+          body: JSON.stringify({ name, phone }),
+          signal: AbortSignal.timeout(5000) // 5 second timeout
         });
 
-        return { success: true, user: userWithPoints };
+        if (response.ok) {
+          const userData = await response.json();
+          userWithPoints.points = (userData.points || 0) + 10;
+          
+          // Update points on server
+          await fetch('/api/users/points', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              phone, 
+              points: userWithPoints.points,
+              action: 'login'
+            })
+          }).catch(err => console.log('Points update skipped'));
+        }
+      } catch (fetchError) {
+        console.log('Backend not available, using local storage only');
       }
-      return { success: false, error: 'فشل تسجيل الدخول' };
+
+      localStorage.setItem('hs_user', JSON.stringify(userWithPoints));
+      setUser(userWithPoints);
+
+      return { success: true, user: userWithPoints };
     } catch (error) {
       console.error('Login error:', error);
       return { success: false, error: 'حدث خطأ في الاتصال' };
