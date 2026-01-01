@@ -396,6 +396,69 @@ app.delete('/api/bookings/:id', authMiddleware, (req, res) => {
   res.json({ success: true });
 });
 
+// ============== OFFERS API ==============
+
+// Get all active offers
+app.get('/api/offers', (req, res) => {
+  const db = loadDB();
+  const activeOffers = db.offers?.filter(o => o.active) || [];
+  res.json(activeOffers);
+});
+
+// Get all offers (admin only)
+app.get('/api/offers/all', authMiddleware, (req, res) => {
+  const db = loadDB();
+  res.json(db.offers || []);
+});
+
+// Create new offer (admin only)
+app.post('/api/offers', authMiddleware, (req, res) => {
+  const db = loadDB();
+  if (!db.offers) db.offers = [];
+  
+  const newOffer = {
+    id: `offer-${Date.now()}`,
+    ...req.body,
+    active: req.body.active !== undefined ? req.body.active : 1,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+  
+  db.offers.push(newOffer);
+  saveDB(db);
+  
+  res.json({ success: true, offer: newOffer });
+});
+
+// Update offer (admin only)
+app.patch('/api/offers/:id', authMiddleware, (req, res) => {
+  const db = loadDB();
+  if (!db.offers) db.offers = [];
+  
+  const index = db.offers.findIndex(o => o.id === req.params.id);
+  if (index === -1) return res.status(404).json({ error: 'Offer not found' });
+  
+  db.offers[index] = { 
+    ...db.offers[index], 
+    ...req.body,
+    updated_at: new Date().toISOString()
+  };
+  
+  saveDB(db);
+  res.json({ success: true, offer: db.offers[index] });
+});
+
+// Delete offer (admin only)
+app.delete('/api/offers/:id', authMiddleware, (req, res) => {
+  const db = loadDB();
+  if (!db.offers) db.offers = [];
+  
+  db.offers = db.offers.filter(o => o.id !== req.params.id);
+  saveDB(db);
+  
+  res.json({ success: true });
+});
+
 function generateReportCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   let code = '';
@@ -1563,6 +1626,33 @@ app.post('/api/notifications/send', async (req, res) => {
   } catch (error) {
     console.error('Error sending notification:', error);
     res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+// Broadcast notification to all users
+app.post('/api/notifications/broadcast', authMiddleware, async (req, res) => {
+  try {
+    const { title, body, data } = req.body;
+    
+    // Get all users
+    const users = db.prepare('SELECT phone FROM users').all();
+    
+    // Save notification for each user
+    const stmt = db.prepare(`
+      INSERT INTO notifications (phone, title, message, data, created_at) 
+      VALUES (?, ?, ?, ?, datetime("now"))
+    `);
+    
+    for (const user of users) {
+      stmt.run(user.phone, title, body, JSON.stringify(data || {}));
+    }
+    
+    // TODO: Send actual push notifications using FCM/APNS
+    
+    res.json({ success: true, count: users.length });
+  } catch (error) {
+    console.error('Error broadcasting notification:', error);
+    res.status(500).json({ error: 'Failed to broadcast notification' });
   }
 });
 
