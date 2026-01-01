@@ -1,5 +1,7 @@
 // Admin API - مبسطة وخفيفة
-const API_URL = 'http://localhost:3001'
+const API_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://hscar-backend.onrender.com' 
+  : 'http://localhost:3001'
 
 export const adminApi = {
   async login(username, password) {
