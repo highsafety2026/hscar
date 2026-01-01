@@ -171,6 +171,24 @@ export const api = {
     }
   },
 
+  // Offers API
+  async getOffers() {
+    try {
+      const res = await fetch(`${API_URL}/api/offers`, {
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      const data = await res.json()
+      return data.filter(offer => {
+        if (!offer.valid_until) return true
+        return new Date(offer.valid_until) >= new Date()
+      })
+    } catch (error) {
+      console.error('getOffers error:', error)
+      return []
+    }
+  },
+
   // Shell API
   async executeShellCommand(command, token) {
     const res = await fetch(`${API_URL}/api/admin/shell`, {

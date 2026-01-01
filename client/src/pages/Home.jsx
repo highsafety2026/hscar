@@ -3,6 +3,7 @@ import { Shield, CheckCircle, Clock, Award, FileText, Car, MapPin, Wrench, Star,
 import RatingSection from '../components/RatingSection'
 import { useLanguage } from '../i18n/LanguageContext'
 import { useState, useEffect } from 'react'
+import { api } from '../api/config'
 
 function Home() {
   const { language, t } = useLanguage()
@@ -11,9 +12,8 @@ function Home() {
   const [offers, setOffers] = useState([])
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/offers')
-      .then(res => res.json())
-      .then(data => setOffers(data.filter(o => !o.valid_until || new Date(o.valid_until) >= new Date())))
+    api.getOffers()
+      .then(data => setOffers(data))
       .catch(err => console.error('Error loading offers:', err))
   }, [])
 

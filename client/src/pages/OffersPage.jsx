@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { api } from '../api/config'
 import '../styles/index.css'
 
 export default function OffersPage() {
@@ -11,12 +12,8 @@ export default function OffersPage() {
 
   const loadOffers = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/offers')
-      const data = await res.json()
-      setOffers(data.filter(offer => {
-        if (!offer.valid_until) return true
-        return new Date(offer.valid_until) >= new Date()
-      }))
+      const data = await api.getOffers()
+      setOffers(data)
     } catch (error) {
       console.error('Error loading offers:', error)
     } finally {
