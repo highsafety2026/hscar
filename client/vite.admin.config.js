@@ -4,8 +4,10 @@ import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  publicDir: 'public-admin',
   build: {
     outDir: 'dist-admin',
+    emptyOutDir: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'admin.html')
