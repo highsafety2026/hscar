@@ -161,5 +161,85 @@ export const adminApi = {
       console.error('Send notification error:', error)
       throw error
     }
+  },
+
+  async getDashboardStats(token) {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/dashboard-stats`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Failed to fetch stats')
+      return await res.json()
+    } catch (error) {
+      console.error('Get stats error:', error)
+      return null
+    }
+  },
+
+  async getCustomers(token) {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/customers`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Failed to fetch customers')
+      return await res.json()
+    } catch (error) {
+      console.error('Get customers error:', error)
+      return []
+    }
+  },
+
+  async getPointsConfig(token) {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/points-config`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Failed to fetch points config')
+      return await res.json()
+    } catch (error) {
+      console.error('Get points config error:', error)
+      return null
+    }
+  },
+
+  async updatePointsConfig(config, token) {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/points-config`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(config),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Update points config failed')
+      return await res.json()
+    } catch (error) {
+      console.error('Update points config error:', error)
+      throw error
+    }
+  },
+
+  async redeemPoints(data, token) {
+    try {
+      const res = await fetch(`${API_URL}/api/admin/redeem-points`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(data),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Redeem points failed')
+      return await res.json()
+    } catch (error) {
+      console.error('Redeem points error:', error)
+      throw error
+    }
   }
 }
