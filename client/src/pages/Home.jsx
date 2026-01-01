@@ -2,11 +2,20 @@ import { Link } from 'react-router-dom'
 import { Shield, CheckCircle, Clock, Award, FileText, Car, MapPin, Wrench, Star, Coffee, Users, ArrowLeft, ArrowRight, Zap, Eye, Settings, FileCheck, Phone } from 'lucide-react'
 import RatingSection from '../components/RatingSection'
 import { useLanguage } from '../i18n/LanguageContext'
+import { useState, useEffect } from 'react'
 
 function Home() {
   const { language, t } = useLanguage()
   const isRTL = language === 'ar'
   const ArrowIcon = isRTL ? ArrowLeft : ArrowRight
+  const [offers, setOffers] = useState([])
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/offers')
+      .then(res => res.json())
+      .then(data => setOffers(data.filter(o => !o.valid_until || new Date(o.valid_until) >= new Date())))
+      .catch(err => console.error('Error loading offers:', err))
+  }, [])
 
   const services = [
     {
@@ -178,6 +187,174 @@ function Home() {
           </div>
         </div>
       </section>
+
+      {/* Offers Section */}
+      {offers.length > 0 && (
+        <section style={{ 
+          background: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)', 
+          padding: '60px 20px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+              <h2 style={{
+                fontSize: '48px',
+                fontWeight: 'bold',
+                color: 'white',
+                textShadow: '3px 3px 6px rgba(0,0,0,0.3)',
+                marginBottom: '10px',
+                animation: 'pulse 2s infinite'
+              }}>
+                🎉 عروض الفحص 🎉
+              </h2>
+              <p style={{ 
+                fontSize: '20px', 
+                color: 'white', 
+                opacity: 0.95 
+              }}>
+                عروض حصرية لفترة محدودة
+              </p>
+            </div>
+            
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '25px',
+              maxWidth: '1200px',
+              margin: '0 auto'
+            }}>
+              {offers.map(offer => (
+                <div key={offer.id} style={{
+                  background: 'white',
+                  borderRadius: '20px',
+                  padding: '30px',
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+                  position: 'relative',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  cursor: 'pointer'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-10px) scale(1.02)'
+                  e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,0,0,0.3)'
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                  e.currentTarget.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)'
+                }}
+                >
+                  {/* Discount Badge */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '-15px',
+                    right: '20px',
+                    background: 'linear-gradient(135deg, #FF6B6B, #FF8E53)',
+                    color: 'white',
+                    padding: '10px 25px',
+                    borderRadius: '50px',
+                    fontSize: '28px',
+                    fontWeight: 'bold',
+                    boxShadow: '0 6px 20px rgba(255,107,107,0.5)',
+                    transform: 'rotate(-5deg)'
+                  }}>
+                    {offer.discount}% 🔥
+                  </div>
+
+                  <h3 style={{
+                    fontSize: '24px',
+                    fontWeight: 'bold',
+                    color: '#0B1F3A',
+                    marginTop: '20px',
+                    marginBottom: '15px'
+                  }}>
+                    {offer.title_ar}
+                  </h3>
+
+                  {offer.description_ar && (
+                    <p style={{
+                      color: '#64748b',
+                      marginBottom: '15px',
+                      lineHeight: '1.6'
+                    }}>
+                      {offer.description_ar}
+                    </p>
+                  )}
+
+                  {offer.valid_until && (
+                    <div style={{
+                      background: '#FFF3CD',
+                      padding: '12px',
+                      borderRadius: '10px',
+                      marginBottom: '15px',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: '12px', color: '#856404', fontWeight: '600' }}>
+                        ينتهي في
+                      </div>
+                      <div style={{ fontSize: '16px', color: '#856404', fontWeight: 'bold' }}>
+                        {new Date(offer.valid_until).toLocaleDateString('ar-SA')}
+                      </div>
+                    </div>
+                  )}
+
+                  <Link 
+                    to="/booking" 
+                    style={{
+                      display: 'block',
+                      background: 'linear-gradient(135deg, #0B1F3A, #1565C0)',
+                      color: 'white',
+                      padding: '15px',
+                      borderRadius: '12px',
+                      textAlign: 'center',
+                      textDecoration: 'none',
+                      fontWeight: 'bold',
+                      fontSize: '16px',
+                      boxShadow: '0 4px 15px rgba(11,31,58,0.3)',
+                      transition: 'all 0.3s'
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.transform = 'translateY(-2px)'
+                      e.target.style.boxShadow = '0 6px 20px rgba(11,31,58,0.4)'
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.transform = 'translateY(0)'
+                      e.target.style.boxShadow = '0 4px 15px rgba(11,31,58,0.3)'
+                    }}
+                  >
+                    احجز الآن 🚀
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Animated Background Elements */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            opacity: 0.1,
+            pointerEvents: 'none'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: '20%',
+              left: '10%',
+              fontSize: '150px',
+              animation: 'float 3s ease-in-out infinite'
+            }}>🎊</div>
+            <div style={{
+              position: 'absolute',
+              top: '60%',
+              right: '10%',
+              fontSize: '120px',
+              animation: 'float 4s ease-in-out infinite'
+            }}>✨</div>
+          </div>
+        </section>
+      )}
 
       <section className="why-us-section">
         <div className="container">
