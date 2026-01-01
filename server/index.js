@@ -659,6 +659,35 @@ app.get('/api/reports', authMiddleware, (req, res) => {
   res.json(db.reports);
 });
 
+// Endpoint for downloading report files
+app.get('/api/reports/download/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '../uploads', filename);
+  
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+  
+  res.download(filePath, filename, (err) => {
+    if (err) {
+      console.error('Error downloading file:', err);
+      res.status(500).json({ error: 'Error downloading file' });
+    }
+  });
+});
+
+// Endpoint for downloading report images
+app.get('/api/reports/image/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '../uploads', filename);
+  
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Image not found' });
+  }
+  
+  res.sendFile(filePath);
+});
+
 app.delete('/api/reports/:id', authMiddleware, (req, res) => {
   const db = loadDB();
   const report = db.reports.find(r => r.id === req.params.id);

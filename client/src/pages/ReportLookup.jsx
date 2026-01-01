@@ -3,6 +3,8 @@ import { FileText, Download, Search, Image, X } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 import { api } from '../api/config'
 
+const API_URL = 'https://hscar-backend.onrender.com'
+
 function ReportLookup() {
   const { language, t } = useLanguage()
   const [code, setCode] = useState('')
@@ -220,7 +222,7 @@ function ReportLookup() {
               
               {report.filename && (
                 <a
-                  href={`/uploads/${report.filename}`}
+                  href={`${API_URL}/api/reports/download/${report.filename}`}
                   download
                   target="_blank"
                   rel="noopener noreferrer"
@@ -269,7 +271,7 @@ function ReportLookup() {
                     {report.images.map((img, index) => (
                       <div
                         key={index}
-                        onClick={() => setSelectedImage(`/uploads/${img}`)}
+                        onClick={() => setSelectedImage(`${API_URL}/api/reports/image/${img}`)}
                         style={{
                           borderRadius: '8px',
                           overflow: 'hidden',
@@ -281,7 +283,7 @@ function ReportLookup() {
                         onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
                       >
                         <img
-                          src={`/uploads/${img}`}
+                          src={`${API_URL}/api/reports/image/${img}`}
                           alt={`${language === 'ar' ? 'صورة فحص' : 'Inspection image'} ${index + 1}`}
                           style={{
                             width: '100%',
@@ -299,7 +301,7 @@ function ReportLookup() {
                       report.images.forEach((img, i) => {
                         setTimeout(() => {
                           const link = document.createElement('a')
-                          link.href = `/uploads/${img}`
+                          link.href = `${API_URL}/api/reports/image/${img}`
                           link.download = `inspection-image-${i + 1}.jpg`
                           link.click()
                         }, i * 300)
