@@ -47,14 +47,14 @@ function AdminDashboard() {
 
   const handleUploadReport = async (e) => {
     e.preventDefault()
-    if (!uploadData.customerName || !uploadData.phone || !uploadData.file) return
+    if (!uploadData.code || !uploadData.file) return
     
     setLoading(true)
     try {
       const formData = new FormData()
-      formData.append('customerName', uploadData.customerName)
-      formData.append('phone', uploadData.phone)
-      if (uploadData.code) formData.append('code', uploadData.code.toUpperCase())
+      if (uploadData.customerName) formData.append('customerName', uploadData.customerName)
+      if (uploadData.phone) formData.append('phone', uploadData.phone)
+      formData.append('code', uploadData.code.toUpperCase())
       formData.append('file', uploadData.file)
 
       await adminApi.uploadReport(formData, localStorage.getItem('adminToken'))
@@ -337,26 +337,25 @@ function AdminDashboard() {
             <form onSubmit={handleUploadReport}>
               <input
                 type="text"
-                placeholder="اسم العميل *"
+                placeholder="اسم العميل (اختياري)"
                 value={uploadData.customerName}
                 onChange={(e) => setUploadData({ ...uploadData, customerName: e.target.value })}
                 style={inputStyle}
-                required
               />
               <input
                 type="tel"
-                placeholder="رقم الهاتف *"
+                placeholder="رقم الهاتف (اختياري)"
                 value={uploadData.phone}
                 onChange={(e) => setUploadData({ ...uploadData, phone: e.target.value })}
                 style={inputStyle}
-                required
               />
               <input
                 type="text"
-                placeholder="رمز التقرير (اختياري)"
+                placeholder="رمز التقرير *"
                 value={uploadData.code}
                 onChange={(e) => setUploadData({ ...uploadData, code: e.target.value })}
                 style={inputStyle}
+                required
               />
               <input
                 type="file"
