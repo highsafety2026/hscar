@@ -5,91 +5,170 @@ const API_URL = 'https://hscar-backend.onrender.com'
 export const api = {
   // Booking APIs
   async fetchBookedSlots(date) {
-    const res = await fetch(`${API_URL}/api/slots?date=${date}`)
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/slots?date=${date}`, {
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('fetchBookedSlots error:', error)
+      return []
+    }
   },
 
   async createBooking(bookingData) {
-    const res = await fetch(`${API_URL}/api/bookings`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(bookingData)
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('createBooking error:', error)
+      return { error: 'فشل الاتصال بالسيرفر' }
+    }
   },
 
   async getBookings(token) {
-    const res = await fetch(`${API_URL}/api/bookings`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/bookings`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('getBookings error:', error)
+      return []
+    }
   },
 
   // Payment APIs
   async createCheckoutSession(sessionData) {
-    const res = await fetch(`${API_URL}/api/create-checkout-session`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(sessionData)
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/create-checkout-session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sessionData),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('createCheckoutSession error:', error)
+      return { error: 'فشل الاتصال بالسيرفر' }
+    }
   },
 
   async verifyPayment(sessionId) {
-    const res = await fetch(`${API_URL}/api/verify-payment?session_id=${sessionId}`)
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/verify-payment?session_id=${sessionId}`, {
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('verifyPayment error:', error)
+      return { error: 'فشل التحقق من الدفع' }
+    }
   },
 
   // Admin APIs
   async adminLogin(credentials) {
-    const res = await fetch(`${API_URL}/api/admin/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(credentials)
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('adminLogin error:', error)
+      return { error: 'فشل الاتصال بالسيرفر' }
+    }
   },
 
   async adminLogout(token) {
-    const res = await fetch(`${API_URL}/api/admin/logout`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/admin/logout`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('adminLogout error:', error)
+      return { success: true }
+    }
   },
 
   // Report APIs
   async findReportByCode(code) {
-    const res = await fetch(`${API_URL}/api/reports/find-by-code`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code })
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/reports/find-by-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('findReportByCode error:', error)
+      return { error: 'فشل البحث عن التقرير' }
+    }
   },
 
   async getReports(token) {
-    const res = await fetch(`${API_URL}/api/reports`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/reports`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('getReports error:', error)
+      return []
+    }
   },
 
   async uploadReport(formData, token) {
-    const res = await fetch(`${API_URL}/api/reports`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/reports`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` },
+        body: formData,
+        signal: AbortSignal.timeout(30000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('uploadReport error:', error)
+      return { error: 'فشل رفع التقرير' }
+    }
   },
 
   async deleteReport(reportId, token) {
-    const res = await fetch(`${API_URL}/api/reports/${reportId}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-    return res.json()
+    try {
+      const res = await fetch(`${API_URL}/api/reports/${reportId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('deleteReport error:', error)
+      return { error: 'فشل حذف التقرير' }
+    }
   },
 
   // Shell API

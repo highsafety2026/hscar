@@ -39,7 +39,7 @@ export const AuthProvider = ({ children }) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, phone }),
-          signal: AbortSignal.timeout(5000) // 5 second timeout
+          signal: AbortSignal.timeout(10000) // 10 second timeout
         });
 
         if (response.ok) {
@@ -54,7 +54,8 @@ export const AuthProvider = ({ children }) => {
               phone, 
               points: userWithPoints.points,
               action: 'login'
-            })
+            }),
+            signal: AbortSignal.timeout(10000)
           }).catch(err => console.log('Points update skipped'));
         }
       } catch (fetchError) {
@@ -90,7 +91,8 @@ export const AuthProvider = ({ children }) => {
           phone: user.phone, 
           points: updatedUser.points,
           action: 'update'
-        })
+        }),
+        signal: AbortSignal.timeout(10000)
       }).catch(console.error);
     }
   };

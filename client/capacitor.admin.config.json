@@ -1,0 +1,12 @@
+{
+  "appId": "com.highsafety.admin",
+  "appName": "HS Admin",
+  "webDir": "dist-admin",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "path": "android-admin"
+  }
+}

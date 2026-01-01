@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { LanguageProvider } from './i18n/LanguageContext'
 import { AuthProvider } from './contexts/AuthContext'
@@ -19,7 +20,6 @@ import PaymentCancel from './pages/PaymentCancel'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Rewards from './pages/Rewards'
-import { useEffect } from 'react'
 import notificationService from './services/notificationService'
 
 function App() {
