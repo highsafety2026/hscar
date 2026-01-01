@@ -12,7 +12,7 @@ function AdminDashboardNew() {
   const [reports, setReports] = useState([])
   const [offers, setOffers] = useState([])
   const [loading, setLoading] = useState(false)
-  const [uploadData, setUploadData] = useState({ customerName: '', code: '', file: null })
+  const [uploadData, setUploadData] = useState({ customerName: '', phone: '', code: '', file: null })
   const [offerData, setOfferData] = useState({ 
     title_ar: '', description_ar: '', discount: '', valid_until: '' 
   })
@@ -52,17 +52,18 @@ function AdminDashboardNew() {
 
   const handleUploadReport = async (e) => {
     e.preventDefault()
-    if (!uploadData.customerName || !uploadData.file) return
+    if (!uploadData.customerName || !uploadData.phone || !uploadData.file) return
     
     setLoading(true)
     try {
       const formData = new FormData()
       formData.append('customerName', uploadData.customerName)
+      formData.append('phone', uploadData.phone)
       if (uploadData.code) formData.append('code', uploadData.code.toUpperCase())
       formData.append('file', uploadData.file)
 
       await adminApi.uploadReport(formData, localStorage.getItem('adminToken'))
-      setUploadData({ customerName: '', code: '', file: null })
+      setUploadData({ customerName: '', phone: '', code: '', file: null })
       alert('✅ تم رفع التقرير بنجاح')
       loadData()
     } catch (error) {
@@ -310,6 +311,14 @@ function ReportsTab({ reports, uploadData, setUploadData, handleUpload, deleteRe
               placeholder="اسم العميل"
               value={uploadData.customerName}
               onChange={(e) => setUploadData({...uploadData, customerName: e.target.value})}
+              style={inputStyle}
+              required
+            />
+            <input
+              type="tel"
+              placeholder="رقم الهاتف"
+              value={uploadData.phone}
+              onChange={(e) => setUploadData({...uploadData, phone: e.target.value})}
               style={inputStyle}
               required
             />
