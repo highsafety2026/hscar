@@ -287,8 +287,20 @@ function authMiddleware(req, res, next) {
   if (!token) {
     return res.status(401).json({ error: 'غير مصرح' });
   }
-  const db = loadDB();
-  const session = db.sessions[token];
+  
+  // Check SQLite first
+  try {
+    const session = db.prepare('SELECT * FROM admin_sessions WHERE token = ? AND expires > ?').get(token, Date.now());
+    if (session) {
+      return next();
+    }
+  } catch (error) {
+    console.log('SQLite session check failed, trying JSON DB');
+  }
+  
+  // Fallback to JSON DB
+  const dbJson = loadDB();
+  const session = dbJson.sessions[token];
   if (!session || session.expires < Date.now()) {
     return res.status(401).json({ error: 'جلسة منتهية' });
   }
@@ -500,63 +512,107 @@ app.get('/api/admin/dashboard-stats', authMiddleware, (req, res) => {
 
 // Get all active offers
 app.get('/api/offers', (req, res) => {
-  const db = loadDB();
-  const activeOffers = db.offers?.filter(o => o.active) || [];
-  res.json(activeOffers);
+  try {
+    const offers = db.prepare('SELECT * FROM offers WHERE active = 1').all();
+    res.json(offers);
+  } catch (error) {
+    console.error('Error fetching offers:', error);
+    res.json([]);
+  }
 });
 
 // Get all offers (admin only)
 app.get('/api/offers/all', authMiddleware, (req, res) => {
-  const db = loadDB();
-  res.json(db.offers || []);
+  try {
+    const offers = db.prepare('SELECT * FROM offers ORDER BY created_at DESC').all();
+    res.json(offers);
+  } catch (error) {
+    console.error('Error fetching all offers:', error);
+    res.json([]);
+  }
 });
 
 // Create new offer (admin only)
 app.post('/api/offers', authMiddleware, (req, res) => {
-  const db = loadDB();
-  if (!db.offers) db.offers = [];
-  
-  const newOffer = {
-    id: `offer-${Date.now()}`,
-    ...req.body,
-    active: req.body.active !== undefined ? req.body.active : 1,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
-  };
-  
-  db.offers.push(newOffer);
-  saveDB(db);
-  
-  res.json({ success: true, offer: newOffer });
+  try {
+    const { title_ar, title_en, description_ar, description_en, discount, valid_until, image_url, active } = req.body;
+    
+    const stmt = db.prepare(`
+      INSERT INTO offers (title_ar, title_en, description_ar, description_en, discount, valid_until, image_url, active)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    const result = stmt.run(
+      title_ar || '',
+      title_en || '',
+      description_ar || '',
+      description_en || '',
+      discount || 0,
+      valid_until || null,
+      image_url || null,
+      active !== undefined ? active : 1
+    );
+    
+    const newOffer = db.prepare('SELECT * FROM offers WHERE id = ?').get(result.lastInsertRowid);
+    res.json({ success: true, offer: newOffer });
+  } catch (error) {
+    console.error('Error creating offer:', error);
+    res.status(500).json({ error: 'Failed to create offer' });
+  }
 });
 
 // Update offer (admin only)
 app.patch('/api/offers/:id', authMiddleware, (req, res) => {
-  const db = loadDB();
-  if (!db.offers) db.offers = [];
-  
-  const index = db.offers.findIndex(o => o.id === req.params.id);
-  if (index === -1) return res.status(404).json({ error: 'Offer not found' });
-  
-  db.offers[index] = { 
-    ...db.offers[index], 
-    ...req.body,
-    updated_at: new Date().toISOString()
-  };
-  
-  saveDB(db);
-  res.json({ success: true, offer: db.offers[index] });
+  try {
+    const { title_ar, title_en, description_ar, description_en, discount, valid_until, image_url, active } = req.body;
+    
+    const stmt = db.prepare(`
+      UPDATE offers 
+      SET title_ar = COALESCE(?, title_ar),
+          title_en = COALESCE(?, title_en),
+          description_ar = COALESCE(?, description_ar),
+          description_en = COALESCE(?, description_en),
+          discount = COALESCE(?, discount),
+          valid_until = COALESCE(?, valid_until),
+          image_url = COALESCE(?, image_url),
+          active = COALESCE(?, active),
+          updated_at = datetime('now')
+      WHERE id = ?
+    `);
+    
+    const result = stmt.run(
+      title_ar, title_en, description_ar, description_en,
+      discount, valid_until, image_url, active,
+      req.params.id
+    );
+    
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Offer not found' });
+    }
+    
+    const updatedOffer = db.prepare('SELECT * FROM offers WHERE id = ?').get(req.params.id);
+    res.json({ success: true, offer: updatedOffer });
+  } catch (error) {
+    console.error('Error updating offer:', error);
+    res.status(500).json({ error: 'Failed to update offer' });
+  }
 });
 
 // Delete offer (admin only)
 app.delete('/api/offers/:id', authMiddleware, (req, res) => {
-  const db = loadDB();
-  if (!db.offers) db.offers = [];
-  
-  db.offers = db.offers.filter(o => o.id !== req.params.id);
-  saveDB(db);
-  
-  res.json({ success: true });
+  try {
+    const stmt = db.prepare('DELETE FROM offers WHERE id = ?');
+    const result = stmt.run(req.params.id);
+    
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Offer not found' });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting offer:', error);
+    res.status(500).json({ error: 'Failed to delete offer' });
+  }
 });
 
 function generateReportCode() {
