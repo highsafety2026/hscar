@@ -189,13 +189,22 @@ function AdminDashboard() {
             إدارة الحجوزات والتقارير والعروض
           </p>
         </div>
-        <button onClick={logout} style={{
-          ...buttonStyle,
-          background: 'rgba(255,255,255,0.2)',
-          backdropFilter: 'blur(10px)'
-        }}>
-          تسجيل خروج
-        </button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={() => { loadData(); alert('✅ تم تحديث البيانات!') }} style={{
+            ...buttonStyle,
+            background: 'rgba(52, 211, 153, 0.9)',
+            backdropFilter: 'blur(10px)'
+          }}>
+            🔄 تحديث
+          </button>
+          <button onClick={logout} style={{
+            ...buttonStyle,
+            background: 'rgba(255,255,255,0.2)',
+            backdropFilter: 'blur(10px)'
+          }}>
+            تسجيل خروج
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

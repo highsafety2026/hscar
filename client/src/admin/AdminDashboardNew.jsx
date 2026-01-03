@@ -148,17 +148,33 @@ function AdminDashboardNew() {
       }}>
         <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h1 style={{ margin: 0, fontSize: '24px' }}>🎛️ لوحة التحكم - HS</h1>
-          <button onClick={logout} style={{
-            background: 'rgba(255,255,255,0.2)',
-            border: 'none',
-            color: 'white',
-            padding: '10px 20px',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontWeight: '600'
-          }}>
-            تسجيل الخروج
-          </button>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <button onClick={() => { loadData(); alert('✅ تم تحديث البيانات!') }} style={{
+              background: 'rgba(52, 211, 153, 0.9)',
+              border: 'none',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              🔄 تحديث البيانات
+            </button>
+            <button onClick={logout} style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: 'none',
+              color: 'white',
+              padding: '10px 20px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontWeight: '600'
+            }}>
+              تسجيل الخروج
+            </button>
+          </div>
         </div>
       </header>
 
