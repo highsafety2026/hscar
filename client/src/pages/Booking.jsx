@@ -824,32 +824,6 @@ function Booking() {
                     
                     <div className="payment-options">
                       <div 
-                        className={`payment-option ${paymentMethod === 'electronic' ? 'selected' : ''}`}
-                        onClick={() => setPaymentMethod('electronic')}
-                      >
-                        <div className="payment-icon electronic">
-                          <CreditCard size={32} />
-                        </div>
-                        <div className="payment-info">
-                          <strong>{language === 'ar' ? 'الدفع الإلكتروني' : 'Electronic Payment'}</strong>
-                          <small>{language === 'ar' ? 'بطاقة ائتمان / Apple Pay' : 'Credit Card / Apple Pay'}</small>
-                          <div className="discount-info">
-                            <span className="discount-badge">-5%</span>
-                            <span className="discount-text">
-                              {language === 'ar' 
-                                ? `السعر: ${Math.round(getTotalPrice() * 0.95)} درهم بدلاً من ${getTotalPrice()} درهم`
-                                : `Price: ${Math.round(getTotalPrice() * 0.95)} AED instead of ${getTotalPrice()} AED`}
-                            </span>
-                          </div>
-                        </div>
-                        {paymentMethod === 'electronic' && (
-                          <div className="selected-check" style={{ background: 'linear-gradient(135deg, #4285F4, #1a73e8)' }}>
-                            <Check size={16} />
-                          </div>
-                        )}
-                      </div>
-
-                      <div 
                         className={`payment-option ${paymentMethod === 'cash' ? 'selected' : ''}`}
                         onClick={() => setPaymentMethod('cash')}
                       >
@@ -857,8 +831,8 @@ function Booking() {
                           <Banknote size={32} />
                         </div>
                         <div className="payment-info">
-                          <strong>{language === 'ar' ? 'الدفع كاش عند الوصول' : 'Cash on Arrival'}</strong>
-                          <small>{language === 'ar' ? 'ادفع نقداً في المركز' : 'Pay at the center'}</small>
+                          <strong>{language === 'ar' ? 'الدفع نقداً عند الوصول' : 'Cash on Arrival'}</strong>
+                          <small>{language === 'ar' ? 'ادفع نقداً في المركز' : 'Pay cash at the center'}</small>
                         </div>
                         <div className="payment-badge cash-badge">
                           {language === 'ar' ? 'نقدي' : 'Cash'}
@@ -869,19 +843,46 @@ function Booking() {
                           </div>
                         )}
                       </div>
+
+                      <div 
+                        className={`payment-option ${paymentMethod === 'card' ? 'selected' : ''}`}
+                        onClick={() => setPaymentMethod('card')}
+                      >
+                        <div className="payment-icon electronic">
+                          <CreditCard size={32} />
+                        </div>
+                        <div className="payment-info">
+                          <strong>{language === 'ar' ? 'الدفع بالكارت عند الوصول' : 'Card on Arrival'}</strong>
+                          <small>{language === 'ar' ? 'ادفع بالبطاقة في المركز' : 'Pay by card at the center'}</small>
+                        </div>
+                        <div className="payment-badge secure">
+                          {language === 'ar' ? 'كارت' : 'Card'}
+                        </div>
+                        {paymentMethod === 'card' && (
+                          <div className="selected-check" style={{ background: 'linear-gradient(135deg, #4285F4, #1a73e8)' }}>
+                            <Check size={16} />
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="payment-summary">
                       <div className="payment-total">
                         <span>{language === 'ar' ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
-                        {paymentMethod === 'electronic' ? (
-                          <div className="amount-with-discount">
-                            <span className="original-amount">{getTotalPrice()}</span>
-                            <span className="discounted-amount">{Math.round(getTotalPrice() * 0.95)} {language === 'ar' ? 'درهم' : 'AED'}</span>
-                          </div>
-                        ) : (
-                          <span className="amount">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
-                        )}
+                        <span className="amount">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                      </div>
+                      <div style={{ 
+                        marginTop: '10px', 
+                        padding: '12px', 
+                        background: 'rgba(52,168,83,0.1)', 
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        color: '#1e8e3e',
+                        textAlign: 'center'
+                      }}>
+                        {language === 'ar' 
+                          ? '💡 الدفع عند الوصول - نقبل النقد والبطاقات' 
+                          : '💡 Pay on arrival - We accept cash and cards'}
                       </div>
                     </div>
 
@@ -892,9 +893,7 @@ function Booking() {
                     >
                       {loading 
                         ? (language === 'ar' ? 'جاري المعالجة...' : 'Processing...') 
-                        : paymentMethod === 'electronic'
-                          ? (language === 'ar' ? 'المتابعة للدفع' : 'Proceed to Payment')
-                          : (language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking')}
+                        : (language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking')}
                     </button>
                   </div>
                 </div>
