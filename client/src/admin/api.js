@@ -135,6 +135,25 @@ export const adminApi = {
     }
   },
 
+  async updateOffer(id, offerData, token) {
+    try {
+      const res = await fetch(`${API_URL}/api/offers/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(offerData),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Update offer failed')
+      return await res.json()
+    } catch (error) {
+      console.error('Update offer error:', error)
+      throw error
+    }
+  },
+
   async deleteOffer(id, token) {
     try {
       const res = await fetch(`${API_URL}/api/offers/${id}`, {

@@ -150,9 +150,20 @@ function AdminDashboardNew() {
     if (!confirm('هل أنت متأكد من حذف العرض؟')) return
     try {
       await adminApi.deleteOffer(id, localStorage.getItem('adminToken'))
+      alert('✅ تم حذف العرض')
       loadData()
     } catch (error) {
       alert('❌ فشل حذف العرض')
+    }
+  }
+
+  const toggleOfferStatus = async (id, currentStatus) => {
+    try {
+      await adminApi.updateOffer(id, { active: currentStatus ? 0 : 1 }, localStorage.getItem('adminToken'))
+      alert(currentStatus ? '✅ تم إخفاء العرض من الموقع' : '✅ تم تفعيل العرض في الموقع')
+      loadData()
+    } catch (error) {
+      alert('❌ فشل تحديث حالة العرض')
     }
   }
 
@@ -273,6 +284,7 @@ function AdminDashboardNew() {
             setOfferData={setOfferData}
             handleCreate={handleCreateOffer}
             deleteOffer={deleteOffer}
+            toggleStatus={toggleOfferStatus}
             loading={loading}
           />
         )}
@@ -522,10 +534,10 @@ function ReportsTab({ reports, uploadData, setUploadData, handleUpload, deleteRe
 }
 
 // Offers Tab Component  
-function OffersTab({ offers, offerData, setOfferData, handleCreate, deleteOffer, loading }) {
+function OffersTab({ offers, offerData, setOfferData, handleCreate, deleteOffer, toggleStatus, loading }) {
   return (
     <div>
-      <h2 style={{ marginBottom: '20px', color: '#0B1F3A' }}>🎉 العروض</h2>
+      <h2 style={{ marginBottom: '20px', color: '#0B1F3A' }}>🎉 العروض ({offers.length})</h2>
       
       {/* Create Form */}
       <div style={{ background: 'white', borderRadius: '15px', padding: '20px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
@@ -572,9 +584,31 @@ function OffersTab({ offers, offerData, setOfferData, handleCreate, deleteOffer,
       {/* Offers List */}
       <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
         {offers.map((offer) => (
-          <div key={offer.id} style={{ background: 'white', borderRadius: '15px', padding: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
-            <h3 style={{ marginBottom: '10px', color: '#0B1F3A' }}>{offer.title_ar}</h3>
-            <p style={{ color: '#64748b', marginBottom: '10px' }}>{offer.description_ar}</p>
+          <div key={offer.id} style={{ 
+            background: 'white', 
+            borderRadius: '15px', 
+            padding: '20px', 
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            position: 'relative',
+            border: offer.active ? '3px solid #34A853' : '3px solid #dc3545'
+          }}>
+            {/* Status Badge */}
+            <div style={{
+              position: 'absolute',
+              top: '10px',
+              left: '10px',
+              padding: '5px 12px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 'bold',
+              background: offer.active ? '#34A853' : '#dc3545',
+              color: 'white'
+            }}>
+              {offer.active ? '✅ مفعّل' : '❌ مخفي'}
+            </div>
+            
+            <h3 style={{ marginBottom: '10px', color: '#0B1F3A', marginTop: '30px' }}>{offer.title_ar}</h3>
+            <p style={{ color: '#64748b', marginBottom: '10px', minHeight: '40px' }}>{offer.description_ar || 'لا يوجد وصف'}</p>
             <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#0088FE', marginBottom: '10px' }}>
               {offer.discount}% خصم
             </div>
@@ -583,11 +617,44 @@ function OffersTab({ offers, offerData, setOfferData, handleCreate, deleteOffer,
                 صالح حتى: {new Date(offer.valid_until).toLocaleDateString('ar-SA')}
               </p>
             )}
-            <button onClick={() => deleteOffer(offer.id)} style={{...buttonStyle, background: '#dc3545', width: '100%'}}>
-              حذف العرض
-            </button>
+            
+            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+              <button 
+                onClick={() => toggleStatus(offer.id, offer.active)} 
+                style={{
+                  ...buttonStyle, 
+                  background: offer.active ? '#ffc107' : '#34A853',
+                  flex: 1,
+                  fontSize: '14px'
+                }}
+              >
+                {offer.active ? '👁️ إخفاء' : '✅ تفعيل'}
+              </button>
+              <button 
+                onClick={() => deleteOffer(offer.id)} 
+                style={{
+                  ...buttonStyle, 
+                  background: '#dc3545',
+                  flex: 1,
+                  fontSize: '14px'
+                }}
+              >
+                🗑️ حذف
+              </button>
+            </div>
           </div>
         ))}
+        
+        {offers.length === 0 && (
+          <div style={{ 
+            gridColumn: '1 / -1', 
+            textAlign: 'center', 
+            padding: '40px', 
+            color: '#64748b' 
+          }}>
+            لا توجد عروض حالياً
+          </div>
+        )}
       </div>
     </div>
   )
