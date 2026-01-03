@@ -189,6 +189,40 @@ export const api = {
     }
   },
 
+  // User & Points APIs
+  async loginUser(name, phone) {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone }),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      return res.json()
+    } catch (error) {
+      console.error('loginUser error:', error)
+      return { error: 'فشل تسجيل الدخول' }
+    }
+  },
+
+  async getUserPoints(phone) {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, name: '' }),
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Network error')
+      const data = await res.json()
+      return data.points || 0
+    } catch (error) {
+      console.error('getUserPoints error:', error)
+      return 0
+    }
+  },
+
   // Shell API
   async executeShellCommand(command, token) {
     const res = await fetch(`${API_URL}/api/admin/shell`, {

@@ -100,7 +100,21 @@ function Booking() {
   const [selectedService, setSelectedService] = useState(null)
   const [signature, setSignature] = useState(null)
   const [isDrawing, setIsDrawing] = useState(false)
+  const [userPoints, setUserPoints] = useState(0)
+  const [activeOffers, setActiveOffers] = useState([])
   const canvasRef = useRef(null)
+
+  useEffect(() => {
+    // Load active offers
+    api.getOffers().then(offers => setActiveOffers(offers))
+  }, [])
+
+  useEffect(() => {
+    // Load user points if phone is entered
+    if (formData.phone && formData.phone.length >= 9) {
+      api.getUserPoints(formData.phone).then(points => setUserPoints(points))
+    }
+  }, [formData.phone])
 
   const getServicePrice = (serviceId) => {
     if (!selectedCarCategory) return '---'
@@ -307,6 +321,87 @@ function Booking() {
       </div>
 
       <div className="booking-content">
+        {/* Points and Offers Section */}
+        {(userPoints > 0 || activeOffers.length > 0) && !success && (
+          <div style={{ marginBottom: '25px', display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
+            {userPoints > 0 && (
+              <div style={{
+                flex: '1',
+                minWidth: '250px',
+                background: 'linear-gradient(135deg, #C89D2A 0%, #9a7b1f 100%)',
+                borderRadius: '15px',
+                padding: '20px',
+                color: 'white',
+                boxShadow: '0 4px 15px rgba(200,157,42,0.3)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <Star size={24} fill="white" />
+                  <h3 style={{ margin: 0, fontSize: '1.1rem' }}>
+                    {language === 'ar' ? 'نقاطك' : 'Your Points'}
+                  </h3>
+                </div>
+                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '5px' }}>
+                  {userPoints}
+                </div>
+                <p style={{ margin: 0, opacity: 0.9, fontSize: '0.9rem' }}>
+                  {language === 'ar' ? 'نقطة متاحة للاستخدام' : 'points available'}
+                </p>
+              </div>
+            )}
+            
+            {activeOffers.length > 0 && (
+              <div style={{
+                flex: '2',
+                minWidth: '300px',
+                background: 'white',
+                borderRadius: '15px',
+                padding: '20px',
+                border: '2px solid #f0f0f0',
+                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+              }}>
+                <h3 style={{ margin: '0 0 15px 0', color: '#0B1F3A', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Sparkles size={20} color="#C89D2A" />
+                  {language === 'ar' ? '🎉 عروض خاصة' : '🎉 Special Offers'}
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {activeOffers.slice(0, 2).map((offer, index) => (
+                    <div key={index} style={{
+                      background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
+                      borderRadius: '10px',
+                      padding: '12px 15px',
+                      border: '1px solid #e2e8f0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
+                    }}>
+                      <div style={{
+                        background: 'linear-gradient(135deg, #34A853 0%, #1e8e3e 100%)',
+                        color: 'white',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        minWidth: '60px',
+                        textAlign: 'center'
+                      }}>
+                        {offer.discount_percentage}%
+                      </div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 'bold', color: '#0B1F3A', marginBottom: '4px' }}>
+                          {language === 'ar' ? offer.title_ar : offer.title_en}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                          {language === 'ar' ? offer.description_ar : offer.description_en}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {success ? (
           <div className="success-container">
             <div className="success-card">
