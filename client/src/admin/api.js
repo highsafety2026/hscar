@@ -247,5 +247,34 @@ export const adminApi = {
       console.error('Redeem points error:', error)
       throw error
     }
+  },
+
+  async getRatings(token) {
+    try {
+      const res = await fetch(`${API_URL}/api/ratings`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Failed to fetch ratings')
+      return await res.json()
+    } catch (error) {
+      console.error('Get ratings error:', error)
+      return { ratings: [], stats: { count: 0, average: 0 } }
+    }
+  },
+
+  async deleteRating(id, token) {
+    try {
+      const res = await fetch(`${API_URL}/api/ratings/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` },
+        signal: AbortSignal.timeout(10000)
+      })
+      if (!res.ok) throw new Error('Delete failed')
+      return await res.json()
+    } catch (error) {
+      console.error('Delete rating error:', error)
+      throw error
+    }
   }
 }

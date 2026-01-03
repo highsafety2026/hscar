@@ -17,6 +17,8 @@ function AdminDashboardNew() {
     title_ar: '', description_ar: '', discount: '', valid_until: '' 
   })
   const [notification, setNotification] = useState({ title: '', message: '', target: 'all' })
+  const [ratings, setRatings] = useState([])
+  const [ratingsStats, setRatingsStats] = useState({ count: 0, average: 0 })
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -31,16 +33,19 @@ function AdminDashboardNew() {
   const loadData = async () => {
     try {
       const token = localStorage.getItem('adminToken')
-      const [statsData, bookingsData, reportsData, offersData] = await Promise.all([
+      const [statsData, bookingsData, reportsData, offersData, ratingsData] = await Promise.all([
         adminApi.getDashboardStats(token),
         adminApi.getBookings(token),
         adminApi.getReports(token),
-        adminApi.getOffers(token)
+        adminApi.getOffers(token),
+        adminApi.getRatings(token)
       ])
       setDashboardStats(statsData)
       setBookings(bookingsData)
       setReports(reportsData)
       setOffers(offersData)
+      setRatings(ratingsData.ratings || [])
+      setRatingsStats(ratingsData.stats || { count: 0, average: 0 })
     } catch (error) {
       console.error('Error loading data:', error)
       if (error.message?.includes('401')) {
@@ -151,6 +156,17 @@ function AdminDashboardNew() {
     }
   }
 
+  const deleteRating = async (id) => {
+    if (!confirm('هل أنت متأكد من حذف هذا التقييم؟')) return
+    try {
+      await adminApi.deleteRating(id, localStorage.getItem('adminToken'))
+      alert('✅ تم حذف التقييم بنجاح')
+      loadData()
+    } catch (error) {
+      alert('❌ فشل حذف التقييم')
+    }
+  }
+
   const logout = () => {
     localStorage.removeItem('adminToken')
     navigate('/login')
@@ -206,6 +222,7 @@ function AdminDashboardNew() {
             { id: 'bookings', label: '📅 الحجوزات', icon: '📅' },
             { id: 'reports', label: '📄 التقارير', icon: '📄' },
             { id: 'offers', label: '🎉 العروض', icon: '🎉' },
+            { id: 'ratings', label: '⭐ التقييمات', icon: '⭐' },
             { id: 'notifications', label: '🔔 الإشعارات', icon: '🔔' }
           ].map(tab => (
             <button
@@ -258,6 +275,10 @@ function AdminDashboardNew() {
             deleteOffer={deleteOffer}
             loading={loading}
           />
+        )}
+        
+        {activeTab === 'ratings' && (
+          <RatingsTab ratings={ratings} stats={ratingsStats} deleteRating={deleteRating} />
         )}
         
         {activeTab === 'notifications' && (
@@ -586,6 +607,127 @@ const thStyle = {
 const tdStyle = {
   padding: '12px',
   textAlign: 'right'
+}
+
+// Ratings Tab Component
+function RatingsTab({ ratings, stats, deleteRating }) {
+  const renderStars = (count) => {
+    return '⭐'.repeat(count) + '☆'.repeat(5 - count)
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2 style={{ color: '#0B1F3A', margin: 0 }}>⭐ التقييمات ({ratings.length})</h2>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          <div style={{ 
+            background: 'linear-gradient(135deg, #C89D2A, #d4af37)', 
+            padding: '15px 25px', 
+            borderRadius: '12px',
+            color: 'white',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '14px', opacity: 0.9 }}>إجمالي التقييمات</div>
+            <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{stats.count}</div>
+          </div>
+          <div style={{ 
+            background: 'linear-gradient(135deg, #0B1F3A, #1565C0)', 
+            padding: '15px 25px', 
+            borderRadius: '12px',
+            color: 'white',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '14px', opacity: 0.9 }}>المتوسط</div>
+            <div style={{ fontSize: '28px', fontWeight: 'bold' }}>{stats.average} ⭐</div>
+          </div>
+        </div>
+      </div>
+
+      {ratings.length === 0 ? (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '60px 20px',
+          background: 'white',
+          borderRadius: '15px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ fontSize: '64px', marginBottom: '20px' }}>⭐</div>
+          <h3 style={{ color: '#666', marginBottom: '10px' }}>لا توجد تقييمات بعد</h3>
+          <p style={{ color: '#999' }}>سيتم عرض تقييمات العملاء هنا</p>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gap: '15px' }}>
+          {ratings.map((rating) => (
+            <div key={rating.id} style={{
+              background: 'white',
+              padding: '20px',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'start',
+              transition: 'transform 0.2s, box-shadow 0.2s'
+            }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                  <span style={{ fontSize: '24px' }}>{renderStars(rating.stars)}</span>
+                  <span style={{ 
+                    background: rating.stars >= 4 ? '#28a745' : rating.stars >= 3 ? '#ffc107' : '#dc3545',
+                    color: 'white',
+                    padding: '4px 12px',
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}>
+                    {rating.stars}/5
+                  </span>
+                </div>
+                <div style={{ marginBottom: '8px' }}>
+                  <strong style={{ color: '#0B1F3A' }}>{rating.name || 'عميل'}</strong>
+                  <span style={{ color: '#999', fontSize: '14px', marginRight: '10px' }}>
+                    {new Date(rating.createdAt).toLocaleDateString('ar-SA', { 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </span>
+                </div>
+                {rating.comment && (
+                  <p style={{ 
+                    color: '#666', 
+                    lineHeight: '1.6',
+                    margin: 0,
+                    padding: '12px',
+                    background: '#f8f9fa',
+                    borderRadius: '8px',
+                    borderRight: '3px solid #C89D2A'
+                  }}>
+                    "{rating.comment}"
+                  </p>
+                )}
+              </div>
+              <button
+                onClick={() => deleteRating(rating.id)}
+                style={{
+                  background: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  marginRight: '15px'
+                }}
+              >
+                🗑️ حذف
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default AdminDashboardNew
