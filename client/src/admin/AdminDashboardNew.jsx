@@ -104,8 +104,27 @@ function AdminDashboardNew() {
   }
 
   const updateBookingStatus = async (id, status) => {
+    const booking = bookings.find(b => b.id === id)
+    if (!booking) return
+    
+    if (status === 'confirmed') {
+      const confirmMsg = `هل تريد تأكيد الحجز؟
+
+📋 تفاصيل الحجز:
+👤 العميل: ${booking.name}
+📞 الهاتف: ${booking.phone}
+🔧 الخدمة: ${booking.serviceType}
+📅 التاريخ: ${booking.preferredDate}
+⏰ الوقت: ${booking.preferredTime}
+
+⚠️ ملاحظة: يُرجى الاتصال بالعميل على رقم ${booking.phone} لإبلاغه بالتأكيد`
+
+      if (!confirm(confirmMsg)) return
+    }
+    
     try {
       await adminApi.updateBookingStatus(id, status, localStorage.getItem('adminToken'))
+      alert(`✅ تم ${status === 'confirmed' ? 'تأكيد' : 'تحديث'} الحجز بنجاح!\n\n📞 اتصل بالعميل: ${booking.phone}\n💬 أبلغه بتأكيد حجزه`)
       loadData()
     } catch (error) {
       alert('❌ فشل تحديث الحالة')
@@ -275,11 +294,11 @@ function BookingsTab({ bookings, updateStatus }) {
           <tbody>
             {bookings.map((booking) => (
               <tr key={booking.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <td style={tdStyle}>{booking.name}</td>
-                <td style={tdStyle}>{booking.phone}</td>
-                <td style={tdStyle}>{booking.service_type}</td>
-                <td style={tdStyle}>{new Date(booking.date).toLocaleDateString('ar-SA')}</td>
-                <td style={tdStyle}>{booking.time}</td>
+                <td style={tdStyle}>{booking.name || booking.customerName || '-'}</td>
+                <td style={tdStyle}>{booking.phone || booking.customerPhone || '-'}</td>
+                <td style={tdStyle}>{booking.serviceType || booking.service_type || '-'}</td>
+                <td style={tdStyle}>{booking.preferredDate || booking.date ? new Date(booking.preferredDate || booking.date).toLocaleDateString('ar-SA') : '-'}</td>
+                <td style={tdStyle}>{booking.preferredTime || booking.time || '-'}</td>
                 <td style={tdStyle}>
                   <span style={{
                     padding: '5px 12px',

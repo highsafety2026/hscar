@@ -396,9 +396,35 @@ app.patch('/api/bookings/:id', authMiddleware, (req, res) => {
   const db = loadDB();
   const index = db.bookings.findIndex(b => b.id === req.params.id);
   if (index === -1) return res.status(404).json({ error: 'Booking not found' });
-  db.bookings[index] = { ...db.bookings[index], ...req.body };
+  
+  const oldBooking = db.bookings[index];
+  const updatedBooking = { ...oldBooking, ...req.body };
+  db.bookings[index] = updatedBooking;
   saveDB(db);
-  res.json({ success: true, booking: db.bookings[index] });
+  
+  // إرسال إشعار للعميل عند التأكيد
+  if (req.body.status === 'confirmed' && oldBooking.status !== 'confirmed') {
+    const { name, phone, preferredDate, preferredTime, serviceType, bookingId } = updatedBooking;
+    
+    // هنا يمكن إضافة SMS API أو Email API
+    // مثال: Twilio, SendGrid, أو أي خدمة أخرى
+    console.log(`📩 تم تأكيد الحجز:
+      العميل: ${name}
+      الهاتف: ${phone}
+      رقم الحجز: ${bookingId}
+      الخدمة: ${serviceType}
+      التاريخ: ${preferredDate}
+      الوقت: ${preferredTime}
+      
+      ✅ يُرجى إرسال رسالة للعميل على ${phone} لإبلاغه بالتأكيد
+    `);
+    
+    // في المستقبل يمكن إضافة:
+    // await sendSMS(phone, `تم تأكيد حجزك ${bookingId} ليوم ${preferredDate} الساعة ${preferredTime}`);
+    // await sendEmail(email, 'تأكيد الحجز', emailTemplate);
+  }
+  
+  res.json({ success: true, booking: updatedBooking, notificationSent: req.body.status === 'confirmed' });
 });
 
 app.delete('/api/bookings/:id', authMiddleware, (req, res) => {
