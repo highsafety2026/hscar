@@ -308,6 +308,8 @@ function BookingsTab({ bookings, updateStatus }) {
               <th style={thStyle}>نوع الفحص</th>
               <th style={thStyle}>التاريخ</th>
               <th style={thStyle}>الوقت</th>
+              <th style={thStyle}>السعر</th>
+              <th style={thStyle}>الدفع</th>
               <th style={thStyle}>الحالة</th>
               <th style={thStyle}>الإجراءات</th>
             </tr>
@@ -320,6 +322,61 @@ function BookingsTab({ bookings, updateStatus }) {
                 <td style={tdStyle}>{booking.serviceType || booking.service_type || '-'}</td>
                 <td style={tdStyle}>{booking.preferredDate || booking.date ? new Date(booking.preferredDate || booking.date).toLocaleDateString('ar-SA') : '-'}</td>
                 <td style={tdStyle}>{booking.preferredTime || booking.time || '-'}</td>
+                <td style={tdStyle}>
+                  <strong style={{ color: '#0B1F3A' }}>
+                    {booking.totalPrice || booking.originalPrice || '-'} د.إ
+                  </strong>
+                  {booking.discount > 0 && (
+                    <div style={{ fontSize: '11px', color: '#34A853' }}>
+                      خصم {booking.discount}%
+                    </div>
+                  )}
+                </td>
+                <td style={tdStyle}>
+                  {booking.paymentMethod === 'electronic' ? (
+                    <span style={{
+                      padding: '5px 10px',
+                      borderRadius: '15px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      background: 'linear-gradient(135deg, #4285F4, #1a73e8)',
+                      color: 'white',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      💳 أونلاين
+                    </span>
+                  ) : booking.paymentMethod === 'card' ? (
+                    <span style={{
+                      padding: '5px 10px',
+                      borderRadius: '15px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      background: '#f0f0f0',
+                      color: '#666',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      💳 كارت
+                    </span>
+                  ) : (
+                    <span style={{
+                      padding: '5px 10px',
+                      borderRadius: '15px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      background: 'linear-gradient(135deg, #34A853, #1e8e3e)',
+                      color: 'white',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      💵 نقدي
+                    </span>
+                  )}
+                </td>
                 <td style={tdStyle}>
                   <span style={{
                     padding: '5px 12px',
