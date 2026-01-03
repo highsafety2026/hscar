@@ -1,52 +1,34 @@
-import { PushNotifications } from '@capacitor/push-notifications';
 import { Capacitor } from '@capacitor/core';
 
 class NotificationService {
   constructor() {
     this.isInitialized = false;
+    this.isNative = false;
   }
 
   async initialize() {
+    // تعطيل الإشعارات مؤقتاً لمنع تعطل التطبيق
+    // يمكن تفعيلها لاحقاً بعد إعداد Firebase بشكل صحيح
     if (this.isInitialized) return { success: true };
-    if (!Capacitor.isNativePlatform()) return { success: false };
-
+    
     try {
-      if (!PushNotifications) return { success: false };
-
-      const permStatus = await PushNotifications.checkPermissions().catch(() => ({ receive: 'denied' }));
-      
-      if (permStatus.receive === 'prompt') {
-        await PushNotifications.requestPermissions().catch(() => {});
-      }
-
-      if (permStatus.receive === 'granted') {
-        await PushNotifications.register().catch(() => {});
-        this.setupListeners();
-      }
-
+      this.isNative = Capacitor.isNativePlatform();
       this.isInitialized = true;
-      return { success: true };
+      
+      // عدم طلب أذونات الإشعارات تلقائياً
+      // سيتم طلبها يدوياً من إعدادات المستخدم عند الحاجة
+      
+      return { success: true, message: 'Notifications disabled for stability' };
     } catch (error) {
+      console.log('Notification service initialization skipped:', error);
       return { success: false };
     }
   }
 
   setupListeners() {
-    try {
-      PushNotifications.addListener('registration', (token) => {
-        this.sendTokenToServer(token.value).catch(() => {});
-      }).catch(() => {});
-
-      PushNotifications.addListener('pushNotificationReceived', (notification) => {
-        this.showLocalNotification(notification);
-      }).catch(() => {});
-
-      PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
-        this.handleNotificationTap(notification);
-      }).catch(() => {});
-    } catch (error) {
-      // Silent fail
-    }
+    // تم تعطيل المستمعات مؤقتاً
+    // سيتم تفعيلها بعد إعداد Firebase و FCM بشكل صحيح
+    console.log('Push notification listeners disabled');
   }
 
   async sendTokenToServer(token) {

@@ -2,7 +2,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.hs.carreport',
-  appName: 'HS',
+  appName: 'HS Car Report',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
@@ -21,6 +21,18 @@ const config: CapacitorConfig = {
       resize: 'body',
       style: 'dark',
       resizeOnFullScreen: true
+    },
+    // تعطيل الإشعارات مؤقتاً لتجنب المشاكل
+    PushNotifications: {
+      presentationOptions: []
+    }
+  },
+  // تحسين الأداء والاستقرار
+  android: {
+    buildOptions: {
+      keystorePath: undefined,
+      keystoreAlias: undefined,
+      releaseType: 'APK'
     }
   }
 };

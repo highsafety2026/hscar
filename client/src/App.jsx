@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { LanguageProvider } from './i18n/LanguageContext'
 import { AuthProvider } from './contexts/AuthContext'
@@ -21,19 +20,8 @@ import PaymentCancel from './pages/PaymentCancel'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Rewards from './pages/Rewards'
-import notificationService from './services/notificationService'
 
 function App() {
-  useEffect(() => {
-    // Initialize push notifications after app loads (optional feature)
-    const timer = setTimeout(() => {
-      notificationService.initialize().catch(() => {
-        // Notifications are optional, don't break the app if they fail
-      });
-    }, 2000);
-    
-    return () => clearTimeout(timer);
-  }, []);
 
   return (
     <LanguageProvider>
