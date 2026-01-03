@@ -174,7 +174,14 @@ export const api = {
   // Offers API
   async getOffers() {
     try {
-      const res = await fetch(`${API_URL}/api/offers`, {
+      // إضافة timestamp لمنع الـ cache ودائماً نجيب أحدث البيانات
+      const timestamp = new Date().getTime()
+      const res = await fetch(`${API_URL}/api/offers?_t=${timestamp}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
         signal: AbortSignal.timeout(10000)
       })
       if (!res.ok) throw new Error('Network error')
