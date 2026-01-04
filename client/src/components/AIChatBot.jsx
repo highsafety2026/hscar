@@ -3,9 +3,7 @@ import { X, Send, Bot, User, Sparkles, Camera, Image, Loader2 } from 'lucide-rea
 
 function AIChatBot() {
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'مرحباً! أنا المساعد الذكي لمركز الأمان العالي للفحص الفني. يمكنني مساعدتك في:\n\n📋 حجز موعد للفحص\n💰 الاستفسار عن الأسعار والخدمات\n📍 معلومات الموقع وساعات العمل\n🔍 البحث عن معلومات السيارة برقم الشاصي (VIN)\n📸 تحليل صورة ملصق السيارة لاستخراج البيانات\n❓ الإجابة على أي استفسارات\n\nكيف يمكنني خدمتك؟' }
-  ])
+  const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false)

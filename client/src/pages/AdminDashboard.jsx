@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy, PenTool } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 import { api } from '../api/config'
+import AdminChatPanel from '../components/AdminChatPanel'
 
 function AdminDashboard() {
   const { language } = useLanguage()
@@ -23,6 +24,7 @@ function AdminDashboard() {
   const [uploadData, setUploadData] = useState({ customerName: '', code: '', file: null, images: [] })
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [chatBookingId, setChatBookingId] = useState(null)
   const navigate = useNavigate()
 
   const getAuthHeaders = () => ({
@@ -1013,6 +1015,25 @@ function AdminDashboard() {
                               <Trash2 size={14} />
                               {language === 'ar' ? 'حذف' : 'Delete'}
                             </button>
+                            <button
+                              onClick={() => setChatBookingId(booking.bookingId || booking.id)}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                padding: '7px 12px',
+                                background: '#0B1F3A',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '0.8rem',
+                                fontWeight: '500',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <MessageCircle size={14} />
+                              {language === 'ar' ? 'محادثة' : 'Chat'}
+                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1436,6 +1457,29 @@ function AdminDashboard() {
                   ? 'سيتم إرسال الإشعارات مباشرة إلى المستخدمين الذين قاموا بتنزيل التطبيق وسمحوا بالإشعارات. تأكد من وضوح الرسالة وأهميتها.'
                   : 'Notifications will be sent directly to users who have downloaded the app and enabled notifications. Make sure your message is clear and important.'}
               </p>
+            </div>
+          </div>
+        )}
+
+        {/* نافذة الشات المنبثقة */}
+        {chatBookingId && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            background: 'rgba(0,0,0,0.25)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+            onClick={() => setChatBookingId(null)}
+          >
+            <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 350, boxShadow: '0 8px 32px #0002' }} onClick={e => e.stopPropagation()}>
+              <AdminChatPanel bookingId={chatBookingId} employeeName="محمد" />
+              <button onClick={() => setChatBookingId(null)} style={{ marginTop: 12, background: '#EA4335', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, cursor: 'pointer', float: 'left' }}>إغلاق</button>
             </div>
           </div>
         )}

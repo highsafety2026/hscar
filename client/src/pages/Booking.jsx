@@ -7,6 +7,7 @@ import suvImg from '../assets/cars/suv.png'
 import classicImg from '../assets/cars/classic.png'
 import luxuryImg from '../assets/cars/luxury.png'
 import vipImg from '../assets/cars/vip.png'
+import ChatWidget from '../components/ChatWidget'
 
 function Booking() {
   const { language, t } = useLanguage()
@@ -917,6 +918,13 @@ function Booking() {
           </div>
         )}
       </div>
+
+      {bookingId && (
+        <div style={{ margin: '32px auto', maxWidth: 400 }}>
+          <h3 style={{ color: '#0B1F3A', marginBottom: 12, textAlign: 'center' }}>محادثة خدمة العملاء</h3>
+          <ChatWidget bookingId={bookingId} />
+        </div>
+      )}
 
       <style>{`
         .booking-page {

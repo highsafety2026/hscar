@@ -6,7 +6,9 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const OpenAI = require('openai');
+
 const pdfParse = require('pdf-parse');
+const chatApi = require('./chatApi');
 
 // Initialize OpenAI only if API key is provided
 let openai = null;
@@ -28,6 +30,7 @@ db.exec(initSQL);
 console.log('Database tables initialized');
 
 const app = express();
+app.use(chatApi);
 const PORT = process.env.PORT || 3001;
 
 let stripeInitialized = false;
