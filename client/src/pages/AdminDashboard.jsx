@@ -41,39 +41,13 @@ function AdminDashboard() {
       return
     }
     loadData()
+    const interval = setInterval(loadData, 3000); // تحديث كل 3 ثواني
+    return () => clearInterval(interval);
   }, [navigate])
 
   const loadData = async () => {
-      // لتتبع عدد الرسائل السابقة
-      const prevChatsRef = useRef([]);
-        try {
-          const token = localStorage.getItem('adminToken')
-          const [bookingsData, reportsData, offersData, chatsData] = await Promise.all([
-            api.getBookings(token),
-            api.getReports(token),
-            fetch('/api/offers/all', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
-            fetch('/api/chats').then(r => r.json()).catch(() => [])
-          ])
-          setBookings(bookingsData)
-          setReports(reportsData)
-          setOffers(offersData)
-          // تنبيه صوتي عند وصول رسالة جديدة
-          if (prevChatsRef.current.length > 0 && chatsData.length > 0) {
-            for (let i = 0; i < chatsData.length; i++) {
-              const prev = prevChatsRef.current.find(c => c.bookingId === chatsData[i].bookingId);
-              if (prev && chatsData[i].messages.length > prev.messages.length) {
-                // إذا وصلت رسالة جديدة من العميل
-                const lastMsg = chatsData[i].messages[chatsData[i].messages.length - 1];
-                if (lastMsg && lastMsg.sender === 'customer' && audioRef.current) {
-                  audioRef.current.play();
-                }
-              }
-            }
-          }
-          prevChatsRef.current = chatsData;
-          setChats(chatsData)
-      const interval = setInterval(loadData, 3000); // تحديث كل 3 ثواني
-      return () => clearInterval(interval);
+    // لتتبع عدد الرسائل السابقة
+    if (!window.prevChatsRef) window.prevChatsRef = [];
     try {
       const token = localStorage.getItem('adminToken')
       const [bookingsData, reportsData, offersData, chatsData] = await Promise.all([
@@ -85,6 +59,20 @@ function AdminDashboard() {
       setBookings(bookingsData)
       setReports(reportsData)
       setOffers(offersData)
+      // تنبيه صوتي عند وصول رسالة جديدة
+      if (window.prevChatsRef.length > 0 && chatsData.length > 0) {
+        for (let i = 0; i < chatsData.length; i++) {
+          const prev = window.prevChatsRef.find(c => c.bookingId === chatsData[i].bookingId);
+          if (prev && chatsData[i].messages.length > prev.messages.length) {
+            // إذا وصلت رسالة جديدة من العميل
+            const lastMsg = chatsData[i].messages[chatsData[i].messages.length - 1];
+            if (lastMsg && lastMsg.sender === 'customer' && audioRef.current) {
+              audioRef.current.play();
+            }
+          }
+        }
+      }
+      window.prevChatsRef = chatsData;
       setChats(chatsData)
     } catch (error) {
       console.error('Error loading data:', error)
@@ -93,6 +81,8 @@ function AdminDashboard() {
         navigate('/admin')
       }
     }
+    // إصلاح: نهاية الدالة بشكل صريح
+    return;
   }
 
   const handleUploadReport = async (e) => {
@@ -249,8 +239,8 @@ function AdminDashboard() {
   )
 
   return (
-      {notificationSound}
     <div className="admin-page" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
+      {notificationSound}
       <div className="admin-header" style={{
         background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
         padding: '20px 0',
