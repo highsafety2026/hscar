@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy, PenTool } from 'lucide-react'
+import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy, PenTool, MessageSquare } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 import { api } from '../api/config'
 import AdminChatPanel from '../components/AdminChatPanel'
 
 function AdminDashboard() {
+    const audioRef = useRef(null);
   const { language } = useLanguage()
   const [activeTab, setActiveTab] = useState('reports')
   const [bookings, setBookings] = useState([])
@@ -25,6 +26,8 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [chatBookingId, setChatBookingId] = useState(null)
+  const [chats, setChats] = useState([])
+  const [selectedChat, setSelectedChat] = useState(null)
   const navigate = useNavigate()
 
   const getAuthHeaders = () => ({
@@ -41,20 +44,51 @@ function AdminDashboard() {
   }, [navigate])
 
   const loadData = async () => {
+      // لتتبع عدد الرسائل السابقة
+      const prevChatsRef = useRef([]);
+        try {
+          const token = localStorage.getItem('adminToken')
+          const [bookingsData, reportsData, offersData, chatsData] = await Promise.all([
+            api.getBookings(token),
+            api.getReports(token),
+            fetch('/api/offers/all', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
+            fetch('/api/chats').then(r => r.json()).catch(() => [])
+          ])
+          setBookings(bookingsData)
+          setReports(reportsData)
+          setOffers(offersData)
+          // تنبيه صوتي عند وصول رسالة جديدة
+          if (prevChatsRef.current.length > 0 && chatsData.length > 0) {
+            for (let i = 0; i < chatsData.length; i++) {
+              const prev = prevChatsRef.current.find(c => c.bookingId === chatsData[i].bookingId);
+              if (prev && chatsData[i].messages.length > prev.messages.length) {
+                // إذا وصلت رسالة جديدة من العميل
+                const lastMsg = chatsData[i].messages[chatsData[i].messages.length - 1];
+                if (lastMsg && lastMsg.sender === 'customer' && audioRef.current) {
+                  audioRef.current.play();
+                }
+              }
+            }
+          }
+          prevChatsRef.current = chatsData;
+          setChats(chatsData)
+      const interval = setInterval(loadData, 3000); // تحديث كل 3 ثواني
+      return () => clearInterval(interval);
     try {
       const token = localStorage.getItem('adminToken')
-      const [bookingsData, reportsData, offersData] = await Promise.all([
+      const [bookingsData, reportsData, offersData, chatsData] = await Promise.all([
         api.getBookings(token),
         api.getReports(token),
-        fetch('/api/offers/all', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => [])
+        fetch('/api/offers/all', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
+        fetch('/api/chats').then(r => r.json()).catch(() => [])
       ])
-      
       setBookings(bookingsData)
       setReports(reportsData)
       setOffers(offersData)
+      setChats(chatsData)
     } catch (error) {
       console.error('Error loading data:', error)
-      if (error.message.includes('401')) {
+      if (error.message && error.message.includes('401')) {
         localStorage.removeItem('adminToken')
         navigate('/admin')
       }
@@ -215,6 +249,7 @@ function AdminDashboard() {
   )
 
   return (
+      {notificationSound}
     <div className="admin-page" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
       <div className="admin-header" style={{
         background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
@@ -466,6 +501,78 @@ function AdminDashboard() {
               <MessageCircle size={18} />
               {language === 'ar' ? 'إشعارات' : 'Notifications'}
             </button>
+            <button
+              onClick={() => setActiveTab('chats')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
+                background: activeTab === 'chats' ? '#0B1F3A' : 'white',
+                color: activeTab === 'chats' ? 'white' : '#0B1F3A',
+                border: activeTab === 'chats' ? 'none' : '2px solid #e0e0e0',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <MessageSquare size={18} />
+              {language === 'ar' ? 'الدردشة' : 'Chats'}
+              {chats.length > 0 && (
+                <span style={{ background: '#C89D2A', color: 'white', borderRadius: '50%', padding: '2px 8px', fontSize: 12, marginRight: 4 }}>{chats.length}</span>
+              )}
+            </button>
+                  {activeTab === 'chats' && (
+                    <div style={{
+                      background: 'white',
+                      borderRadius: '16px',
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+                      overflow: 'hidden',
+                      minHeight: 400,
+                      display: 'flex',
+                      flexDirection: 'row',
+                      gap: 0
+                    }}>
+                      <div style={{ width: 260, borderRight: '1px solid #eee', background: '#f8f9fa', minHeight: 400 }}>
+                        <div style={{ padding: '18px 16px', borderBottom: '1px solid #eee', fontWeight: 700, color: '#0B1F3A', fontSize: 18 }}>{language === 'ar' ? 'قائمة المحادثات' : 'Chats List'}</div>
+                        {chats.length === 0 ? (
+                          <div style={{ padding: 24, color: '#888', textAlign: 'center' }}>{language === 'ar' ? 'لا توجد محادثات بعد' : 'No chats yet'}</div>
+                        ) : (
+                          <div style={{ maxHeight: 380, overflowY: 'auto' }}>
+                            {chats.map(chat => (
+                              <div
+                                key={chat.bookingId}
+                                onClick={() => setSelectedChat(chat)}
+                                style={{
+                                  padding: '14px 16px',
+                                  borderBottom: '1px solid #eee',
+                                  background: selectedChat && selectedChat.bookingId === chat.bookingId ? '#e3f2fd' : 'transparent',
+                                  cursor: 'pointer',
+                                  fontWeight: selectedChat && selectedChat.bookingId === chat.bookingId ? 700 : 500,
+                                  color: '#0B1F3A',
+                                  transition: 'background 0.2s'
+                                }}
+                              >
+                                <div style={{ fontSize: 15, marginBottom: 2 }}>{chat.bookingId}</div>
+                                <div style={{ fontSize: 12, color: '#888' }}>{chat.messages.length} {language === 'ar' ? 'رسالة' : 'messages'}</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ flex: 1, minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
+                        {selectedChat ? (
+                          <div style={{ width: 420 }}>
+                            <AdminChatPanel bookingId={selectedChat.bookingId} employeeName="محمد" />
+                          </div>
+                        ) : (
+                          <div style={{ color: '#888', fontSize: 18 }}>{language === 'ar' ? 'اختر محادثة لعرضها' : 'Select a chat to view'}</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
           </div>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
