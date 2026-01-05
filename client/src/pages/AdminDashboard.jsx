@@ -452,26 +452,6 @@ function AdminDashboard() {
               {language === 'ar' ? 'الحجوزات' : 'Bookings'} ({bookings.length})
             </button>
             <button 
-              onClick={() => setActiveTab('offers')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 24px',
-                background: activeTab === 'offers' ? '#0B1F3A' : 'white',
-                color: activeTab === 'offers' ? 'white' : '#0B1F3A',
-                border: activeTab === 'offers' ? 'none' : '2px solid #e0e0e0',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                fontSize: '0.95rem',
-                fontWeight: '600',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <BarChart3 size={18} />
-              {language === 'ar' ? 'العروض' : 'Offers'} ({offers.length})
-            </button>
-            <button 
               onClick={() => setActiveTab('notifications')}
               style={{
                 display: 'flex',
@@ -505,10 +485,13 @@ function AdminDashboard() {
                 cursor: 'pointer',
                 fontSize: '0.95rem',
                 fontWeight: '600',
-                transition: 'all 0.3s ease'
+                transition: 'all 0.3s ease',
+                fontWeight: 'bold',
+                border: '2px solid #C89D2A',
+                boxShadow: activeTab === 'chats' ? '0 0 10px #C89D2A' : 'none'
               }}
             >
-              <MessageSquare size={18} />
+              <MessageSquare size={18} color="#C89D2A" />
               {language === 'ar' ? 'الدردشة' : 'Chats'}
               {chats.length > 0 && (
                 <span style={{ background: '#C89D2A', color: 'white', borderRadius: '50%', padding: '2px 8px', fontSize: 12, marginRight: 4 }}>{chats.length}</span>
