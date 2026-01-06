@@ -1,0 +1,26 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4F46E5;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1024" height="1024" fill="url(#gradient)" rx="180"/>
+  
+  <!-- Car Icon -->
+  <g transform="translate(212, 362)">
+    <path d="M150 100L50 200H550L450 100H150Z" fill="white" opacity="0.9"/>
+    <rect x="100" y="200" width="400" height="180" rx="20" fill="white" opacity="0.9"/>
+    <circle cx="180" cy="380" r="50" fill="#1a202c"/>
+    <circle cx="180" cy="380" r="30" fill="white"/>
+    <circle cx="420" cy="380" r="50" fill="#1a202c"/>
+    <circle cx="420" cy="380" r="30" fill="white"/>
+    <rect x="150" y="230" width="120" height="100" rx="10" fill="#4F46E5" opacity="0.3"/>
+    <rect x="330" y="230" width="120" height="100" rx="10" fill="#4F46E5" opacity="0.3"/>
+  </g>
+  
+  <!-- HS Text -->
+  <text x="512" y="620" font-family="Arial, sans-serif" font-size="140" font-weight="bold" fill="white" text-anchor="middle">HS</text>
+</svg>

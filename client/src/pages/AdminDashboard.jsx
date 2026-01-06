@@ -2,12 +2,24 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy, PenTool } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import { api } from '../api/config'
 
 function AdminDashboard() {
   const { language } = useLanguage()
   const [activeTab, setActiveTab] = useState('reports')
   const [bookings, setBookings] = useState([])
   const [reports, setReports] = useState([])
+  const [offers, setOffers] = useState([])
+  const [notification, setNotification] = useState({ title: '', message: '', target: 'all' })
+  const [offerData, setOfferData] = useState({ 
+    title_ar: '', 
+    title_en: '', 
+    description_ar: '', 
+    description_en: '', 
+    discount: '', 
+    valid_until: '',
+    image_url: '' 
+  })
   const [uploadData, setUploadData] = useState({ customerName: '', code: '', file: null, images: [] })
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -28,22 +40,22 @@ function AdminDashboard() {
 
   const loadData = async () => {
     try {
-      const headers = getAuthHeaders()
-      const [bookingsRes, reportsRes] = await Promise.all([
-        fetch('/api/bookings', { headers }),
-        fetch('/api/reports', { headers })
+      const token = localStorage.getItem('adminToken')
+      const [bookingsData, reportsData, offersData] = await Promise.all([
+        api.getBookings(token),
+        api.getReports(token),
+        fetch('/api/offers/all', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => [])
       ])
       
-      if (bookingsRes.status === 401 || reportsRes.status === 401) {
-        localStorage.removeItem('adminToken')
-        navigate('/admin')
-        return
-      }
-      
-      setBookings(await bookingsRes.json())
-      setReports(await reportsRes.json())
+      setBookings(bookingsData)
+      setReports(reportsData)
+      setOffers(offersData)
     } catch (error) {
       console.error('Error loading data:', error)
+      if (error.message.includes('401')) {
+        localStorage.removeItem('adminToken')
+        navigate('/admin')
+      }
     }
   }
 
@@ -61,11 +73,7 @@ function AdminDashboard() {
       }
     }
 
-    await fetch('/api/reports', { 
-      method: 'POST', 
-      body: formData,
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
-    })
+    await api.uploadReport(formData, localStorage.getItem('adminToken'))
     setUploadData({ customerName: '', code: '', file: null, images: [] })
     loadData()
     setLoading(false)
@@ -73,10 +81,7 @@ function AdminDashboard() {
 
   const deleteReport = async (id) => {
     if (confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذا التقرير؟' : 'Are you sure you want to delete this report?')) {
-      await fetch(`/api/reports/${id}`, { 
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      })
+      await api.deleteReport(id, localStorage.getItem('adminToken'))
       loadData()
     }
   }
@@ -101,12 +106,42 @@ function AdminDashboard() {
   }
 
   const logout = async () => {
-    await fetch('/api/admin/logout', {
-      method: 'POST',
-      headers: getAuthHeaders()
-    })
+    await api.adminLogout(localStorage.getItem('adminToken'))
     localStorage.removeItem('adminToken')
     navigate('/admin')
+  }
+
+
+
+  const sendNotification = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const token = localStorage.getItem('adminToken')
+      
+      if (notification.target === 'all') {
+        // Send to all users
+        await fetch('/api/notifications/broadcast', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: notification.title, body: notification.message })
+        })
+      } else {
+        // Send to specific user
+        await fetch('/api/notifications/send', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: notification.target, title: notification.title, body: notification.message })
+        })
+      }
+      
+      setNotification({ title: '', message: '', target: 'all' })
+      alert(language === 'ar' ? 'تم إرسال الإشعار بنجاح!' : 'Notification sent successfully!')
+    } catch (error) {
+      console.error('Error sending notification:', error)
+      alert(language === 'ar' ? 'فشل في إرسال الإشعار' : 'Failed to send notification')
+    }
+    setLoading(false)
   }
 
   const serviceTypes = {
@@ -341,6 +376,46 @@ function AdminDashboard() {
             >
               <Calendar size={18} />
               {language === 'ar' ? 'الحجوزات' : 'Bookings'} ({bookings.length})
+            </button>
+            <button 
+              onClick={() => setActiveTab('offers')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
+                background: activeTab === 'offers' ? '#0B1F3A' : 'white',
+                color: activeTab === 'offers' ? 'white' : '#0B1F3A',
+                border: activeTab === 'offers' ? 'none' : '2px solid #e0e0e0',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <BarChart3 size={18} />
+              {language === 'ar' ? 'العروض' : 'Offers'} ({offers.length})
+            </button>
+            <button 
+              onClick={() => setActiveTab('notifications')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
+                background: activeTab === 'notifications' ? '#0B1F3A' : 'white',
+                color: activeTab === 'notifications' ? 'white' : '#0B1F3A',
+                border: activeTab === 'notifications' ? 'none' : '2px solid #e0e0e0',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <MessageCircle size={18} />
+              {language === 'ar' ? 'إشعارات' : 'Notifications'}
             </button>
           </div>
 
@@ -899,6 +974,422 @@ function AdminDashboard() {
                 </table>
               </div>
             )}
+          </div>
+        )}
+        
+        {activeTab === 'offers' && (
+          <div>
+            <div style={{
+              background: 'white',
+              padding: '30px',
+              borderRadius: '16px',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+              marginBottom: '25px'
+            }}>
+              <h3 style={{ 
+                margin: '0 0 20px', 
+                color: '#0B1F3A',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px'
+              }}>
+                <BarChart3 size={22} color="#C89D2A" />
+                {language === 'ar' ? 'إضافة عرض جديد' : 'Add New Offer'}
+              </h3>
+              <form onSubmit={handleCreateOffer}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                      {language === 'ar' ? 'العنوان (عربي)' : 'Title (Arabic)'} *
+                    </label>
+                    <input
+                      type="text"
+                      value={offerData.title_ar}
+                      onChange={(e) => setOfferData({...offerData, title_ar: e.target.value})}
+                      required
+                      placeholder="مثال: خصم 30% على الفحص الشامل"
+                      style={{
+                        width: '100%',
+                        padding: '12px 15px',
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '10px',
+                        fontSize: '0.95rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                      {language === 'ar' ? 'العنوان (إنجليزي)' : 'Title (English)'} *
+                    </label>
+                    <input
+                      type="text"
+                      value={offerData.title_en}
+                      onChange={(e) => setOfferData({...offerData, title_en: e.target.value})}
+                      required
+                      placeholder="e.g., 30% OFF Full Inspection"
+                      style={{
+                        width: '100%',
+                        padding: '12px 15px',
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '10px',
+                        fontSize: '0.95rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                      {language === 'ar' ? 'نسبة الخصم' : 'Discount %'} *
+                    </label>
+                    <input
+                      type="number"
+                      value={offerData.discount}
+                      onChange={(e) => setOfferData({...offerData, discount: e.target.value})}
+                      required
+                      min="1"
+                      max="100"
+                      placeholder="30"
+                      style={{
+                        width: '100%',
+                        padding: '12px 15px',
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '10px',
+                        fontSize: '0.95rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                      {language === 'ar' ? 'صالح حتى' : 'Valid Until'} *
+                    </label>
+                    <input
+                      type="date"
+                      value={offerData.valid_until}
+                      onChange={(e) => setOfferData({...offerData, valid_until: e.target.value})}
+                      required
+                      min={new Date().toISOString().split('T')[0]}
+                      style={{
+                        width: '100%',
+                        padding: '12px 15px',
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '10px',
+                        fontSize: '0.95rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                      {language === 'ar' ? 'الوصف (عربي)' : 'Description (Arabic)'} *
+                    </label>
+                    <textarea
+                      value={offerData.description_ar}
+                      onChange={(e) => setOfferData({...offerData, description_ar: e.target.value})}
+                      required
+                      rows="3"
+                      placeholder="مثال: احصل على خصم 30% على خدمة الفحص الشامل لسيارتك. العرض ساري لفترة محدودة!"
+                      style={{
+                        width: '100%',
+                        padding: '12px 15px',
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '10px',
+                        fontSize: '0.95rem',
+                        outline: 'none',
+                        resize: 'vertical'
+                      }}
+                    />
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                      {language === 'ar' ? 'الوصف (إنجليزي)' : 'Description (English)'} *
+                    </label>
+                    <textarea
+                      value={offerData.description_en}
+                      onChange={(e) => setOfferData({...offerData, description_en: e.target.value})}
+                      required
+                      rows="3"
+                      placeholder="e.g., Get 30% OFF on our comprehensive car inspection service. Limited time offer!"
+                      style={{
+                        width: '100%',
+                        padding: '12px 15px',
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '10px',
+                        fontSize: '0.95rem',
+                        outline: 'none',
+                        resize: 'vertical'
+                      }}
+                    />
+                  </div>
+                  <div style={{ gridColumn: '1 / -1' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                      {language === 'ar' ? 'رابط الصورة (اختياري)' : 'Image URL (Optional)'}
+                    </label>
+                    <input
+                      type="url"
+                      value={offerData.image_url}
+                      onChange={(e) => setOfferData({...offerData, image_url: e.target.value})}
+                      placeholder="https://example.com/image.jpg"
+                      style={{
+                        width: '100%',
+                        padding: '12px 15px',
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '10px',
+                        fontSize: '0.95rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginTop: '25px',
+                    padding: '14px 30px',
+                    background: 'linear-gradient(135deg, #C89D2A, #d4a936)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    opacity: loading ? 0.7 : 1
+                  }}
+                >
+                  <Upload size={20} />
+                  {loading ? (language === 'ar' ? 'جاري الإضافة...' : 'Adding...') : (language === 'ar' ? 'إضافة العرض' : 'Add Offer')}
+                </button>
+              </form>
+            </div>
+
+            <div style={{
+              background: 'white',
+              borderRadius: '16px',
+              boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+              overflow: 'hidden'
+            }}>
+              <div style={{ padding: '20px 25px', borderBottom: '1px solid #eee' }}>
+                <h3 style={{ margin: 0, color: '#0B1F3A' }}>
+                  {language === 'ar' ? 'العروض الحالية' : 'Current Offers'}
+                </h3>
+              </div>
+              {offers.length === 0 ? (
+                <p style={{ padding: '30px', textAlign: 'center', color: '#888' }}>
+                  {language === 'ar' ? 'لا توجد عروض حالياً' : 'No offers yet'}
+                </p>
+              ) : (
+                <div style={{ padding: '20px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '20px' }}>
+                    {offers.map(offer => (
+                      <div key={offer.id} style={{
+                        border: '2px solid #e0e0e0',
+                        borderRadius: '12px',
+                        padding: '20px',
+                        background: offer.active ? 'white' : '#f5f5f5',
+                        opacity: offer.active ? 1 : 0.6,
+                        transition: 'all 0.3s'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '15px' }}>
+                          <div style={{
+                            background: 'linear-gradient(135deg, #C89D2A, #d4a936)',
+                            color: 'white',
+                            padding: '8px 16px',
+                            borderRadius: '20px',
+                            fontWeight: 'bold',
+                            fontSize: '1.2rem'
+                          }}>
+                            {offer.discount}% OFF
+                          </div>
+                          <div style={{ display: 'flex', gap: '5px' }}>
+                            <button
+                              onClick={() => toggleOfferStatus(offer.id, offer.active)}
+                              style={{
+                                padding: '6px 12px',
+                                background: offer.active ? '#34A853' : '#888',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '0.8rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              {offer.active ? (language === 'ar' ? 'نشط' : 'Active') : (language === 'ar' ? 'موقوف' : 'Inactive')}
+                            </button>
+                            <button
+                              onClick={() => deleteOffer(offer.id)}
+                              style={{
+                                padding: '6px 12px',
+                                background: '#EA4335',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '0.8rem',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                        <h4 style={{ margin: '0 0 10px', color: '#0B1F3A', fontSize: '1.1rem' }}>
+                          {language === 'ar' ? offer.title_ar : offer.title_en}
+                        </h4>
+                        <p style={{ margin: '0 0 15px', color: '#666', fontSize: '0.9rem', lineHeight: '1.5' }}>
+                          {language === 'ar' ? offer.description_ar : offer.description_en}
+                        </p>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '5px', 
+                          color: '#888', 
+                          fontSize: '0.85rem',
+                          padding: '10px',
+                          background: 'rgba(200, 157, 42, 0.1)',
+                          borderRadius: '8px'
+                        }}>
+                          <Clock size={16} />
+                          {language === 'ar' ? 'صالح حتى:' : 'Valid until:'} {new Date(offer.valid_until).toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'notifications' && (
+          <div style={{
+            background: 'white',
+            padding: '30px',
+            borderRadius: '16px',
+            boxShadow: '0 4px 15px rgba(0,0,0,0.05)'
+          }}>
+            <h3 style={{ 
+              margin: '0 0 20px', 
+              color: '#0B1F3A',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}>
+              <MessageCircle size={22} color="#C89D2A" />
+              {language === 'ar' ? 'إرسال إشعار للمستخدمين' : 'Send Notification to Users'}
+            </h3>
+            <form onSubmit={sendNotification}>
+              <div style={{ display: 'grid', gap: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                    {language === 'ar' ? 'إرسال إلى' : 'Send to'} *
+                  </label>
+                  <select
+                    value={notification.target}
+                    onChange={(e) => setNotification({...notification, target: e.target.value})}
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '10px',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <option value="all">{language === 'ar' ? 'جميع المستخدمين' : 'All Users'}</option>
+                    {bookings.map(b => (
+                      <option key={b.phone} value={b.phone}>
+                        {b.name} ({b.phone})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                    {language === 'ar' ? 'عنوان الإشعار' : 'Notification Title'} *
+                  </label>
+                  <input
+                    type="text"
+                    value={notification.title}
+                    onChange={(e) => setNotification({...notification, title: e.target.value})}
+                    required
+                    placeholder={language === 'ar' ? 'مثال: عرض جديد! خصم 30%' : 'e.g., New Offer! 30% OFF'}
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '10px',
+                      fontSize: '0.95rem',
+                      outline: 'none'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: '#333', fontSize: '0.9rem' }}>
+                    {language === 'ar' ? 'نص الإشعار' : 'Notification Message'} *
+                  </label>
+                  <textarea
+                    value={notification.message}
+                    onChange={(e) => setNotification({...notification, message: e.target.value})}
+                    required
+                    rows="4"
+                    placeholder={language === 'ar' ? 'مثال: احصل على خصم 30% على خدمة الفحص الشامل. العرض ساري حتى نهاية الأسبوع!' : 'e.g., Get 30% OFF on comprehensive inspection. Offer valid until end of week!'}
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      border: '2px solid #e0e0e0',
+                      borderRadius: '10px',
+                      fontSize: '0.95rem',
+                      outline: 'none',
+                      resize: 'vertical'
+                    }}
+                  />
+                </div>
+              </div>
+              <button 
+                type="submit" 
+                disabled={loading}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  marginTop: '25px',
+                  padding: '14px 30px',
+                  background: 'linear-gradient(135deg, #4285F4, #5a9cf4)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  opacity: loading ? 0.7 : 1
+                }}
+              >
+                <MessageCircle size={20} />
+                {loading ? (language === 'ar' ? 'جاري الإرسال...' : 'Sending...') : (language === 'ar' ? 'إرسال الإشعار' : 'Send Notification')}
+              </button>
+            </form>
+            <div style={{ 
+              marginTop: '30px', 
+              padding: '20px', 
+              background: 'rgba(66, 133, 244, 0.1)', 
+              borderRadius: '10px',
+              border: '1px solid rgba(66, 133, 244, 0.3)'
+            }}>
+              <h4 style={{ margin: '0 0 10px', color: '#4285F4', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MessageCircle size={18} />
+                {language === 'ar' ? 'ملاحظة مهمة' : 'Important Note'}
+              </h4>
+              <p style={{ margin: 0, color: '#666', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                {language === 'ar' 
+                  ? 'سيتم إرسال الإشعارات مباشرة إلى المستخدمين الذين قاموا بتنزيل التطبيق وسمحوا بالإشعارات. تأكد من وضوح الرسالة وأهميتها.'
+                  : 'Notifications will be sent directly to users who have downloaded the app and enabled notifications. Make sure your message is clear and important.'}
+              </p>
+            </div>
           </div>
         )}
       </div>

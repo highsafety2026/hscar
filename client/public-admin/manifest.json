@@ -1,0 +1,11 @@
+{
+  "name": "HS Admin Panel",
+  "short_name": "HS Admin",
+  "description": "لوحة تحكم HS لإدارة الحجوزات والتقارير",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B1F3A",
+  "theme_color": "#0B1F3A",
+  "orientation": "portrait",
+  "icons": []
+}

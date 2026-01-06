@@ -50,6 +50,7 @@ Thumbs.db
 *.swo
 *~
 
+<<<<<<< HEAD
 # Testing
 coverage/
 .nyc_output
@@ -73,3 +74,13 @@ replit.nix
 # Replit
 .replit
 .upm
+=======
+# Used by RuboCop. Remote config files pulled in from inherit_from directive.
+# .rubocop-https?--*
+node_modules
+node_modules
+node_modules
+node_modules
+node_modules
+node_modules
+>>>>>>> replit-agent

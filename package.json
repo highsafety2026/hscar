@@ -12,10 +12,13 @@
     "stripe",
     "multilingual"
   ],
+<<<<<<< HEAD
   "repository": {
     "type": "git",
     "url": "https://github.com/your-username/high-safety.git"
   },
+=======
+>>>>>>> replit-agent
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node server/index.js",

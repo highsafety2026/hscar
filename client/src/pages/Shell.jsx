@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Terminal, Send, Trash2, ArrowLeft } from 'lucide-react'
+import { api } from '../api/config'
 
 function Shell() {
   const navigate = useNavigate()
@@ -39,28 +40,12 @@ function Shell() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/admin/shell', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ command: command.trim() })
-      })
-
-      const data = await res.json()
+      const data = await api.executeShellCommand(command.trim(), token)
       
-      if (res.ok) {
-        setHistory(prev => [...prev, { 
-          type: 'output', 
-          text: data.output || 'تم التنفيذ بنجاح'
-        }])
-      } else {
-        setHistory(prev => [...prev, { 
-          type: 'error', 
-          text: data.error || 'حدث خطأ'
-        }])
-      }
+      setHistory(prev => [...prev, { 
+        type: data.output ? 'output' : 'error', 
+        text: data.output || data.error || 'تم التنفيذ بنجاح'
+      }])
     } catch (error) {
       setHistory(prev => [...prev, { 
         type: 'error', 

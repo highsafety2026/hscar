@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CreditCard, User, Phone, Mail, Shield, CheckCircle, Car, Truck, Crown, Star, Lock, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import { api } from '../api/config'
 import sedanImg from '../assets/cars/sedan.png'
 import suvImg from '../assets/cars/suv.png'
 import classicImg from '../assets/cars/classic.png'
@@ -101,20 +102,14 @@ function Payment() {
     setError('')
 
     try {
-      const res = await fetch('/api/create-checkout-session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerName: formData.customerName,
-          customerPhone: formData.customerPhone,
-          customerEmail: formData.customerEmail,
-          amount: parseInt(formData.amount),
-          serviceType: formData.serviceType,
-          carCategory: formData.carCategory
-        })
+      const data = await api.createCheckoutSession({
+        customerName: formData.customerName,
+        customerPhone: formData.customerPhone,
+        customerEmail: formData.customerEmail,
+        amount: parseInt(formData.amount),
+        serviceType: formData.serviceType,
+        carCategory: formData.carCategory
       })
-
-      const data = await res.json()
 
       if (data.url) {
         window.location.href = data.url
@@ -174,7 +169,7 @@ function Payment() {
         <div className="payment-wizard-content">
           {step === 0 && (
             <div className="wizard-step step-category">
-              <h2>{language === 'ar' ? 'اختر فئة سيارتك' : 'Select Your Car Category'}</h2>
+              <h2>{language === 'ar' ? 'اختار فئة سيارتك' : 'Select Your Car Category'}</h2>
               <p className="step-description">
                 {language === 'ar' ? '👆 انقر واختر الفئة المطلوبة - الأسعار تختلف حسب نوع السيارة' : '👆 Click to select - Prices vary based on vehicle type'}
               </p>
@@ -218,7 +213,7 @@ function Payment() {
                   {language === 'ar' ? 'رجوع' : 'Back'}
                 </button>
               </div>
-              <h2>{language === 'ar' ? 'اختر نوع الخدمة' : 'Select Service Type'}</h2>
+              <h2>{language === 'ar' ? 'اختار نوع الخدمة' : 'Select Service Type'}</h2>
               <p className="step-description">
                 {language === 'ar' ? `أسعار ${selectedCategory?.label}` : `${selectedCategory?.label} Pricing`}
               </p>

@@ -7,17 +7,37 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const OpenAI = require('openai');
 const pdfParse = require('pdf-parse');
+<<<<<<< HEAD
 const Database = require('better-sqlite3');
 
 // Initialize SQLite database
 const db = new Database(path.join(__dirname, 'highsafety.db'));
 db.pragma('foreign_keys = ON');
+=======
+>>>>>>> replit-agent
 
-const openai = new OpenAI({
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
-});
+// Initialize OpenAI only if API key is provided
+let openai = null;
+if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY) {
+  openai = new OpenAI({
+    baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+    apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+  });
+}
 
+<<<<<<< HEAD
+=======
+// Use SQLite for local development (no PostgreSQL needed)
+const Database = require('better-sqlite3');
+const dbPath = path.join(__dirname, '..', 'database.db');
+const db = new Database(dbPath);
+
+// Initialize database tables
+const initSQL = fs.readFileSync(path.join(__dirname, 'init_database.sql'), 'utf8');
+db.exec(initSQL);
+console.log('Database tables initialized');
+
+>>>>>>> replit-agent
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -148,25 +168,24 @@ function generateReportCode() {
 
 async function initPaymentsTable() {
   try {
-    await pool.query(`
+    db.exec(`
       CREATE TABLE IF NOT EXISTS payments (
-        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-        customer_name VARCHAR(255) NOT NULL,
-        customer_phone VARCHAR(50) NOT NULL,
-        customer_email VARCHAR(255),
+        id TEXT PRIMARY KEY,
+        customer_name TEXT NOT NULL,
+        customer_phone TEXT NOT NULL,
+        customer_email TEXT,
         amount INTEGER NOT NULL,
-        currency VARCHAR(10) DEFAULT 'aed',
-        service_type VARCHAR(100),
-        booking_id VARCHAR(100),
-        report_code VARCHAR(20),
-        stripe_payment_intent_id VARCHAR(255),
-        stripe_checkout_session_id VARCHAR(255),
-        status VARCHAR(50) DEFAULT 'pending',
-        created_at TIMESTAMP DEFAULT NOW(),
-        updated_at TIMESTAMP DEFAULT NOW()
+        currency TEXT DEFAULT 'aed',
+        service_type TEXT,
+        booking_id TEXT,
+        report_code TEXT,
+        stripe_payment_intent_id TEXT,
+        stripe_checkout_session_id TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    await pool.query(`ALTER TABLE payments ADD COLUMN IF NOT EXISTS report_code VARCHAR(20)`);
     console.log('Payments table ready');
   } catch (error) {
     console.error('Error creating payments table:', error);
@@ -279,8 +298,20 @@ function authMiddleware(req, res, next) {
   if (!token) {
     return res.status(401).json({ error: 'غير مصرح' });
   }
-  const db = loadDB();
-  const session = db.sessions[token];
+  
+  // Check SQLite first
+  try {
+    const session = db.prepare('SELECT * FROM admin_sessions WHERE token = ? AND expires > ?').get(token, Date.now());
+    if (session) {
+      return next();
+    }
+  } catch (error) {
+    console.log('SQLite session check failed, trying JSON DB');
+  }
+  
+  // Fallback to JSON DB
+  const dbJson = loadDB();
+  const session = dbJson.sessions[token];
   if (!session || session.expires < Date.now()) {
     return res.status(401).json({ error: 'جلسة منتهية' });
   }
@@ -376,9 +407,35 @@ app.patch('/api/bookings/:id', authMiddleware, (req, res) => {
   const db = loadDB();
   const index = db.bookings.findIndex(b => b.id === req.params.id);
   if (index === -1) return res.status(404).json({ error: 'Booking not found' });
-  db.bookings[index] = { ...db.bookings[index], ...req.body };
+  
+  const oldBooking = db.bookings[index];
+  const updatedBooking = { ...oldBooking, ...req.body };
+  db.bookings[index] = updatedBooking;
   saveDB(db);
-  res.json({ success: true, booking: db.bookings[index] });
+  
+  // إرسال إشعار للعميل عند التأكيد
+  if (req.body.status === 'confirmed' && oldBooking.status !== 'confirmed') {
+    const { name, phone, preferredDate, preferredTime, serviceType, bookingId } = updatedBooking;
+    
+    // هنا يمكن إضافة SMS API أو Email API
+    // مثال: Twilio, SendGrid, أو أي خدمة أخرى
+    console.log(`📩 تم تأكيد الحجز:
+      العميل: ${name}
+      الهاتف: ${phone}
+      رقم الحجز: ${bookingId}
+      الخدمة: ${serviceType}
+      التاريخ: ${preferredDate}
+      الوقت: ${preferredTime}
+      
+      ✅ يُرجى إرسال رسالة للعميل على ${phone} لإبلاغه بالتأكيد
+    `);
+    
+    // في المستقبل يمكن إضافة:
+    // await sendSMS(phone, `تم تأكيد حجزك ${bookingId} ليوم ${preferredDate} الساعة ${preferredTime}`);
+    // await sendEmail(email, 'تأكيد الحجز', emailTemplate);
+  }
+  
+  res.json({ success: true, booking: updatedBooking, notificationSent: req.body.status === 'confirmed' });
 });
 
 app.delete('/api/bookings/:id', authMiddleware, (req, res) => {
@@ -387,6 +444,107 @@ app.delete('/api/bookings/:id', authMiddleware, (req, res) => {
   saveDB(db);
   res.json({ success: true });
 });
+
+// ============== DASHBOARD STATS API ==============
+
+app.get('/api/admin/dashboard-stats', authMiddleware, (req, res) => {
+  try {
+    const db = loadDB();
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+    // Count inspections
+    const todayInspections = db.bookings.filter(b => new Date(b.date) >= today).length;
+    const weekInspections = db.bookings.filter(b => new Date(b.createdAt || b.date) >= weekAgo).length;
+    const monthInspections = db.bookings.filter(b => new Date(b.createdAt || b.date) >= monthAgo).length;
+
+    // Calculate revenue (assuming prices: basic=150, premium=250, luxury=400)
+    const priceMap = { 
+      'فحص أساسي': 150, 
+      'فحص متميز': 250, 
+      'فحص فاخر': 400,
+      'basic': 150,
+      'premium': 250,
+      'luxury': 400
+    };
+    
+    let totalRevenue = 0;
+    const revenueByType = {};
+    
+    db.bookings.forEach(booking => {
+      const price = priceMap[booking.service_type] || priceMap[booking.serviceType] || 150;
+      totalRevenue += price;
+      const type = booking.service_type || booking.serviceType || 'فحص أساسي';
+      revenueByType[type] = (revenueByType[type] || 0) + price;
+    });
+
+    // Find most requested service
+    const serviceCounts = {};
+    db.bookings.forEach(booking => {
+      const type = booking.service_type || booking.serviceType || 'فحص أساسي';
+      serviceCounts[type] = (serviceCounts[type] || 0) + 1;
+    });
+    const mostRequested = Object.keys(serviceCounts).reduce((a, b) => 
+      serviceCounts[a] > serviceCounts[b] ? a : b, 'فحص أساسي');
+
+    // Count new customers (unique phones in last 30 days)
+    const recentPhones = new Set();
+    db.bookings.forEach(booking => {
+      if (new Date(booking.createdAt || booking.date) >= monthAgo) {
+        recentPhones.add(booking.phone);
+      }
+    });
+    const newCustomers = recentPhones.size;
+
+    // Revenue trend (last 7 days)
+    const revenueTrend = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayBookings = db.bookings.filter(b => {
+        const bookingDate = new Date(b.date).toISOString().split('T')[0];
+        return bookingDate === dateStr;
+      });
+      const dayRevenue = dayBookings.reduce((sum, b) => {
+        return sum + (priceMap[b.service_type || b.serviceType] || 150);
+      }, 0);
+      revenueTrend.push({
+        name: date.toLocaleDateString('ar-SA', { weekday: 'short' }),
+        revenue: dayRevenue
+      });
+    }
+
+    // Revenue by type for chart
+    const revenueByTypeArray = Object.keys(revenueByType).map(type => ({
+      name: type,
+      revenue: revenueByType[type]
+    }));
+
+    // Service distribution for pie chart
+    const serviceDistribution = Object.keys(serviceCounts).map(type => ({
+      name: type,
+      value: serviceCounts[type]
+    }));
+
+    res.json({
+      todayInspections,
+      weekInspections,
+      monthInspections,
+      totalRevenue,
+      newCustomers,
+      mostRequested,
+      revenueTrend,
+      revenueByType: revenueByTypeArray,
+      serviceDistribution
+    });
+  } catch (error) {
+    console.error('Dashboard stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch dashboard stats' });
+  }
+});
+
 
 function generateReportCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -430,6 +588,35 @@ app.post('/api/reports', authMiddleware, reportUpload, (req, res) => {
 app.get('/api/reports', authMiddleware, (req, res) => {
   const db = loadDB();
   res.json(db.reports);
+});
+
+// Endpoint for downloading report files
+app.get('/api/reports/download/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '../uploads', filename);
+  
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'File not found' });
+  }
+  
+  res.download(filePath, filename, (err) => {
+    if (err) {
+      console.error('Error downloading file:', err);
+      res.status(500).json({ error: 'Error downloading file' });
+    }
+  });
+});
+
+// Endpoint for downloading report images
+app.get('/api/reports/image/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const filePath = path.join(__dirname, '../uploads', filename);
+  
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: 'Image not found' });
+  }
+  
+  res.sendFile(filePath);
 });
 
 app.delete('/api/reports/:id', authMiddleware, (req, res) => {
@@ -1381,6 +1568,242 @@ app.get('/api/payments', authMiddleware, async (req, res) => {
   } catch (error) {
     console.error('Error fetching payments:', error);
     res.status(500).json({ error: 'Failed to fetch payments' });
+  }
+});
+
+// ============= NEW USER & LOYALTY SYSTEM ENDPOINTS =============
+
+// User authentication/login
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    
+    // Check if user exists
+    let user = db.prepare('SELECT * FROM users WHERE phone = ?').get(phone);
+    
+    if (!user) {
+      // Create new user
+      const stmt = db.prepare('INSERT INTO users (phone, name, points, created_at) VALUES (?, ?, 0, datetime("now"))');
+      const result = stmt.run(phone, name);
+      user = db.prepare('SELECT * FROM users WHERE id = ?').get(result.lastInsertRowid);
+    } else {
+      // Update name if changed
+      db.prepare('UPDATE users SET name = ? WHERE phone = ?').run(name, phone);
+      user.name = name;
+    }
+    
+    res.json({ success: true, ...user });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// Update user points
+app.post('/api/users/points', async (req, res) => {
+  try {
+    const { phone, points, action } = req.body;
+    
+    db.prepare('UPDATE users SET points = ? WHERE phone = ?').run(points, phone);
+    
+    // Log points transaction
+    db.prepare('INSERT INTO points_transactions (phone, points, action, created_at) VALUES (?, ?, ?, datetime("now"))').run(phone, points, action);
+    
+    res.json({ success: true, points });
+  } catch (error) {
+    console.error('Points update error:', error);
+    res.status(500).json({ error: 'Failed to update points' });
+  }
+});
+
+// Get user appointments
+app.get('/api/appointments', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    const appointments = db.prepare('SELECT * FROM appointments WHERE phone = ? ORDER BY date DESC').all(phone);
+    res.json(appointments);
+  } catch (error) {
+    console.error('Error fetching appointments:', error);
+    res.status(500).json({ error: 'Failed to fetch appointments' });
+  }
+});
+
+// Create appointment
+app.post('/api/appointments', async (req, res) => {
+  try {
+    const { phone, service, carModel, date, time, status } = req.body;
+    
+    const stmt = db.prepare(`
+      INSERT INTO appointments (phone, service, car_model, date, time, status, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, datetime("now"))
+    `);
+    const result = stmt.run(phone, service, carModel, date, time, status || 'pending');
+    
+    // Award points based on service
+    const pointsMap = { 'basic': 20, 'comprehensive': 50, 'vip': 100 };
+    const points = pointsMap[service] || 20;
+    
+    const user = db.prepare('SELECT points FROM users WHERE phone = ?').get(phone);
+    const newPoints = (user?.points || 0) + points;
+    db.prepare('UPDATE users SET points = ? WHERE phone = ?').run(newPoints, phone);
+    
+    res.json({ success: true, id: result.lastInsertRowid, pointsEarned: points });
+  } catch (error) {
+    console.error('Error creating appointment:', error);
+    res.status(500).json({ error: 'Failed to create appointment' });
+  }
+});
+
+// Cancel appointment
+app.delete('/api/appointments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { phone } = req.body;
+    
+    db.prepare('UPDATE appointments SET status = ? WHERE id = ? AND phone = ?').run('cancelled', id, phone);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error canceling appointment:', error);
+    res.status(500).json({ error: 'Failed to cancel appointment' });
+  }
+});
+
+// Get maintenance reminders
+app.get('/api/maintenance', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    const reminders = db.prepare('SELECT * FROM maintenance_reminders WHERE phone = ? ORDER BY due_date ASC').all(phone);
+    res.json(reminders);
+  } catch (error) {
+    console.error('Error fetching maintenance:', error);
+    res.status(500).json({ error: 'Failed to fetch maintenance' });
+  }
+});
+
+// Add maintenance reminder
+app.post('/api/maintenance', async (req, res) => {
+  try {
+    const { phone, title, description, dueDate } = req.body;
+    
+    const stmt = db.prepare(`
+      INSERT INTO maintenance_reminders (phone, title, description, due_date, created_at) 
+      VALUES (?, ?, ?, ?, datetime("now"))
+    `);
+    const result = stmt.run(phone, title, description, dueDate);
+    
+    res.json({ success: true, id: result.lastInsertRowid });
+  } catch (error) {
+    console.error('Error adding maintenance:', error);
+    res.status(500).json({ error: 'Failed to add maintenance' });
+  }
+});
+
+// Get notifications
+app.get('/api/notifications', async (req, res) => {
+  try {
+    const { phone } = req.query;
+    const notifications = db.prepare('SELECT * FROM notifications WHERE phone = ? ORDER BY created_at DESC LIMIT 20').all(phone);
+    res.json(notifications);
+  } catch (error) {
+    console.error('Error fetching notifications:', error);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+// Register push notification token
+app.post('/api/notifications/register', async (req, res) => {
+  try {
+    const { phone, token, platform } = req.body;
+    
+    db.prepare('UPDATE users SET push_token = ?, platform = ? WHERE phone = ?').run(token, platform, phone);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error registering token:', error);
+    res.status(500).json({ error: 'Failed to register token' });
+  }
+});
+
+// Send notification
+app.post('/api/notifications/send', async (req, res) => {
+  try {
+    const { phone, title, body, data } = req.body;
+    
+    // Save notification to database
+    const stmt = db.prepare(`
+      INSERT INTO notifications (phone, title, message, data, created_at) 
+      VALUES (?, ?, ?, ?, datetime("now"))
+    `);
+    stmt.run(phone, title, body, JSON.stringify(data || {}));
+    
+    // TODO: Send actual push notification using FCM/APNS
+    // This would require Firebase Cloud Messaging setup
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+// Broadcast notification to all users
+app.post('/api/notifications/broadcast', authMiddleware, async (req, res) => {
+  try {
+    const { title, body, data } = req.body;
+    
+    // Get all users
+    const users = db.prepare('SELECT phone FROM users').all();
+    
+    // Save notification for each user
+    const stmt = db.prepare(`
+      INSERT INTO notifications (phone, title, message, data, created_at) 
+      VALUES (?, ?, ?, ?, datetime("now"))
+    `);
+    
+    for (const user of users) {
+      stmt.run(user.phone, title, body, JSON.stringify(data || {}));
+    }
+    
+    // TODO: Send actual push notifications using FCM/APNS
+    
+    res.json({ success: true, count: users.length });
+  } catch (error) {
+    console.error('Error broadcasting notification:', error);
+    res.status(500).json({ error: 'Failed to broadcast notification' });
+  }
+});
+
+// Redeem reward
+app.post('/api/rewards/redeem', async (req, res) => {
+  try {
+    const { phone, rewardId, rewardName, points } = req.body;
+    
+    // Check user has enough points
+    const user = db.prepare('SELECT points FROM users WHERE phone = ?').get(phone);
+    if (!user || user.points < points) {
+      return res.status(400).json({ error: 'Insufficient points' });
+    }
+    
+    // Deduct points
+    const newPoints = user.points - points;
+    db.prepare('UPDATE users SET points = ? WHERE phone = ?').run(newPoints, phone);
+    
+    // Log redemption
+    const code = `REWARD-${Date.now()}`;
+    db.prepare(`
+      INSERT INTO rewards_redeemed (phone, reward_id, reward_name, points_used, code, created_at) 
+      VALUES (?, ?, ?, ?, ?, datetime("now"))
+    `).run(phone, rewardId, rewardName, points, code);
+    
+    // Send notification
+    db.prepare(`
+      INSERT INTO notifications (phone, title, message, data, created_at) 
+      VALUES (?, ?, ?, ?, datetime("now"))
+    `).run(phone, '🎉 تم استبدال المكافأة', `كود الاستبدال: ${code}`, JSON.stringify({ type: 'reward', code }));
+    
+    res.json({ success: true, code });
+  } catch (error) {
+    console.error('Error redeeming reward:', error);
+    res.status(500).json({ error: 'Failed to redeem reward' });
   }
 });
 

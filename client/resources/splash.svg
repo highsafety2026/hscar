@@ -1,0 +1,28 @@
+<svg width="2732" height="2732" viewBox="0 0 2732 2732" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="splash-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a202c;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#2d3748;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1a202c;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="2732" height="2732" fill="url(#splash-gradient)"/>
+  
+  <!-- Car Icon -->
+  <g transform="translate(566, 966)">
+    <path d="M400 267L133 533H1467L1200 267H400Z" fill="white" opacity="0.9"/>
+    <rect x="267" y="533" width="1066" height="480" rx="53" fill="white" opacity="0.9"/>
+    <circle cx="480" cy="1013" r="133" fill="#4F46E5"/>
+    <circle cx="480" cy="1013" r="80" fill="white"/>
+    <circle cx="1120" cy="1013" r="133" fill="#4F46E5"/>
+    <circle cx="1120" cy="1013" r="80" fill="white"/>
+    <rect x="400" y="613" width="320" height="267" rx="27" fill="#4F46E5" opacity="0.3"/>
+    <rect x="880" y="613" width="320" height="267" rx="27" fill="#4F46E5" opacity="0.3"/>
+  </g>
+  
+  <!-- HS Text -->
+  <text x="1366" y="1750" font-family="Arial, sans-serif" font-size="400" font-weight="bold" fill="white" text-anchor="middle">HS</text>
+  <text x="1366" y="1950" font-family="Arial, sans-serif" font-size="100" fill="white" text-anchor="middle" opacity="0.8">Car Report</text>
+</svg>

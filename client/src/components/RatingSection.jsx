@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Star, Send, CheckCircle, MessageSquare } from 'lucide-react'
 
-const API_URL = import.meta.env.VITE_API_URL || ''
+const API_URL = 'https://hscar-backend.onrender.com'
 
 function RatingSection() {
   const [rating, setRating] = useState(0)

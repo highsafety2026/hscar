@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		},
+		{
+			"path": "../../../../HS.AF"
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true
+	}
+}

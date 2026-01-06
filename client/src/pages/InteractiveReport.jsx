@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Upload, AlertCircle, CheckCircle, AlertTriangle, FileText, Car, Eye, Loader, Brain, Sparkles } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import { api } from '../api/config'
 import Car3DViewer from '../components/Car3DViewer'
 
 const getSeverityColor = (severity) => {

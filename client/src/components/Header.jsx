@@ -122,7 +122,7 @@ function Header() {
                     <div className="lang-dropdown-pro">
                       <div className="lang-dropdown-header">
                         <Globe size={16} />
-                        <span>{language === 'ar' ? 'اختر اللغة' : 'Select Language'}</span>
+                        <span>{language === 'ar' ? 'اختار اللغة' : 'Select Language'}</span>
                       </div>
                       <div className="lang-dropdown-grid">
                         {languages.map((lang) => (
@@ -632,7 +632,7 @@ function Header() {
               </p>
               <p style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <span style={{ background: '#D4A853', color: 'white', width: '25px', height: '25px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', flexShrink: 0 }}>3</span>
-                {language === 'ar' ? 'اختر "إضافة إلى الشاشة الرئيسية"' : 'Select "Add to Home Screen"'}
+                {language === 'ar' ? 'اختار "إضافة إلى الشاشة الرئيسية"' : 'Select "Add to Home Screen"'}
               </p>
             </div>
             <button

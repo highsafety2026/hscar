@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Calendar, Clock, ChevronLeft, ChevronRight, Check, Shield, Settings, Eye, FileCheck, Phone, MessageCircle, PhoneCall, PenTool, Star, Sparkles, CreditCard, Banknote, Copy, MessageSquare } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
+import { api } from '../api/config'
 import sedanImg from '../assets/cars/sedan.png'
 import suvImg from '../assets/cars/suv.png'
 import classicImg from '../assets/cars/classic.png'
@@ -99,7 +100,12 @@ function Booking() {
   const [selectedService, setSelectedService] = useState(null)
   const [signature, setSignature] = useState(null)
   const [isDrawing, setIsDrawing] = useState(false)
+  // const [activeOffers, setActiveOffers] = useState([])
   const canvasRef = useRef(null)
+
+
+
+
 
   const getServicePrice = (serviceId) => {
     if (!selectedCarCategory) return '---'
@@ -133,8 +139,7 @@ function Booking() {
   const fetchBookedSlots = async (date) => {
     try {
       const dateStr = date.toISOString().split('T')[0]
-      const res = await fetch(`/api/slots?date=${dateStr}`)
-      const data = await res.json()
+      const data = await api.fetchBookedSlots(dateStr)
       setBookedSlots(data.bookedSlots || [])
     } catch (error) {
       console.error('Error fetching slots:', error)
@@ -236,28 +241,18 @@ function Booking() {
         paymentMethod: paymentMethod
       }
 
-      const res = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bookingData)
-      })
-      const data = await res.json()
+      const data = await api.createBooking(bookingData)
       
       if (data.success) {
         if (paymentMethod === 'electronic') {
-          const checkoutRes = await fetch('/api/create-checkout-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              amount: finalPrice * 100,
-              bookingId: data.bookingId,
-              customerName: formData.name,
-              customerPhone: formData.phone,
-              serviceType: selectedService.id,
-              carCategory: selectedCarCategory.id
-            })
+          const checkoutData = await api.createCheckoutSession({
+            amount: finalPrice * 100,
+            bookingId: data.bookingId,
+            customerName: formData.name,
+            customerPhone: formData.phone,
+            serviceType: selectedService.id,
+            carCategory: selectedCarCategory.id
           })
-          const checkoutData = await checkoutRes.json()
           if (checkoutData.url) {
             window.location.href = checkoutData.url
           } else {
@@ -312,11 +307,13 @@ function Booking() {
             <span>{language === 'ar' ? 'احجز موعدك الآن' : 'Book Your Appointment'}</span>
           </div>
           <h1>{language === 'ar' ? 'حجز موعد الفحص' : 'Book Inspection'}</h1>
-          <p>{language === 'ar' ? 'اختر فئة سيارتك ونوع الفحص المناسب' : 'Select your car category and inspection type'}</p>
+          <p>{language === 'ar' ? 'اختار فئة سيارتك ونوع الفحص المناسب' : 'Select your car category and inspection type'}</p>
         </div>
       </div>
 
       <div className="booking-content">
+
+
         {success ? (
           <div className="success-container">
             <div className="success-card">
@@ -400,10 +397,10 @@ function Booking() {
                   <div className="section-block">
                     <h3 className="section-title">
                       <span className="title-number">1</span>
-                      {language === 'ar' ? 'اختر فئة السيارة' : 'Select Car Category'}
+                      {language === 'ar' ? 'اختار فئة السيارة' : 'Select Car Category'}
                     </h3>
                     <p className="click-instruction">
-                      {language === 'ar' ? '👆 انقر واختر الفئة المطلوبة' : '👆 Click to select your category'}
+                      {language === 'ar' ? '👆 انقر واختار الفئة المطلوبة' : '👆 Click to select your category'}
                     </p>
                     <div className="car-categories-grid">
                       {carCategories.map(cat => (
@@ -449,7 +446,7 @@ function Booking() {
                     <div className="section-block">
                       <h3 className="section-title">
                         <span className="title-number">2</span>
-                        {language === 'ar' ? 'اختر نوع الفحص' : 'Select Inspection Type'}
+                        {language === 'ar' ? 'اختار نوع الفحص' : 'Select Inspection Type'}
                       </h3>
                       <div className="services-grid">
                         {serviceTypes.map(s => (
@@ -764,6 +761,7 @@ function Booking() {
                     
                     <div className="payment-options-grid">
                       <div 
+<<<<<<< HEAD
                         className={`payment-option-enhanced ${paymentMethod === 'electronic' ? 'selected active-electronic' : ''}`}
                         onClick={() => setPaymentMethod('electronic')}
                       >
@@ -812,6 +810,24 @@ function Booking() {
                         <div className="payment-option-header">
                           <div className="payment-icon-modern cash">
                             <Banknote size={36} />
+=======
+                        className={`payment-option ${paymentMethod === 'cash' ? 'selected' : ''}`}
+                        onClick={() => setPaymentMethod('cash')}
+                      >
+                        <div className="payment-icon cash">
+                          <Banknote size={32} />
+                        </div>
+                        <div className="payment-info">
+                          <strong>{language === 'ar' ? 'الدفع نقداً عند الوصول' : 'Cash on Arrival'}</strong>
+                          <small>{language === 'ar' ? 'ادفع نقداً في المركز' : 'Pay cash at the center'}</small>
+                        </div>
+                        <div className="payment-badge cash-badge">
+                          {language === 'ar' ? 'نقدي' : 'Cash'}
+                        </div>
+                        {paymentMethod === 'cash' && (
+                          <div className="selected-check" style={{ background: 'linear-gradient(135deg, #34A853, #1e8e3e)' }}>
+                            <Check size={16} />
+>>>>>>> replit-agent
                           </div>
                           {paymentMethod === 'cash' && (
                             <div className="selected-badge cash-badge">
@@ -840,8 +856,30 @@ function Booking() {
                           </div>
                         </div>
                       </div>
+
+                      <div 
+                        className={`payment-option ${paymentMethod === 'card' ? 'selected' : ''}`}
+                        onClick={() => setPaymentMethod('card')}
+                      >
+                        <div className="payment-icon electronic">
+                          <CreditCard size={32} />
+                        </div>
+                        <div className="payment-info">
+                          <strong>{language === 'ar' ? 'الدفع بالكارت عند الوصول' : 'Card on Arrival'}</strong>
+                          <small>{language === 'ar' ? 'ادفع بالبطاقة في المركز' : 'Pay by card at the center'}</small>
+                        </div>
+                        <div className="payment-badge secure">
+                          {language === 'ar' ? 'كارت' : 'Card'}
+                        </div>
+                        {paymentMethod === 'card' && (
+                          <div className="selected-check" style={{ background: 'linear-gradient(135deg, #4285F4, #1a73e8)' }}>
+                            <Check size={16} />
+                          </div>
+                        )}
+                      </div>
                     </div>
 
+<<<<<<< HEAD
                     <div className="payment-footer">
                       <div className="total-section">
                         <div className="total-label">{language === 'ar' ? 'المبلغ النهائي:' : 'Final Amount:'}</div>
@@ -880,6 +918,37 @@ function Booking() {
                         )}
                       </button>
                     </div>
+=======
+                    <div className="payment-summary">
+                      <div className="payment-total">
+                        <span>{language === 'ar' ? 'المبلغ الإجمالي:' : 'Total Amount:'}</span>
+                        <span className="amount">{getTotalPrice()} {language === 'ar' ? 'درهم' : 'AED'}</span>
+                      </div>
+                      <div style={{ 
+                        marginTop: '10px', 
+                        padding: '12px', 
+                        background: 'rgba(52,168,83,0.1)', 
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        color: '#1e8e3e',
+                        textAlign: 'center'
+                      }}>
+                        {language === 'ar' 
+                          ? '💡 الدفع عند الوصول - نقبل النقد والبطاقات' 
+                          : '💡 Pay on arrival - We accept cash and cards'}
+                      </div>
+                    </div>
+
+                    <button 
+                      className="submit-booking-btn" 
+                      onClick={handleSubmit}
+                      disabled={loading || !paymentMethod}
+                    >
+                      {loading 
+                        ? (language === 'ar' ? 'جاري المعالجة...' : 'Processing...') 
+                        : (language === 'ar' ? 'تأكيد الحجز' : 'Confirm Booking')}
+                    </button>
+>>>>>>> replit-agent
                   </div>
                 </div>
               )}

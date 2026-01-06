@@ -363,7 +363,7 @@ function Services() {
             {language === 'ar' ? 'خدماتنا المميزة' : 'Our Premium Services'}
           </span>
           <h1>{language === 'ar' ? 'خدمات الفحص الفني' : 'Technical Inspection Services'}</h1>
-          <p>{language === 'ar' ? 'اختر فئة سيارتك ونوع الفحص المناسب' : 'Choose your car category and inspection type'}</p>
+          <p>{language === 'ar' ? 'اختار فئة سيارتك ونوع الفحص المناسب' : 'Choose your car category and inspection type'}</p>
         </div>
       </div>
 
@@ -373,7 +373,11 @@ function Services() {
             {language === 'ar' ? 'فئات السيارات' : 'Car Categories'}
           </h2>
           <p className="section-subtitle">
+<<<<<<< HEAD
             {language === 'ar' ? 'اختر فئة سيارتك لحجز موعد الفحص' : 'Select your car category to book inspection'}
+=======
+            {language === 'ar' ? 'اختار فئة سيارتك لمعرفة الأسعار' : 'Select your car category to see prices'}
+>>>>>>> replit-agent
           </p>
         </div>
 
