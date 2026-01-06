@@ -207,7 +207,7 @@ export default function PointsSystem({ token }) {
                 }}
                 style={inputStyle}
               >
-                <option value="">اختر...</option>
+                <option value="">اختار...</option>
                 <option value="discount">خصم {pointsConfig.discountAmount} ر.س ({pointsConfig.pointsForDiscount} نقطة)</option>
                 <option value="free_inspection">فحص مجاني ({pointsConfig.pointsForFreeInspection} نقطة)</option>
               </select>

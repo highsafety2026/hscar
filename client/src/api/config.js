@@ -230,23 +230,6 @@ export const api = {
     }
   },
 
-  // Shell API
-  async executeShellCommand(command, token) {
-    const res = await fetch(`${API_URL}/api/admin/shell`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` 
-      },
-      body: JSON.stringify({ command })
-    })
-    return res.json()
-  },
-
-  // Chat API
-  async analyzePDF(formData, token) {
-    const res = await fetch(`${API_URL}/api/chat/analyze-pdf`, {
-      method: 'POST',
       headers: { 'Authorization': `Bearer ${token}` },
       body: formData
     })

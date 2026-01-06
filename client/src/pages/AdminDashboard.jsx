@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy, PenTool, MessageSquare } from 'lucide-react'
+import { FileText, Calendar, Upload, Trash2, Eye, CheckCircle, LogOut, Users, BarChart3, Clock, Phone, Car, Search, RefreshCw, MessageCircle, PhoneCall, Copy, PenTool } from 'lucide-react'
 import { useLanguage } from '../i18n/LanguageContext'
 import { api } from '../api/config'
-import AdminChatPanel from '../components/AdminChatPanel'
 
 function AdminDashboard() {
-    const audioRef = useRef(null);
   const { language } = useLanguage()
   const [activeTab, setActiveTab] = useState('reports')
   const [bookings, setBookings] = useState([])
@@ -25,9 +23,6 @@ function AdminDashboard() {
   const [uploadData, setUploadData] = useState({ customerName: '', code: '', file: null, images: [] })
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [chatBookingId, setChatBookingId] = useState(null)
-  const [chats, setChats] = useState([])
-  const [selectedChat, setSelectedChat] = useState(null)
   const navigate = useNavigate()
 
   const getAuthHeaders = () => ({
@@ -41,48 +36,27 @@ function AdminDashboard() {
       return
     }
     loadData()
-    const interval = setInterval(loadData, 3000); // تحديث كل 3 ثواني
-    return () => clearInterval(interval);
   }, [navigate])
 
   const loadData = async () => {
-    // لتتبع عدد الرسائل السابقة
-    if (!window.prevChatsRef) window.prevChatsRef = [];
     try {
       const token = localStorage.getItem('adminToken')
-      const [bookingsData, reportsData, offersData, chatsData] = await Promise.all([
+      const [bookingsData, reportsData, offersData] = await Promise.all([
         api.getBookings(token),
         api.getReports(token),
-        fetch('/api/offers/all', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => []),
-        fetch('/api/chats').then(r => r.json()).catch(() => [])
+        fetch('/api/offers/all', { headers: { 'Authorization': `Bearer ${token}` } }).then(r => r.json()).catch(() => [])
       ])
+      
       setBookings(bookingsData)
       setReports(reportsData)
       setOffers(offersData)
-      // تنبيه صوتي عند وصول رسالة جديدة
-      if (window.prevChatsRef.length > 0 && chatsData.length > 0) {
-        for (let i = 0; i < chatsData.length; i++) {
-          const prev = window.prevChatsRef.find(c => c.bookingId === chatsData[i].bookingId);
-          if (prev && chatsData[i].messages.length > prev.messages.length) {
-            // إذا وصلت رسالة جديدة من العميل
-            const lastMsg = chatsData[i].messages[chatsData[i].messages.length - 1];
-            if (lastMsg && lastMsg.sender === 'customer' && audioRef.current) {
-              audioRef.current.play();
-            }
-          }
-        }
-      }
-      window.prevChatsRef = chatsData;
-      setChats(chatsData)
     } catch (error) {
       console.error('Error loading data:', error)
-      if (error.message && error.message.includes('401')) {
+      if (error.message.includes('401')) {
         localStorage.removeItem('adminToken')
         navigate('/admin')
       }
     }
-    // إصلاح: نهاية الدالة بشكل صريح
-    return;
   }
 
   const handleUploadReport = async (e) => {
@@ -137,54 +111,7 @@ function AdminDashboard() {
     navigate('/admin')
   }
 
-  const handleCreateOffer = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      const token = localStorage.getItem('adminToken')
-      await fetch('/api/offers', {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify(offerData)
-      })
-      setOfferData({ title_ar: '', title_en: '', description_ar: '', description_en: '', discount: '', valid_until: '', image_url: '' })
-      loadData()
-      alert(language === 'ar' ? 'تم إضافة العرض بنجاح!' : 'Offer created successfully!')
-    } catch (error) {
-      console.error('Error creating offer:', error)
-      alert(language === 'ar' ? 'فشل في إضافة العرض' : 'Failed to create offer')
-    }
-    setLoading(false)
-  }
 
-  const toggleOfferStatus = async (id, active) => {
-    try {
-      const token = localStorage.getItem('adminToken')
-      await fetch(`/api/offers/${id}`, {
-        method: 'PATCH',
-        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ active: active ? 0 : 1 })
-      })
-      loadData()
-    } catch (error) {
-      console.error('Error toggling offer:', error)
-    }
-  }
-
-  const deleteOffer = async (id) => {
-    if (confirm(language === 'ar' ? 'هل أنت متأكد من حذف هذا العرض؟' : 'Are you sure you want to delete this offer?')) {
-      try {
-        const token = localStorage.getItem('adminToken')
-        await fetch(`/api/offers/${id}`, {
-          method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-        loadData()
-      } catch (error) {
-        console.error('Error deleting offer:', error)
-      }
-    }
-  }
 
   const sendNotification = async (e) => {
     e.preventDefault()
@@ -240,7 +167,6 @@ function AdminDashboard() {
 
   return (
     <div className="admin-page" style={{ background: '#f5f7fa', minHeight: '100vh' }}>
-      {notificationSound}
       <div className="admin-header" style={{
         background: 'linear-gradient(135deg, #0B1F3A, #1a365d)',
         padding: '20px 0',
@@ -452,6 +378,26 @@ function AdminDashboard() {
               {language === 'ar' ? 'الحجوزات' : 'Bookings'} ({bookings.length})
             </button>
             <button 
+              onClick={() => setActiveTab('offers')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '12px 24px',
+                background: activeTab === 'offers' ? '#0B1F3A' : 'white',
+                color: activeTab === 'offers' ? 'white' : '#0B1F3A',
+                border: activeTab === 'offers' ? 'none' : '2px solid #e0e0e0',
+                borderRadius: '10px',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <BarChart3 size={18} />
+              {language === 'ar' ? 'العروض' : 'Offers'} ({offers.length})
+            </button>
+            <button 
               onClick={() => setActiveTab('notifications')}
               style={{
                 display: 'flex',
@@ -471,81 +417,6 @@ function AdminDashboard() {
               <MessageCircle size={18} />
               {language === 'ar' ? 'إشعارات' : 'Notifications'}
             </button>
-            <button
-              onClick={() => setActiveTab('chats')}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '12px 24px',
-                background: activeTab === 'chats' ? '#0B1F3A' : 'white',
-                color: activeTab === 'chats' ? 'white' : '#0B1F3A',
-                border: activeTab === 'chats' ? 'none' : '2px solid #e0e0e0',
-                borderRadius: '10px',
-                cursor: 'pointer',
-                fontSize: '0.95rem',
-                fontWeight: '600',
-                transition: 'all 0.3s ease',
-                fontWeight: 'bold',
-                border: '2px solid #C89D2A',
-                boxShadow: activeTab === 'chats' ? '0 0 10px #C89D2A' : 'none'
-              }}
-            >
-              <MessageSquare size={18} color="#C89D2A" />
-              {language === 'ar' ? 'الدردشة' : 'Chats'}
-              {chats.length > 0 && (
-                <span style={{ background: '#C89D2A', color: 'white', borderRadius: '50%', padding: '2px 8px', fontSize: 12, marginRight: 4 }}>{chats.length}</span>
-              )}
-            </button>
-                  {activeTab === 'chats' && (
-                    <div style={{
-                      background: 'white',
-                      borderRadius: '16px',
-                      boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
-                      overflow: 'hidden',
-                      minHeight: 400,
-                      display: 'flex',
-                      flexDirection: 'row',
-                      gap: 0
-                    }}>
-                      <div style={{ width: 260, borderRight: '1px solid #eee', background: '#f8f9fa', minHeight: 400 }}>
-                        <div style={{ padding: '18px 16px', borderBottom: '1px solid #eee', fontWeight: 700, color: '#0B1F3A', fontSize: 18 }}>{language === 'ar' ? 'قائمة المحادثات' : 'Chats List'}</div>
-                        {chats.length === 0 ? (
-                          <div style={{ padding: 24, color: '#888', textAlign: 'center' }}>{language === 'ar' ? 'لا توجد محادثات بعد' : 'No chats yet'}</div>
-                        ) : (
-                          <div style={{ maxHeight: 380, overflowY: 'auto' }}>
-                            {chats.map(chat => (
-                              <div
-                                key={chat.bookingId}
-                                onClick={() => setSelectedChat(chat)}
-                                style={{
-                                  padding: '14px 16px',
-                                  borderBottom: '1px solid #eee',
-                                  background: selectedChat && selectedChat.bookingId === chat.bookingId ? '#e3f2fd' : 'transparent',
-                                  cursor: 'pointer',
-                                  fontWeight: selectedChat && selectedChat.bookingId === chat.bookingId ? 700 : 500,
-                                  color: '#0B1F3A',
-                                  transition: 'background 0.2s'
-                                }}
-                              >
-                                <div style={{ fontSize: 15, marginBottom: 2 }}>{chat.bookingId}</div>
-                                <div style={{ fontSize: 12, color: '#888' }}>{chat.messages.length} {language === 'ar' ? 'رسالة' : 'messages'}</div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ flex: 1, minHeight: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f9fafb' }}>
-                        {selectedChat ? (
-                          <div style={{ width: 420 }}>
-                            <AdminChatPanel bookingId={selectedChat.bookingId} employeeName="محمد" />
-                          </div>
-                        ) : (
-                          <div style={{ color: '#888', fontSize: 18 }}>{language === 'ar' ? 'اختر محادثة لعرضها' : 'Select a chat to view'}</div>
-                        )}
-                      </div>
-                    </div>
-                  )}
           </div>
 
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -1095,25 +966,6 @@ function AdminDashboard() {
                               <Trash2 size={14} />
                               {language === 'ar' ? 'حذف' : 'Delete'}
                             </button>
-                            <button
-                              onClick={() => setChatBookingId(booking.bookingId || booking.id)}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                padding: '7px 12px',
-                                background: '#0B1F3A',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '0.8rem',
-                                fontWeight: '500',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              <MessageCircle size={14} />
-                              {language === 'ar' ? 'محادثة' : 'Chat'}
-                            </button>
                           </div>
                         </td>
                       </tr>
@@ -1537,29 +1389,6 @@ function AdminDashboard() {
                   ? 'سيتم إرسال الإشعارات مباشرة إلى المستخدمين الذين قاموا بتنزيل التطبيق وسمحوا بالإشعارات. تأكد من وضوح الرسالة وأهميتها.'
                   : 'Notifications will be sent directly to users who have downloaded the app and enabled notifications. Make sure your message is clear and important.'}
               </p>
-            </div>
-          </div>
-        )}
-
-        {/* نافذة الشات المنبثقة */}
-        {chatBookingId && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            background: 'rgba(0,0,0,0.25)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-            onClick={() => setChatBookingId(null)}
-          >
-            <div style={{ background: '#fff', borderRadius: 12, padding: 24, minWidth: 350, boxShadow: '0 8px 32px #0002' }} onClick={e => e.stopPropagation()}>
-              <AdminChatPanel bookingId={chatBookingId} employeeName="محمد" />
-              <button onClick={() => setChatBookingId(null)} style={{ marginTop: 12, background: '#EA4335', color: '#fff', border: 'none', borderRadius: 6, padding: '8px 18px', fontWeight: 600, cursor: 'pointer', float: 'left' }}>إغلاق</button>
             </div>
           </div>
         )}

@@ -6,9 +6,7 @@ const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
 const OpenAI = require('openai');
-
 const pdfParse = require('pdf-parse');
-const chatApi = require('./chatApi');
 
 // Initialize OpenAI only if API key is provided
 let openai = null;
@@ -30,7 +28,6 @@ db.exec(initSQL);
 console.log('Database tables initialized');
 
 const app = express();
-app.use(chatApi);
 const PORT = process.env.PORT || 3001;
 
 let stripeInitialized = false;
@@ -537,112 +534,6 @@ app.get('/api/admin/dashboard-stats', authMiddleware, (req, res) => {
   }
 });
 
-// ============== OFFERS API ==============
-
-// Get all active offers
-app.get('/api/offers', (req, res) => {
-  try {
-    const offers = db.prepare('SELECT * FROM offers WHERE active = 1').all();
-    res.json(offers);
-  } catch (error) {
-    console.error('Error fetching offers:', error);
-    res.json([]);
-  }
-});
-
-// Get all offers (admin only)
-app.get('/api/offers/all', authMiddleware, (req, res) => {
-  try {
-    const offers = db.prepare('SELECT * FROM offers ORDER BY created_at DESC').all();
-    res.json(offers);
-  } catch (error) {
-    console.error('Error fetching all offers:', error);
-    res.json([]);
-  }
-});
-
-// Create new offer (admin only)
-app.post('/api/offers', authMiddleware, (req, res) => {
-  try {
-    const { title_ar, title_en, description_ar, description_en, discount, valid_until, image_url, active } = req.body;
-    
-    const stmt = db.prepare(`
-      INSERT INTO offers (title_ar, title_en, description_ar, description_en, discount, valid_until, image_url, active)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `);
-    
-    const result = stmt.run(
-      title_ar || '',
-      title_en || '',
-      description_ar || '',
-      description_en || '',
-      discount || 0,
-      valid_until || null,
-      image_url || null,
-      active !== undefined ? active : 1
-    );
-    
-    const newOffer = db.prepare('SELECT * FROM offers WHERE id = ?').get(result.lastInsertRowid);
-    res.json({ success: true, offer: newOffer });
-  } catch (error) {
-    console.error('Error creating offer:', error);
-    res.status(500).json({ error: 'Failed to create offer' });
-  }
-});
-
-// Update offer (admin only)
-app.patch('/api/offers/:id', authMiddleware, (req, res) => {
-  try {
-    const { title_ar, title_en, description_ar, description_en, discount, valid_until, image_url, active } = req.body;
-    
-    const stmt = db.prepare(`
-      UPDATE offers 
-      SET title_ar = COALESCE(?, title_ar),
-          title_en = COALESCE(?, title_en),
-          description_ar = COALESCE(?, description_ar),
-          description_en = COALESCE(?, description_en),
-          discount = COALESCE(?, discount),
-          valid_until = COALESCE(?, valid_until),
-          image_url = COALESCE(?, image_url),
-          active = COALESCE(?, active),
-          updated_at = datetime('now')
-      WHERE id = ?
-    `);
-    
-    const result = stmt.run(
-      title_ar, title_en, description_ar, description_en,
-      discount, valid_until, image_url, active,
-      req.params.id
-    );
-    
-    if (result.changes === 0) {
-      return res.status(404).json({ error: 'Offer not found' });
-    }
-    
-    const updatedOffer = db.prepare('SELECT * FROM offers WHERE id = ?').get(req.params.id);
-    res.json({ success: true, offer: updatedOffer });
-  } catch (error) {
-    console.error('Error updating offer:', error);
-    res.status(500).json({ error: 'Failed to update offer' });
-  }
-});
-
-// Delete offer (admin only)
-app.delete('/api/offers/:id', authMiddleware, (req, res) => {
-  try {
-    const stmt = db.prepare('DELETE FROM offers WHERE id = ?');
-    const result = stmt.run(req.params.id);
-    
-    if (result.changes === 0) {
-      return res.status(404).json({ error: 'Offer not found' });
-    }
-    
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Error deleting offer:', error);
-    res.status(500).json({ error: 'Failed to delete offer' });
-  }
-});
 
 function generateReportCode() {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

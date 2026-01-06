@@ -7,7 +7,6 @@ import suvImg from '../assets/cars/suv.png'
 import classicImg from '../assets/cars/classic.png'
 import luxuryImg from '../assets/cars/luxury.png'
 import vipImg from '../assets/cars/vip.png'
-import ChatWidget from '../components/ChatWidget'
 
 function Booking() {
   const { language, t } = useLanguage()
@@ -101,21 +100,12 @@ function Booking() {
   const [selectedService, setSelectedService] = useState(null)
   const [signature, setSignature] = useState(null)
   const [isDrawing, setIsDrawing] = useState(false)
-  const [userPoints, setUserPoints] = useState(0)
-  const [activeOffers, setActiveOffers] = useState([])
+  // const [activeOffers, setActiveOffers] = useState([])
   const canvasRef = useRef(null)
 
-  useEffect(() => {
-    // Load active offers
-    api.getOffers().then(offers => setActiveOffers(offers))
-  }, [])
 
-  useEffect(() => {
-    // Load user points if phone is entered
-    if (formData.phone && formData.phone.length >= 9) {
-      api.getUserPoints(formData.phone).then(points => setUserPoints(points))
-    }
-  }, [formData.phone])
+
+
 
   const getServicePrice = (serviceId) => {
     if (!selectedCarCategory) return '---'
@@ -317,91 +307,12 @@ function Booking() {
             <span>{language === 'ar' ? 'احجز موعدك الآن' : 'Book Your Appointment'}</span>
           </div>
           <h1>{language === 'ar' ? 'حجز موعد الفحص' : 'Book Inspection'}</h1>
-          <p>{language === 'ar' ? 'اختر فئة سيارتك ونوع الفحص المناسب' : 'Select your car category and inspection type'}</p>
+          <p>{language === 'ar' ? 'اختار فئة سيارتك ونوع الفحص المناسب' : 'Select your car category and inspection type'}</p>
         </div>
       </div>
 
       <div className="booking-content">
-        {/* Points and Offers Section */}
-        {(userPoints > 0 || activeOffers.length > 0) && !success && (
-          <div style={{ marginBottom: '25px', display: 'flex', gap: '15px', flexWrap: 'wrap' }}>
-            {userPoints > 0 && (
-              <div style={{
-                flex: '1',
-                minWidth: '250px',
-                background: 'linear-gradient(135deg, #C89D2A 0%, #9a7b1f 100%)',
-                borderRadius: '15px',
-                padding: '20px',
-                color: 'white',
-                boxShadow: '0 4px 15px rgba(200,157,42,0.3)'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
-                  <Star size={24} fill="white" />
-                  <h3 style={{ margin: 0, fontSize: '1.1rem' }}>
-                    {language === 'ar' ? 'نقاطك' : 'Your Points'}
-                  </h3>
-                </div>
-                <div style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '5px' }}>
-                  {userPoints}
-                </div>
-                <p style={{ margin: 0, opacity: 0.9, fontSize: '0.9rem' }}>
-                  {language === 'ar' ? 'نقطة متاحة للاستخدام' : 'points available'}
-                </p>
-              </div>
-            )}
-            
-            {activeOffers.length > 0 && (
-              <div style={{
-                flex: '2',
-                minWidth: '300px',
-                background: 'white',
-                borderRadius: '15px',
-                padding: '20px',
-                border: '2px solid #f0f0f0',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-              }}>
-                <h3 style={{ margin: '0 0 15px 0', color: '#0B1F3A', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Sparkles size={20} color="#C89D2A" />
-                  {language === 'ar' ? '🎉 عروض خاصة' : '🎉 Special Offers'}
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {activeOffers.slice(0, 2).map((offer, index) => (
-                    <div key={index} style={{
-                      background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
-                      borderRadius: '10px',
-                      padding: '12px 15px',
-                      border: '1px solid #e2e8f0',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '12px'
-                    }}>
-                      <div style={{
-                        background: 'linear-gradient(135deg, #34A853 0%, #1e8e3e 100%)',
-                        color: 'white',
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        fontWeight: 'bold',
-                        fontSize: '1.1rem',
-                        minWidth: '60px',
-                        textAlign: 'center'
-                      }}>
-                        {offer.discount_percentage}%
-                      </div>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: 'bold', color: '#0B1F3A', marginBottom: '4px' }}>
-                          {language === 'ar' ? offer.title_ar : offer.title_en}
-                        </div>
-                        <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
-                          {language === 'ar' ? offer.description_ar : offer.description_en}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
+
 
         {success ? (
           <div className="success-container">
@@ -486,10 +397,10 @@ function Booking() {
                   <div className="section-block">
                     <h3 className="section-title">
                       <span className="title-number">1</span>
-                      {language === 'ar' ? 'اختر فئة السيارة' : 'Select Car Category'}
+                      {language === 'ar' ? 'اختار فئة السيارة' : 'Select Car Category'}
                     </h3>
                     <p className="click-instruction">
-                      {language === 'ar' ? '👆 انقر واختر الفئة المطلوبة' : '👆 Click to select your category'}
+                      {language === 'ar' ? '👆 انقر واختار الفئة المطلوبة' : '👆 Click to select your category'}
                     </p>
                     <div className="car-categories-grid">
                       {carCategories.map(cat => (
@@ -535,7 +446,7 @@ function Booking() {
                     <div className="section-block">
                       <h3 className="section-title">
                         <span className="title-number">2</span>
-                        {language === 'ar' ? 'اختر نوع الفحص' : 'Select Inspection Type'}
+                        {language === 'ar' ? 'اختار نوع الفحص' : 'Select Inspection Type'}
                       </h3>
                       <div className="services-grid">
                         {serviceTypes.map(s => (
@@ -918,13 +829,6 @@ function Booking() {
           </div>
         )}
       </div>
-
-      {bookingId && (
-        <div style={{ margin: '32px auto', maxWidth: 400 }}>
-          <h3 style={{ color: '#0B1F3A', marginBottom: 12, textAlign: 'center' }}>محادثة خدمة العملاء</h3>
-          <ChatWidget bookingId={bookingId} />
-        </div>
-      )}
 
       <style>{`
         .booking-page {

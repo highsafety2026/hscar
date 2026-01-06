@@ -300,7 +300,7 @@ function CarValuation() {
                 onChange={(e) => { setSelectedBrand(e.target.value); setSelectedModel(''); }}
                 style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '2px solid #e8ecf1' }}
               >
-                <option value="">اختر الماركة</option>
+                <option value="">اختار الماركة</option>
                 {filteredBrands.map(brand => (
                   <option key={brand} value={brand}>{brand}</option>
                 ))}
@@ -315,7 +315,7 @@ function CarValuation() {
                 style={{ width: '100%', padding: '12px', borderRadius: '10px', border: '2px solid #e8ecf1' }}
                 disabled={!selectedBrand}
               >
-                <option value="">اختر الموديل</option>
+                <option value="">اختار الموديل</option>
                 {models.map(model => (
                   <option key={model} value={model}>{model}</option>
                 ))}

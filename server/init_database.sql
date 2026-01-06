@@ -70,20 +70,6 @@ CREATE TABLE IF NOT EXISTS rewards_redeemed (
   FOREIGN KEY (phone) REFERENCES users(phone)
 );
 
--- Create Daily Offers table
-CREATE TABLE IF NOT EXISTS offers (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  title_ar TEXT NOT NULL,
-  title_en TEXT NOT NULL,
-  description_ar TEXT NOT NULL,
-  description_en TEXT NOT NULL,
-  discount INTEGER NOT NULL,
-  valid_until TEXT NOT NULL,
-  image_url TEXT,
-  active INTEGER DEFAULT 1,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone);

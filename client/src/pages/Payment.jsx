@@ -169,7 +169,7 @@ function Payment() {
         <div className="payment-wizard-content">
           {step === 0 && (
             <div className="wizard-step step-category">
-              <h2>{language === 'ar' ? 'اختر فئة سيارتك' : 'Select Your Car Category'}</h2>
+              <h2>{language === 'ar' ? 'اختار فئة سيارتك' : 'Select Your Car Category'}</h2>
               <p className="step-description">
                 {language === 'ar' ? '👆 انقر واختر الفئة المطلوبة - الأسعار تختلف حسب نوع السيارة' : '👆 Click to select - Prices vary based on vehicle type'}
               </p>
@@ -213,7 +213,7 @@ function Payment() {
                   {language === 'ar' ? 'رجوع' : 'Back'}
                 </button>
               </div>
-              <h2>{language === 'ar' ? 'اختر نوع الخدمة' : 'Select Service Type'}</h2>
+              <h2>{language === 'ar' ? 'اختار نوع الخدمة' : 'Select Service Type'}</h2>
               <p className="step-description">
                 {language === 'ar' ? `أسعار ${selectedCategory?.label}` : `${selectedCategory?.label} Pricing`}
               </p>
