@@ -230,9 +230,5 @@ export const api = {
     }
   },
 
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    })
-    return res.json()
-  }
-}
+// ...existing code...
+// نهاية ملف config.js بعد آخر دالة صحيحة
